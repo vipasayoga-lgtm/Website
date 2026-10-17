@@ -297,6 +297,7 @@ $statusMeta = [
 <script type="application/json" id="admin-chart-data"><?= json_encode($seriesData, JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
 <script type="module">
 import { renderLineChart, renderBarChart } from '/assets/js/modules/charts.js';
+import { apiPost } from '/assets/js/modules/api.js';
 import toast from '/assets/js/modules/toast.js';
 
 const seriesData = JSON.parse(document.getElementById('admin-chart-data').textContent);
