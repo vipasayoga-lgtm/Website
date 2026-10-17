@@ -533,9 +533,46 @@ $waUrl = 'https://wa.me/' . $waNumberClean . '?text=' . urlencode($waMessage);
     border-radius: 18px;
     padding: 24px;
 }
+
+.checkout-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid var(--border-subtle, #e2e8f0);
+    color: #334155;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    transition: all 0.15s ease;
+    text-decoration: none;
+}
+
+.checkout-back-link:hover {
+    background: #f8fafc;
+    border-color: #0284c7;
+    color: #0284c7;
+    transform: translateX(-3px);
+}
 </style>
 
 <div class="checkout-wrapper">
+    <!-- Back Navigation Bar -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <button type="button" onclick="if(window.history.length > 1){ window.history.back(); } else { window.location.href='/booking/schedule?package=<?= (int)$booking['package_id'] ?>'; }" class="checkout-back-link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>&larr; Back to Schedule / Choose Slot</span>
+        </button>
+
+        <a href="/dashboard" class="checkout-back-link" style="padding:8px 14px;font-size:0.82rem;color:#64748b">
+            <?= View::icon('home', 'icon', 15) ?>
+            <span>My Dashboard</span>
+        </a>
+    </div>
+
     <!-- Top Header & Reference -->
     <div class="checkout-header">
         <div class="checkout-header__icon">
@@ -633,6 +670,12 @@ $waUrl = 'https://wa.me/' . $waNumberClean . '?text=' . urlencode($waMessage);
             <div style="margin-top:20px;padding:12px;background:#f8fafc;border-radius:10px;font-size:0.78rem;color:#64748b;text-align:center">
                 Need help with payment? WhatsApp us: <strong style="color:#0f172a"><?= View::e($upi['phone']) ?></strong>
             </div>
+
+            <!-- Change Slot / Go Back button -->
+            <button type="button" onclick="if(window.history.length > 1){ window.history.back(); } else { window.location.href='/booking/schedule?package=<?= (int)$booking['package_id'] ?>'; }" class="btn btn-secondary btn-block" style="margin-top:12px;border-radius:10px;font-size:0.82rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                <span>Change Date / Slot</span>
+            </button>
         </div>
 
         <!-- =================================================================
