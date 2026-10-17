@@ -60,14 +60,78 @@ export function showToast({ type = 'info', title, message, duration = 4500 } = {
   closeEl.className = 'toast__close';
   closeEl.setAttribute('aria-label', 'Dismiss notification');
   closeEl.innerHTML = '&times;';
-  closeEl.addEventListener('click', () => removeToast(toastEl));
+  closeEl.addEventListener('click', (e) => {
+    e.stopPropagation();
+    removeToast(toastEl);
+  });
 
   toastEl.append(iconEl, bodyEl, closeEl);
-  container.appendChild(toastEl);
 
-  if (duration > 0) {
-    setTimeout(() => removeToast(toastEl), duration);
+  // Auto-dismiss with pause on hover or touch
+  let dismissTimer = null;
+  let remaining = duration;
+  let startTime = Date.now();
+
+  function startTimer() {
+    if (duration <= 0) return;
+    startTime = Date.now();
+    dismissTimer = setTimeout(() => removeToast(toastEl), remaining);
   }
+
+  function pauseTimer() {
+    if (!dismissTimer) return;
+    clearTimeout(dismissTimer);
+    dismissTimer = null;
+    remaining -= Date.now() - startTime;
+    if (remaining < 600) remaining = 600;
+  }
+
+  toastEl.addEventListener('mouseenter', pauseTimer);
+  toastEl.addEventListener('mouseleave', startTimer);
+
+  // Mobile Touch Gestures: Swipe Up to Dismiss
+  let touchStartY = 0;
+  let touchStartX = 0;
+  let isSwiping = false;
+
+  toastEl.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+      isSwiping = true;
+      pauseTimer();
+    }
+  }, { passive: true });
+
+  toastEl.addEventListener('touchmove', (e) => {
+    if (!isSwiping || e.touches.length !== 1) return;
+    const deltaY = e.touches[0].clientY - touchStartY;
+    const deltaX = e.touches[0].clientX - touchStartX;
+
+    // Upward drag towards top of phone screen
+    if (deltaY < 0 && Math.abs(deltaY) > Math.abs(deltaX)) {
+      toastEl.style.transform = `translateY(${deltaY}px)`;
+      toastEl.style.opacity = `${Math.max(0.1, 1 - Math.abs(deltaY) / 100)}`;
+    }
+  }, { passive: true });
+
+  toastEl.addEventListener('touchend', (e) => {
+    if (!isSwiping) return;
+    isSwiping = false;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaY = touchEndY - touchStartY;
+
+    if (deltaY < -24) {
+      removeToast(toastEl);
+    } else {
+      toastEl.style.transform = '';
+      toastEl.style.opacity = '';
+      startTimer();
+    }
+  }, { passive: true });
+
+  container.appendChild(toastEl);
+  startTimer();
 
   return toastEl;
 }
