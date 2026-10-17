@@ -8,9 +8,14 @@ $portal = 'admin';
 $active = 'content';
 ?>
 <div class="container" style="padding-block:var(--space-8) var(--space-16)">
-    <div class="services-hero" style="margin:0 0 var(--space-6);text-align:left">
-        <h1 class="services-hero__title" style="margin:0">Website Content</h1>
-        <p class="services-hero__subtitle" style="margin:0">Edit what visitors see on the homepage — changes go live immediately.</p>
+    <div class="services-hero flex items-center justify-between flex-wrap gap-3" style="margin:0 0 var(--space-6);text-align:left;flex-direction:row">
+        <div>
+            <h1 class="services-hero__title" style="margin:0">Website Content</h1>
+            <p class="services-hero__subtitle" style="margin:0">Edit what visitors see on the homepage — changes go live automatically.</p>
+        </div>
+        <a href="/home" target="_blank" rel="noopener" class="btn btn-primary btn-sm flex items-center gap-1" style="font-weight:600">
+            <?= View::icon('arrow-right', 'icon', 14) ?> View Live Website ↗
+        </a>
     </div>
 
     <div class="card mb-8" style="padding:var(--space-6)">
@@ -27,6 +32,10 @@ $active = 'content';
             <div class="form-group">
                 <input type="text" name="title" class="form-group__control" placeholder=" " maxlength="200" value="<?= View::e($hero['title']) ?>">
                 <label class="form-group__label">Headline</label>
+            </div>
+            <div class="form-group">
+                <input type="text" name="titleHighlight" class="form-group__control" placeholder=" " maxlength="50" value="<?= View::e($hero['titleHighlight'] ?? '') ?>">
+                <label class="form-group__label">Title Highlight Word (e.g. yoga)</label>
             </div>
             <div class="form-group">
                 <textarea name="subtitle" class="form-group__control" placeholder=" " rows="2"><?= View::e($hero['subtitle']) ?></textarea>
@@ -138,7 +147,48 @@ $active = 'content';
                 </div>
                 <?php endforeach; ?>
             </div>
-            <button type="submit" class="btn btn-primary">Save FAQs</button>
+    <div class="card mb-8" style="padding:var(--space-6)">
+        <div class="flex items-center justify-between mb-4">
+            <h2 style="font-size:var(--font-size-lg);margin:0">How It Works Steps</h2>
+            <button type="button" class="btn btn-secondary btn-sm" data-add-row="howitworks">+ Add Step</button>
+        </div>
+        <form id="howitworks-form">
+            <div id="howitworks-rows" class="flex flex-col gap-3 mb-4">
+                <?php foreach ($howItWorks as $step): ?>
+                <div class="repeatable-row card" style="padding:var(--space-4)">
+                    <div class="flex gap-3 flex-wrap mb-2">
+                        <input type="text" data-field="icon" class="form-group__control" style="width:120px" placeholder="Icon (e.g. user)" value="<?= View::e($step['icon']) ?>">
+                        <input type="text" data-field="title" class="form-group__control" style="flex:1;min-width:160px" placeholder="Title" value="<?= View::e($step['title']) ?>">
+                        <button type="button" class="btn btn-ghost btn-sm remove-row-btn">Remove</button>
+                    </div>
+                    <textarea data-field="text" class="form-group__control" placeholder="Description text" rows="2"><?= View::e($step['text']) ?></textarea>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <button type="submit" class="btn btn-primary">Save How It Works</button>
+        </form>
+    </div>
+
+    <div class="card mb-8" style="padding:var(--space-6)">
+        <div class="flex items-center justify-between mb-4">
+            <h2 style="font-size:var(--font-size-lg);margin:0">Journal / Blog Articles</h2>
+            <button type="button" class="btn btn-secondary btn-sm" data-add-row="blog">+ Add Article</button>
+        </div>
+        <form id="blog-form">
+            <div id="blog-rows" class="flex flex-col gap-3 mb-4">
+                <?php foreach ($blogPosts as $post): ?>
+                <div class="repeatable-row card" style="padding:var(--space-4)">
+                    <div class="flex gap-3 flex-wrap mb-2">
+                        <input type="text" data-field="title" class="form-group__control" style="flex:1;min-width:180px" placeholder="Article Title" value="<?= View::e($post['title']) ?>">
+                        <input type="text" data-field="tag" class="form-group__control" style="width:140px" placeholder="Tag / Category" value="<?= View::e($post['tag']) ?>">
+                        <input type="text" data-field="img" class="form-group__control" style="flex:1;min-width:180px" placeholder="Image path" value="<?= View::e($post['img']) ?>">
+                        <button type="button" class="btn btn-ghost btn-sm remove-row-btn">Remove</button>
+                    </div>
+                    <textarea data-field="excerpt" class="form-group__control" placeholder="Excerpt / summary" rows="2"><?= View::e($post['excerpt']) ?></textarea>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Articles</button>
         </form>
     </div>
 </div>
@@ -157,7 +207,7 @@ function serializeForm(form) {
 ['hero-form', 'about-form'].forEach((formId) => {
     const form = document.getElementById(formId);
     const endpoint = formId === 'hero-form' ? '/admin/content/hero' : '/admin/content/about';
-    form.addEventListener('submit', async (event) => {
+    form?.addEventListener('submit', async (event) => {
         event.preventDefault();
         try {
             await apiPut(endpoint, serializeForm(form));
@@ -168,7 +218,7 @@ function serializeForm(form) {
     });
 });
 
-document.getElementById('contact-form-admin').addEventListener('submit', async (event) => {
+document.getElementById('contact-form-admin')?.addEventListener('submit', async (event) => {
     event.preventDefault();
     const form = event.target;
     try {
@@ -211,13 +261,34 @@ const ROW_TEMPLATES = {
             </div>
             <textarea data-field="a" class="form-group__control" placeholder="Answer" rows="2"></textarea>
         </div>`,
+    howitworks: () => `
+        <div class="repeatable-row card" style="padding:var(--space-4)">
+            <div class="flex gap-3 flex-wrap mb-2">
+                <input type="text" data-field="icon" class="form-group__control" style="width:120px" placeholder="Icon (e.g. user)" value="sliders">
+                <input type="text" data-field="title" class="form-group__control" style="flex:1;min-width:160px" placeholder="Title">
+                <button type="button" class="btn btn-ghost btn-sm remove-row-btn">Remove</button>
+            </div>
+            <textarea data-field="text" class="form-group__control" placeholder="Description text" rows="2"></textarea>
+        </div>`,
+    blog: () => `
+        <div class="repeatable-row card" style="padding:var(--space-4)">
+            <div class="flex gap-3 flex-wrap mb-2">
+                <input type="text" data-field="title" class="form-group__control" style="flex:1;min-width:180px" placeholder="Article Title">
+                <input type="text" data-field="tag" class="form-group__control" style="width:140px" placeholder="Tag / Category" value="Mindfulness">
+                <input type="text" data-field="img" class="form-group__control" style="flex:1;min-width:180px" placeholder="Image path">
+                <button type="button" class="btn btn-ghost btn-sm remove-row-btn">Remove</button>
+            </div>
+            <textarea data-field="excerpt" class="form-group__control" placeholder="Excerpt / summary" rows="2"></textarea>
+        </div>`,
 };
 
 document.querySelectorAll('[data-add-row]').forEach((btn) => {
     btn.addEventListener('click', () => {
         const key = btn.dataset.addRow;
         const container = document.getElementById(`${key}-rows`);
-        container.insertAdjacentHTML('beforeend', ROW_TEMPLATES[key]());
+        if (container && ROW_TEMPLATES[key]) {
+            container.insertAdjacentHTML('beforeend', ROW_TEMPLATES[key]());
+        }
     });
 });
 
@@ -238,7 +309,7 @@ function readRows(containerId) {
     });
 }
 
-document.getElementById('programs-form').addEventListener('submit', async (event) => {
+document.getElementById('programs-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
     try {
         await apiPut('/admin/content/programs', { items: readRows('programs-rows') });
@@ -248,7 +319,7 @@ document.getElementById('programs-form').addEventListener('submit', async (event
     }
 });
 
-document.getElementById('testimonials-form').addEventListener('submit', async (event) => {
+document.getElementById('testimonials-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
     try {
         await apiPut('/admin/content/testimonials', { items: readRows('testimonials-rows') });
@@ -258,11 +329,31 @@ document.getElementById('testimonials-form').addEventListener('submit', async (e
     }
 });
 
-document.getElementById('faqs-form').addEventListener('submit', async (event) => {
+document.getElementById('faqs-form')?.addEventListener('submit', async (event) => {
     event.preventDefault();
     try {
         await apiPut('/admin/content/faqs', { items: readRows('faqs-rows') });
         toast.success('FAQs saved.');
+    } catch (err) {
+        toast.error(err.message);
+    }
+});
+
+document.getElementById('howitworks-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    try {
+        await apiPut('/admin/content/how-it-works', { items: readRows('howitworks-rows') });
+        toast.success('How It Works steps saved.');
+    } catch (err) {
+        toast.error(err.message);
+    }
+});
+
+document.getElementById('blog-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    try {
+        await apiPut('/admin/content/blog', { items: readRows('blog-rows') });
+        toast.success('Blog posts saved.');
     } catch (err) {
         toast.error(err.message);
     }

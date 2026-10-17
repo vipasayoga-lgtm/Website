@@ -17,11 +17,14 @@ $active = 'favorites';
     </div>
 
     <?php if (empty($favorites)): ?>
-    <p class="text-muted text-center">No favorites yet. <a href="/instructors">Browse instructors</a> and tap "Add to Favorites" on their profile.</p>
+    <div class="empty-state" style="max-width:720px;margin-inline:auto">
+        <span class="empty-state__icon"><?= View::icon('heart', 'icon', 22) ?></span>
+        <p class="empty-state__text">No favorites yet. <a href="/instructors">Browse instructors</a> and tap "Add to Favorites" on their profile.</p>
+    </div>
     <?php else: ?>
     <div class="flex flex-col gap-4" style="max-width:720px;margin-inline:auto">
         <?php foreach ($favorites as $favorite): ?>
-        <div class="card flex items-center justify-between flex-wrap gap-3" style="padding:var(--space-5)" data-instructor-id="<?= (int) $favorite['instructor_id'] ?>">
+        <div class="card card-glass flex items-center justify-between flex-wrap gap-3" style="padding:var(--space-5)" data-instructor-id="<?= (int) $favorite['instructor_id'] ?>">
             <div class="flex items-center gap-4">
                 <?php if (!empty($favorite['avatar_path'])): ?>
                 <img src="<?= View::e($favorite['avatar_path']) ?>" alt="" style="width:56px;height:56px;border-radius:50%;object-fit:cover">
@@ -34,7 +37,7 @@ $active = 'favorites';
                 </div>
             </div>
             <div class="flex gap-2">
-                <a href="/instructors/<?= (int) $favorite['instructor_id'] ?>" class="btn btn-secondary btn-sm">View Profile</a>
+                <a href="/dashboard/instructors/<?= (int) $favorite['instructor_id'] ?>" class="btn btn-secondary btn-sm">View Profile</a>
                 <button type="button" class="btn btn-ghost btn-sm unfavorite-btn" data-id="<?= (int) $favorite['instructor_id'] ?>">Remove</button>
             </div>
         </div>

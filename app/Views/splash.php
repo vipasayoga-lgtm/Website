@@ -1,38 +1,82 @@
 <?php
 
+use App\Models\Setting;
 use App\Core\View;
 
-$pageTitle = 'Vipasa Yoga';
+$pageTitle = 'Vipasa Yoga — Welcome';
 $pageCss = 'splash';
+
+$customLogo = Setting::get('site_logo_path', '');
+$logoUrl = $logoUrl ?? (!empty($customLogo) ? $customLogo : '/assets/img/brand/loginlogo-exact.png');
+$redirectTo = $redirectTo ?? '/home';
 ?>
 <div class="splash" id="splash">
-    <div class="splash__content">
-        <div class="splash__logo" aria-hidden="true">
-            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M24 6c-3 4-3 8 0 12 3-4 3-8 0-12Z" fill="var(--color-primary)"/>
-                <path d="M24 18c-6 3-10 8-10 14 0 5 4 9 10 9s10-4 10-9c0-6-4-11-10-14Z" fill="var(--color-accent)" opacity="0.85"/>
-                <circle cx="24" cy="30" r="4" fill="var(--surface-bg)"/>
-            </svg>
+    <div class="splash__bg-orbs" aria-hidden="true">
+        <span class="splash__orb splash__orb--1"></span>
+        <span class="splash__orb splash__orb--2"></span>
+        <span class="splash__orb splash__orb--3"></span>
+    </div>
+
+    <div class="splash__card">
+        <div class="splash__logo-wrap">
+            <div class="splash__logo-glow"></div>
+            <div class="splash__logo-box">
+                <img src="<?= View::e($logoUrl) ?>" alt="Vipasa Yoga" class="splash__logo-img">
+            </div>
         </div>
-        <div>
-            <div class="splash__wordmark">Vipasa Yoga</div>
+
+        <div class="splash__text">
+            <h1 class="splash__wordmark">Vipasa Yoga</h1>
             <p class="splash__tagline">Breathe. Move. Belong.</p>
         </div>
-        <div class="splash__loader"><div class="splash__loader-fill"></div></div>
+
+        <div class="splash__loader-wrap">
+            <div class="splash__loader">
+                <div class="splash__loader-fill" id="splashLoaderFill"></div>
+            </div>
+            <div class="splash__loader-meta">
+                <span class="splash__loader-status">Preparing your sanctuary...</span>
+                <span class="splash__loader-percent" id="splashPercent">0%</span>
+            </div>
+        </div>
     </div>
 </div>
+
 <script>
 (function () {
     var redirectTo = <?= json_encode($redirectTo) ?>;
     var splash = document.getElementById('splash');
+    var fill = document.getElementById('splashLoaderFill');
+    var percentEl = document.getElementById('splashPercent');
     var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var delay = prefersReducedMotion ? 400 : 1800;
+    var duration = prefersReducedMotion ? 300 : 1500;
+    var startTime = null;
 
-    setTimeout(function () {
-        splash.classList.add('is-leaving');
-        setTimeout(function () {
-            window.location.href = redirectTo;
-        }, prefersReducedMotion ? 0 : 350);
-    }, delay);
+    function animateProgress(timestamp) {
+        if (!startTime) startTime = timestamp;
+        var elapsed = timestamp - startTime;
+        var progress = Math.min(elapsed / duration, 1);
+        
+        var eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+        var pct = Math.floor(eased * 100);
+
+        if (fill) fill.style.width = pct + '%';
+        if (percentEl) percentEl.textContent = pct + '%';
+
+        if (progress < 1) {
+            requestAnimationFrame(animateProgress);
+        } else {
+            setTimeout(function () {
+                splash.classList.add('is-leaving');
+                setTimeout(function () {
+                    if (redirectTo) {
+                        window.location.href = redirectTo;
+                    }
+                }, prefersReducedMotion ? 50 : 450);
+            }, 180);
+        }
+    }
+
+    requestAnimationFrame(animateProgress);
 })();
 </script>

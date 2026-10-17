@@ -14,8 +14,6 @@ $adminNavLinks = [
     'reports' => ['/admin/reports', 'Reports'],
     'settings' => ['/admin/settings', 'Settings'],
     'notifications' => ['/admin/notifications', 'Notifications'],
-    'video-sessions' => ['/admin/video-sessions', 'Video Sessions'],
-    'activity' => ['/admin/activity', 'Activity'],
 ];
 ?>
 <div class="flex gap-2 flex-wrap mb-6" style="padding-bottom:var(--space-4);border-bottom:1px solid var(--border-subtle)">

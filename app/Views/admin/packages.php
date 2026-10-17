@@ -19,26 +19,39 @@ $active = 'packages';
     <?php if (empty($packages)): ?>
     <p class="text-muted text-center">No packages yet.</p>
     <?php else: ?>
-    <div class="flex flex-col gap-4" style="max-width:820px;margin-inline:auto">
+    <!-- .admin-tile-grid (pages/services.css, loaded here via $pageCss)
+         lays these out up to 4-up, stepping down as the content area narrows. -->
+    <div class="admin-tile-grid">
         <?php foreach ($packages as $package): ?>
-        <div class="card" style="padding:var(--space-5)" data-package='<?= View::e(json_encode($package)) ?>'>
-            <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
-                <div style="font-weight:var(--font-weight-semibold)">
-                    <?= View::e($package['name']) ?>
-                    <?php if ($package['is_featured']): ?><span class="badge badge-confirmed">Featured</span><?php endif; ?>
-                    <?php if (!$package['is_active']): ?><span class="badge badge-cancelled">Inactive</span><?php endif; ?>
-                </div>
-                <div class="flex gap-2">
-                    <button type="button" class="btn btn-ghost btn-sm edit-package-btn">Edit</button>
-                    <button type="button" class="btn btn-ghost btn-sm toggle-active-btn" data-id="<?= (int) $package['id'] ?>">
-                        <?= $package['is_active'] ? 'Deactivate' : 'Activate' ?>
-                    </button>
-                </div>
+        <div class="card admin-tile" data-package='<?= View::e(json_encode($package)) ?>'>
+            <div class="admin-tile__name">
+                <?= View::e($package['name']) ?>
             </div>
-            <p class="text-muted" style="font-size:var(--font-size-sm);margin:0">
-                <?= View::e($package['service_type_name']) ?> · <?= (int) $package['sessions_count'] ?> session(s) · <?= (int) $package['duration_minutes'] ?> min
-                · up to <?= (int) $package['max_participants'] ?> participant(s) · <?= View::e($package['currency']) ?> <?= number_format((float) $package['price'], 2) ?>
-            </p>
+            <?php if ($package['is_featured'] || !$package['is_active']): ?>
+            <div class="admin-tile__badges">
+                <?php if ($package['is_featured']): ?><span class="badge badge-confirmed">Featured</span><?php endif; ?>
+                <?php if (!$package['is_active']): ?><span class="badge badge-cancelled">Inactive</span><?php endif; ?>
+            </div>
+            <?php endif; ?>
+            <ul class="admin-tile__meta">
+                <li><?= View::e($package['service_type_name']) ?></li>
+                <li><?= (int) $package['sessions_count'] ?> session(s) · <?= (int) $package['duration_minutes'] ?> min</li>
+                <li>Up to <?= (int) $package['max_participants'] ?> participant(s)</li>
+            </ul>
+            <div class="admin-tile__price">
+                <?= View::e($package['currency']) ?> <?= number_format((float) $package['price'], 2) ?>
+            </div>
+            <div class="admin-tile__actions">
+                <button type="button" class="btn btn-secondary btn-sm edit-package-btn">Edit</button>
+                <button type="button" class="btn btn-ghost btn-sm toggle-active-btn" data-id="<?= (int) $package['id'] ?>">
+                    <?= $package['is_active'] ? 'Deactivate' : 'Activate' ?>
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm admin-tile__delete delete-package-btn"
+                        data-id="<?= (int) $package['id'] ?>" data-name="<?= View::e($package['name']) ?>"
+                        title="Delete package" aria-label="Delete <?= View::e($package['name']) ?>">
+                    <?= View::icon('trash', 'icon', 15) ?>
+                </button>
+            </div>
         </div>
         <?php endforeach; ?>
     </div>
@@ -163,6 +176,25 @@ document.querySelectorAll('.toggle-active-btn').forEach((btn) => {
         btn.disabled = true;
         try {
             await apiPost(`/admin/packages/${btn.dataset.id}/toggle-active`, {});
+            window.location.reload();
+        } catch (err) {
+            toast.error(err.message);
+            btn.classList.remove('is-loading');
+            btn.disabled = false;
+        }
+    });
+});
+
+/* Delete is permanent, so it asks first. The server refuses any package that
+   has bookings against it (bookings.package_id is ON DELETE RESTRICT) and
+   returns the reason, which lands in the error toast. */
+document.querySelectorAll('.delete-package-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+        btn.classList.add('is-loading');
+        btn.disabled = true;
+        try {
+            const res = await apiPost(`/admin/packages/${btn.dataset.id}/delete`, {});
+            toast.success(res?.message ?? 'Package deleted.');
             window.location.reload();
         } catch (err) {
             toast.error(err.message);

@@ -11,19 +11,32 @@ final class Request
 
     public function __construct()
     {
-        $this->query = $_GET;
+        $this->query = self::sanitizeNullBytes($_GET);
         $this->server = $_SERVER;
 
         $contentType = $this->server['CONTENT_TYPE'] ?? '';
         if (str_contains($contentType, 'application/json')) {
             $raw = file_get_contents('php://input') ?: '';
             $decoded = json_decode($raw, true);
-            $this->json = is_array($decoded) ? $decoded : [];
+            $this->json = is_array($decoded) ? self::sanitizeNullBytes($decoded) : [];
             $this->body = $this->json;
         } else {
             $this->json = [];
-            $this->body = $_POST;
+            $this->body = self::sanitizeNullBytes($_POST);
         }
+    }
+
+    private static function sanitizeNullBytes(mixed $value): mixed
+    {
+        if (is_string($value)) {
+            return str_replace("\0", '', $value);
+        }
+        if (is_array($value)) {
+            foreach ($value as $k => $v) {
+                $value[$k] = self::sanitizeNullBytes($v);
+            }
+        }
+        return $value;
     }
 
     public function method(): string

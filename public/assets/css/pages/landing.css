@@ -58,6 +58,28 @@
   box-shadow: var(--shadow-lg);
 }
 
+/* Keeps the pill on screen after the hero has scrolled past, so the saffron
+   current-section underline is actually visible while reading the page.
+   .nav-glass--hero-overlay is absolute-within-.hero, so this only swaps the
+   positioning mechanism — size, radius and glass treatment stay as they are,
+   and since the nav was never in flow there's no layout shift when it pins.
+   (.hero sets overflow:hidden but no transform/filter, so it isn't the
+   containing block for a fixed child and cannot clip this.)
+   JS (landing.js) toggles this class at the same scroll threshold as
+   .nav-glass--scrolled above. */
+.nav-glass--hero-overlay.nav-glass--stuck {
+  position: fixed;
+  top: 12px;
+  z-index: var(--z-nav);
+}
+
+/* Anchor landings sit below the pinned nav instead of underneath it. */
+.hero,
+.landing-section,
+.newsletter-band {
+  scroll-margin-top: 104px;
+}
+
 /* =========================================================================
    Hero
    Markup contract:
@@ -82,10 +104,20 @@
 .hero {
   position: relative;
   overflow: hidden;
-  min-height: 88vh;
+  min-height: 82vh;
   display: flex;
   align-items: center;
-  padding-block: var(--space-16);
+  padding-top: 140px;
+  padding-bottom: 120px;
+  /* One continuous background for the whole hero — the floating nav
+     overlay sits on top of this via its own translucent glass panel
+     (var(--surface-glass-strong) + blur), not a second background of its own. */
+  background: linear-gradient(180deg, var(--surface-bg) 0%, var(--surface-bg-alt) 25%, var(--vipasa-blue-50) 55%, var(--surface-bg-alt) 100%);
+}
+
+:root[data-theme="dark"] .hero { background: linear-gradient(180deg, #071524 0%, #081827 25%, #091d2d 55%, #081827 100%); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .hero { background: linear-gradient(180deg, #071524 0%, #081827 25%, #091d2d 55%, #081827 100%); }
 }
 
 .hero__bg {
@@ -93,67 +125,6 @@
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background-color: var(--surface-bg);
-}
-
-.hero__orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(70px);
-  opacity: 0.55;
-}
-
-.hero__orb--1 {
-  width: 520px;
-  height: 520px;
-  top: -160px;
-  left: -120px;
-  background: var(--color-primary);
-  animation: vy-hero-drift-1 16s ease-in-out infinite alternate;
-}
-
-.hero__orb--2 {
-  width: 420px;
-  height: 420px;
-  top: 8%;
-  right: -140px;
-  background: var(--color-accent);
-  animation: vy-hero-drift-2 20s ease-in-out infinite alternate;
-  animation-delay: -4s;
-}
-
-.hero__orb--3 {
-  width: 380px;
-  height: 380px;
-  bottom: -160px;
-  left: 18%;
-  background: var(--color-tertiary);
-  animation: vy-hero-drift-3 18s ease-in-out infinite alternate;
-  animation-delay: -8s;
-}
-
-.hero__orb--4 {
-  width: 240px;
-  height: 240px;
-  bottom: 6%;
-  right: 8%;
-  background: var(--color-primary);
-  opacity: 0.3;
-  animation: vy-hero-drift-2 14s ease-in-out infinite alternate;
-  animation-delay: -2s;
-}
-
-@keyframes vy-hero-drift-1 {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(60px, 40px) scale(1.15); }
-}
-@keyframes vy-hero-drift-2 {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(-50px, 60px) scale(1.1); }
-}
-@keyframes vy-hero-drift-3 {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(40px, -50px) scale(1.2); }
 }
 
 /* Cheap pure-CSS animated grain: an SVG fractal-noise filter, nudged a few
@@ -175,94 +146,411 @@
   75% { transform: translate(-1%, -1%); }
 }
 
+/* Nav-inside-hero overlay — only on the landing page, where the nav floats
+   on top of the hero's own background instead of sitting in normal document
+   flow before the hero starts. Every other page uses the same base
+   .nav-glass look (that's the point — one nav bar style everywhere) but
+   stays position:sticky; this variant only swaps the positioning mechanism
+   to absolute-within-.hero, scoped by both the class and its .hero
+   ancestor so it can never leak onto services/gallery/etc. Everything
+   else (size, radius, glass background, blur) now comes from the shared
+   base .nav-glass rule in components.css. */
+.nav-glass--hero-overlay {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  /* Below .hero__brand-float (z-index: 50) so the standalone logo always
+     renders above it where they overlap. */
+  z-index: 10;
+}
+
+/* The standalone brand mark (.hero__brand-float, below) floats over this
+   pill's left corner, so the left-aligned links need clearance or "Home"
+   lands on top of the logo. The amount needed is viewport-dependent: the mark
+   is pinned at a fixed left:4px and is 132px wide, while the pill is centred
+   at 88vw — so its left edge sits 6vw in, and the narrower the window the
+   further the logo reaches across it. The calc() term is that clearance —
+   (132 + 4 + a 16px gap = 152px) less the pill's own var(--space-8) padding
+   and the 6vw offset — and the var(--space-16) floor is the wider left indent
+   the links carry on big screens, where the logo stops reaching them at all.
+   The floor takes over above ~930px, so on any real desktop the group sits a
+   flat 64px in from the pill's padding edge.
+   Desktop only: below 900px the links become a dropdown panel with its own
+   padding, and the floating mark is dropped entirely below 639px. */
+@media (min-width: 900px) {
+  .nav-glass--hero-overlay .nav-glass__links {
+    padding-left: max(var(--space-16), calc(120px - 6vw));
+  }
+}
+
+@media (max-width: 899px) {
+  .nav-glass--hero-overlay .nav-glass__links {
+    flex: initial;
+    justify-content: flex-start;
+  }
+}
+
+/* Standalone brand mark, floating in the gap between the left edge of the
+   viewport and the centered pill nav — sibling of .nav-glass--hero-overlay,
+   not a child, so it never joins that flex row. */
+.hero__brand-float {
+  /* absolute, relative to .hero (position:relative) — scrolls away with the
+     hero section rather than staying pinned to the viewport. (The pill nav
+     itself no longer does: it re-pins via .nav-glass--stuck above once the
+     hero is past, so the current-section marker stays readable while
+     scrolling. This mark stays behind by design — it's a 132px lockup, far
+     too tall to ride along in a 78px pill.) Bound by .hero's overflow:hidden, so
+     left can't go negative without being clipped (see z-index comment
+     below for why that's an acceptable trade-off here). */
+  position: absolute;
+  top: 0;
+  left: 4px;
+  /* Above .nav-glass--hero-overlay (z-index: 10) and everything else in the
+     hero's local stacking context, so it never gets covered where it
+     overlaps the pill nav's rounded corner. */
+  z-index: 50;
+  height: 150px;
+  display: flex;
+  align-items: center;
+}
+
+.hero__brand-float > a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 132px;
+  height: 132px;
+}
+
+.hero__brand-float .nav-glass__brand-logo {
+  width: 132px;
+  height: 132px;
+  object-fit: contain;
+  max-width: 132px;
+  transform: none;
+}
+
+@media (max-width: 899px) {
+  .hero__brand-float {
+    left: 2px;
+    height: 126px;
+  }
+
+  .hero__brand-float > a {
+    width: 102px;
+    height: 102px;
+  }
+
+  .hero__brand-float .nav-glass__brand-logo {
+    width: 102px;
+    height: 102px;
+    max-width: 102px;
+  }
+}
+
+@media (min-width: 640px) {
+  .nav-glass--hero-overlay .nav-glass__brand {
+    display: none;
+  }
+}
+
+/* Below 639px the pill nav widens to fill nearly the whole viewport
+   (calc(100% - 32px) above), so float mark drops and in-nav logo shows. */
+@media (max-width: 639px) {
+  .hero__brand-float {
+    display: none;
+  }
+  .nav-glass--hero-overlay .nav-glass__brand {
+    display: flex;
+  }
+}
+
 /* Participates in the normal .hero__content grid flow (so it stacks correctly
    on mobile) — the parallax mouse effect is just a transform, which doesn't
    require absolute positioning. */
-.hero__parallax-layer {
+/* Blended photo — sits between the orb backdrop (.hero__bg, z-index 0)
+   and the text (.hero__content, z-index 2). meditation-portrait.jpg is
+   the plain, un-cut photo (full room/wall/mat visible) — the blend into
+   .hero's dark gradient is done with a CSS mask-image fading the left
+   edge of the photo to transparent, so the hero background itself shows
+   through rather than a hard photo edge. */
+.hero__bg-photo {
+  position: absolute;
+  right: 0;
+  top: 6rem;
+  bottom: 0;
+  height: calc(100% - 6rem);
+  width: 48%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Direct-child combinator, not a descendant selector — .hero__bg-photo also
+   contains the trust-badge's small avatar <img> tags nested several levels
+   deep, and this mask must only ever apply to the main hero photo, not
+   those (confirmed via computed-style debugging: the avatars were picking
+   up this same mask, sized for a large photo, and coming out looking
+   broken on a 24px circle). */
+.hero__bg-photo > img {
   position: relative;
   z-index: 1;
-  will-change: transform;
-  pointer-events: none;
-  transition: transform 120ms linear;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 10%;
+  /* Two-axis blend: fade the left edge into the hero gradient (primary
+     borderless-blend treatment) AND softly fade the bottom so the mat/floor
+     melts into the section beneath rather than ending on a hard line.
+     mask-composite intersect = keep only what BOTH gradients reveal. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 16%, black 100%), linear-gradient(to bottom, transparent 0%, black 14%, black 88%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 0%, black 16%, black 100%), linear-gradient(to bottom, transparent 0%, black 14%, black 88%, transparent 100%);
+  mask-composite: intersect;
+}
+
+@media (max-width: 899px) {
+  .hero__bg-photo { display: none; }
 }
 
 .hero__content {
   position: relative;
   z-index: 2;
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: var(--space-12);
-  align-items: center;
+  /* Override .container's own max-width + margin-inline:auto centering —
+     .hero__bg-photo sits flush against the true right edge of the
+     viewport (it isn't confined to .container either), so the text needs
+     to anchor to the true left edge too, not float centered in a capped
+     max-width box that leaves a growing empty gap on wide screens. */
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .hero__content { padding-inline: var(--space-10); }
+}
+
+@media (min-width: 1024px) {
+  .hero__content { padding-inline: var(--space-16); }
+}
+
+.hero__copy {
+  /* .hero__bg-photo is anchored to the full hero width (right:0; width:46%,
+     no inset — the borderless blend treatment, not a card), not to
+     .container — and .hero__content adds its own var(--space-16)=64px
+     padding-inline on the text side. calc() bakes in the actual offsets:
+     54vw is the photo's real left edge (100% - 46% width), then subtract
+     .hero__content's 64px padding plus a 20px safety margin. Recalculate
+     this any time .hero__bg-photo's width % changes — it's exact box-model
+     math, not a rough guess (a previous rough estimate let the headline
+     run under the photo at some viewport widths). */
+  max-width: min(760px, calc(48vw - 84px));
 }
 
 @media (max-width: 899px) {
-  .hero__content {
-    grid-template-columns: 1fr;
-    gap: var(--space-8);
-  }
+  .hero__copy { max-width: none; }
 }
 
-.hero__eyebrow { margin-bottom: var(--space-5); }
+/* =========================================================================
+   Compact feature strip — directly under the hero (moved out of a full
+   "Why Choose" section further down the page, not duplicated there).
+   ========================================================================= */
+.hero-features { margin-top: var(--space-7); }
+
+.hero-features__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-4);
+  align-items: stretch;
+  border-radius: var(--radius-xl);
+  background-color: var(--surface-glass);
+  border: 1px solid var(--surface-glass-border);
+  backdrop-filter: blur(var(--surface-glass-blur));
+}
+
+@media (min-width: 1200px) {
+  .hero-features__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 899px) {
+  .hero-features__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 539px) {
+  .hero-features__grid { grid-template-columns: 1fr; }
+}
+
+.hero-features__item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  min-height: 40px;
+  padding: 2px 0;
+  min-width: 0;
+}
+
+.hero-features__item > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.hero-features__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  line-height: 0;
+  flex-shrink: 0;
+}
+
+.hero-features__icon .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.hero-features__item h3 {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.hero-features__item p {
+  font-size: 0.75rem;
+  line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero__eyebrow { margin-bottom: var(--space-4); }
 
 .hero__tagline {
   font-family: var(--font-display);
   font-style: italic;
   font-size: var(--font-size-xl);
-  color: var(--color-accent);
-  margin-bottom: var(--space-3);
+  color: var(--teal-600);
+  margin-bottom: var(--space-4);
 }
 
-.hero__title {
-  font-size: clamp(2.5rem, 5vw, var(--font-size-5xl));
-  margin-bottom: var(--space-5);
+@media (prefers-color-scheme: dark) {
+  .hero__tagline { color: var(--teal-300); }
 }
+:root[data-theme="dark"] .hero__tagline { color: var(--teal-300); }
+:root[data-theme="light"] .hero__tagline { color: var(--teal-600); }
+
+.hero__title {
+  font-family: var(--font-hero);
+  font-size: clamp(2.1rem, 3.2vw, 3rem);
+  line-height: 1.18;
+  margin-bottom: var(--space-4);
+}
+
+.hero__title-highlight {
+  color: var(--teal-500);
+}
+
+:root[data-theme="dark"] .hero__title-highlight { color: var(--teal-300); }
+@media (prefers-color-scheme: dark) {
+  .hero__title-highlight { color: var(--teal-300); }
+}
+:root[data-theme="light"] .hero__title-highlight { color: var(--teal-500); }
 
 .hero__subtitle {
   font-size: var(--font-size-lg);
+  line-height: var(--leading-normal);
   color: var(--text-secondary);
-  max-width: 600px;
-  margin-bottom: var(--space-8);
+  max-width: 640px;
+  margin-bottom: var(--space-5);
 }
 
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
-/* Real photo panel next to the hero copy — a rounded, shadowed frame with a
-   couple of floating stat chips overlaid, common premium-SaaS hero pattern. */
-.hero__photo-frame {
-  position: relative;
-  border-radius: var(--radius-2xl);
-  overflow: hidden;
-  box-shadow: var(--shadow-xl);
-  aspect-ratio: 7 / 8;
-  max-width: 460px;
-  margin-inline: auto;
+/* Hero-specific button sizing — deliberately not touching the shared global
+   .btn-lg (used across the whole site) so this premium-hero sizing stays
+   scoped to just these two CTAs. */
+.hero__actions .btn {
+  padding: 0.55rem 1.25rem;
+  font-size: 0.875rem;
+  border-radius: var(--radius-lg);
 }
 
-.hero__photo-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+.hero__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+}
+
+.hero__stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.hero__stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--surface-glass);
+  border: 1px solid var(--surface-glass-border);
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.hero__stat-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero__stat-value {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  line-height: 1.1;
+}
+
+.hero__stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
 }
 
 .hero__photo-badge {
   position: absolute;
-  left: var(--space-5);
-  bottom: var(--space-5);
+  left: var(--space-4);
+  bottom: var(--space-6);
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-lg);
-  background-color: var(--surface-glass-strong);
-  border: 1px solid var(--surface-glass-border);
-  backdrop-filter: blur(var(--surface-glass-blur));
-  -webkit-backdrop-filter: blur(var(--surface-glass-blur));
-  box-shadow: var(--shadow-md);
+  /* Deliberately more opaque than --surface-glass-strong (used sitewide
+     over solid page backgrounds) — this badge floats over a photo whose
+     tone varies (light wall, light outfit), so it needs its own contrast
+     floor rather than blending into whatever's behind it. */
+  background-color: var(--surface-bg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-lg);
 }
 
 .hero__photo-badge strong {
@@ -276,9 +564,61 @@
   color: var(--text-muted);
 }
 
-@media (max-width: 639px) {
-  .hero__photo-frame { max-width: 320px; }
+/* One consolidated trust signal (top-right): certified-instructor copy
+   plus a real avatar stack (the top-rated active instructors — not a
+   fabricated "+N" user count, since the real number is small and
+   honesty about that is a deliberate site-wide principle). */
+.hero__trust-badge {
+  position: absolute;
+  /* Not var(--space-8) — .nav-glass is position:sticky with z-index:300
+     (var(--z-nav)) and a translucent glass background; on any scroll it
+     "sticks" to the viewport top and visually overlaps whatever sits near
+     the hero's top edge. At the old 32px offset, even a few px of scroll
+     put this badge underneath the nav, showing it faded through the
+     nav's own translucency — confirmed as the real bug, not a mask/
+     opacity issue on the badge itself. This clears the nav's full height
+     (~24px margin + ~84px bar) with margin to spare. */
+  top: 130px;
+  right: var(--space-8);
+  z-index: 5;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  /* See .hero__photo-badge — same reasoning, more opaque than the shared
+     glass token since this floats over a variable-toned photo. Explicit
+     mask/filter/blend resets rule out any bleed-through from the masked
+     hero photo it sits on top of, regardless of root cause. */
+  background-color: var(--surface-bg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-lg);
+  mask-image: none;
+  -webkit-mask-image: none;
+  filter: none;
+  mix-blend-mode: normal;
+  opacity: 1;
 }
+
+.hero__trust-badge-text {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.hero__trust-badge .icon { width: 16px; height: 16px; }
+
+.hero__trust-badge .avatar-group .avatar {
+  border: 2px solid var(--surface-glass-strong);
+}
+
+/* No mobile override needed for this badge — .hero__bg-photo (its
+   containing element) is hidden below 899px, see that rule above. */
 
 /* =========================================================================
    Community photo band — a full-width real photo with an overlaid quote,
@@ -300,12 +640,25 @@
   overflow: hidden;
 }
 
+@media (max-width: 639px) {
+  .community-band {
+    min-height: 320px;
+  }
+}
+
 .community-band__img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 25%;
+}
+
+@media (max-width: 639px) {
+  .community-band__img {
+    object-position: 35% 20%;
+  }
 }
 
 .community-band__overlay {
@@ -374,7 +727,33 @@
 }
 
 @media (max-width: 639px) {
-  .stat-counters__grid { grid-template-columns: 1fr; gap: var(--space-8); }
+  #trusted-by {
+    padding-block: var(--space-6) !important;
+  }
+  #trusted-by .section-heading {
+    margin-bottom: var(--space-4) !important;
+  }
+  #trusted-by .section-heading__title {
+    font-size: 1.25rem !important;
+  }
+  #trusted-by .section-heading__eyebrow {
+    font-size: 0.72rem !important;
+  }
+  .stat-counters__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: var(--space-5) var(--space-3) !important;
+  }
+  .stat-counter__number {
+    font-size: 1.75rem !important;
+  }
+  .stat-counter__suffix {
+    font-size: 1.1rem !important;
+  }
+  .stat-counter__label {
+    font-size: 0.75rem !important;
+    margin-top: 2px !important;
+    line-height: 1.25 !important;
+  }
 }
 
 .stat-counter__number {
@@ -539,6 +918,7 @@
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
+  object-position: center 15%;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
 }
@@ -896,7 +1276,7 @@
 
 .site-footer__grid {
   display: grid;
-  grid-template-columns: 2fr repeat(3, 1fr);
+  grid-template-columns: 2fr repeat(4, 1fr);
   gap: var(--space-8);
   padding-bottom: var(--space-12);
 }
@@ -1007,6 +1387,7 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   object-fit: cover;
+  object-position: center 20%;
 }
 
 .about-layout__img--main {
@@ -1125,8 +1506,10 @@
 
 .benefit-card img {
   width: 100%;
-  height: 11rem;
+  aspect-ratio: 16 / 10;
+  height: auto;
   object-fit: cover;
+  object-position: center 20%;
 }
 
 .benefit-card__body { padding: var(--space-5); }
@@ -1148,16 +1531,39 @@
   .program-grid { grid-template-columns: 1fr; }
 }
 
+/* =========================================================================
+   Section-level "Show More" collapse
+   Hides overflow rows behind a centered toggle button. Row counts are
+   defined at the desktop column count (programs: 4 cols → 2 rows = 8;
+   gallery: 4 cols → 3 rows = 12); nth-child clips by a fixed item count,
+   so on narrower breakpoints the same items simply reflow into more rows.
+   Class-based (not the hidden attribute) so it never fights the gallery's
+   category filter, which owns [hidden]. ========================================================================= */
+.program-grid.is-collapsed .program-card-v2:nth-child(n+9) { display: none; }
+.gallery-grid.is-collapsed .gallery-item:nth-child(n+13) { display: none; }
+
+.section-more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-6);
+}
+
 /* Image-backed program card: photo, gradient scrim, copy pinned to the
    bottom. Hover lifts the card and zooms the photo slightly; "Read More"
    removes the description's line-clamp in place (see landing.js). */
 .program-card-v2 {
   position: relative;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 4 / 4.5;
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+@media (min-width: 640px) {
+  .program-card-v2 {
+    aspect-ratio: 3 / 4;
+  }
 }
 
 .program-card-v2:hover {
@@ -1171,6 +1577,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 25%;
   transition: transform var(--transition-slow);
 }
 
@@ -1226,57 +1633,724 @@
 }
 
 /* =========================================================================
-   Gallery preview strip — teaser grid linking to the full /gallery page
+   How It Works — numbered steps with a connecting line on desktop
+   Markup contract:
+     <div class="how-steps">
+       <div class="how-steps__line" aria-hidden="true"></div>
+       <div class="how-steps__step">
+         <div class="how-steps__number">1</div>
+         <div class="how-steps__icon">{icon}</div>
+         <h3>...</h3>
+         <p class="text-muted">...</p>
+       </div>
+     </div>
    ========================================================================= */
-.gallery-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-auto-rows: 9rem;
-  gap: var(--space-3);
-}
-
-.gallery-preview-grid__item {
-  display: block;
-  overflow: hidden;
-  border-radius: var(--radius-md);
+.how-steps {
   position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-6);
 }
 
-.gallery-preview-grid__item:nth-child(3n+1) { grid-row: span 2; }
+.how-steps__line {
+  position: absolute;
+  top: 1.75rem;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--border-default) 0, var(--border-default) 6px, transparent 6px, transparent 12px);
+  z-index: 0;
+}
 
-.gallery-preview-grid__item img {
+@media (max-width: 1023px) {
+  .how-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .how-steps__line { display: none; }
+}
+@media (max-width: 639px) {
+  .how-steps { grid-template-columns: 1fr; }
+}
+
+.how-steps__step {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.how-steps__number {
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 auto var(--space-3);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal-400) 0%, var(--teal-600) 100%);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-base);
+}
+
+.how-steps__step:hover .how-steps__number {
+  transform: scale(1.08);
+}
+
+/* The icon sits between the number circle and the title, so it has to line up
+   with them. .how-steps__step's text-align:center can't do it: base.css makes
+   every svg display:block, which takes the icon out of inline flow and parks
+   it at the left edge — hence centering the wrapper itself. */
+.how-steps__icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-2);
+}
+
+.how-steps__step h3 {
+  font-size: var(--font-size-md);
+  margin-bottom: var(--space-2);
+}
+
+.how-steps__step p { font-size: var(--font-size-sm); }
+
+/* =========================================================================
+   Transformation Stories — real-photo before/after-style narrative cards
+   (static marketing copy, same pattern as the existing $reviews/$blogPosts
+   hardcoded arrays — no new data model needed).
+   ========================================================================= */
+.transformation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+@media (max-width: 1023px) {
+  .transformation-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 639px) {
+  .transformation-grid { grid-template-columns: 1fr; }
+}
+
+.transformation-card {
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.transformation-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.transformation-card__img {
+  position: relative;
+  height: 13rem;
+  overflow: hidden;
+}
+
+.transformation-card__img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
   transition: transform var(--transition-slow);
 }
 
-.gallery-preview-grid__item:hover img { transform: scale(1.08); }
-
-@media (max-width: 1023px) {
-  .gallery-preview-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.transformation-card:hover .transformation-card__img img {
+  transform: scale(1.05);
 }
-@media (max-width: 639px) {
-  .gallery-preview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 7rem; }
+
+.transformation-card__duration {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background-color: var(--surface-glass-strong);
+  backdrop-filter: blur(var(--surface-glass-blur));
+  -webkit-backdrop-filter: blur(var(--surface-glass-blur));
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.transformation-card__body { padding: var(--space-5); }
+.transformation-card__body h3 { font-size: var(--font-size-md); margin-bottom: var(--space-2); }
+
+/* =========================================================================
+   Download App — honest "coming soon" teaser. No app exists yet, so the
+   store badges are deliberately non-interactive (no href) rather than
+   linking nowhere or faking availability.
+   ========================================================================= */
+.app-teaser {
+  border-radius: 24px;
+  padding: var(--space-12) var(--space-8);
+  background: var(--gradient-primary);
+  color: #ffffff;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-teaser h2 { color: #ffffff; }
+.app-teaser p { color: rgba(255, 255, 255, 0.85); max-width: 480px; margin-inline: auto; }
+
+.app-teaser__badges {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.app-teaser__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--font-size-sm);
+  cursor: default;
 }
 
 /* =========================================================================
-   Reviews — quick-scan rating grid (distinct from the Testimonials carousel)
+   Gallery — filterable grid/masonry view + lightbox (formerly the
+   standalone /gallery page, folded in as a section below Instructors so
+   the app doesn't need a separate page for it).
    ========================================================================= */
-.review-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-5);
+.gallery-hero {
+  padding-block: var(--space-20) var(--space-6);
+  background: var(--gradient-mesh), var(--surface-bg);
 }
 
-@media (max-width: 1023px) {
-  .review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
 @media (max-width: 639px) {
-  .review-grid { grid-template-columns: 1fr; }
+  .gallery-hero { padding-block: var(--space-12) var(--space-4); }
+}
+
+.gallery-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 12px 32px -8px rgba(15, 51, 73, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+:root[data-theme="dark"] .gallery-controls {
+  background: rgba(15, 38, 53, 0.65);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+.gallery-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.gallery-filters__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.45rem 0.95rem;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast) var(--ease-out);
+  user-select: none;
+}
+
+.gallery-filters__chip:hover {
+  color: var(--text-primary);
+  background: var(--surface-bg-alt);
+  transform: translateY(-1px);
+}
+
+.gallery-filters__chip.is-selected {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--vipasa-blue-700) 0%, var(--vipasa-blue-500) 100%);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 14px -2px rgba(20, 66, 94, 0.35);
+}
+
+:root[data-theme="dark"] .gallery-filters__chip.is-selected {
+  background: linear-gradient(135deg, var(--vipasa-blue-500) 0%, var(--vipasa-blue-400) 100%);
+  box-shadow: 0 4px 16px -2px rgba(45, 106, 136, 0.5);
+}
+
+.gallery-chip__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding-inline: 0.35rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  background: var(--surface-bg-alt);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.gallery-filters__chip.is-selected .gallery-chip__count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.gallery-view-toggle {
+  display: flex;
+  gap: var(--space-1);
+  padding: 3px;
+  background: var(--surface-bg-alt);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+}
+
+.gallery-view-toggle__btn {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  transition: all var(--transition-fast) var(--ease-out);
+}
+
+.gallery-view-toggle__btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.gallery-view-toggle__btn.is-active {
+  background-color: var(--surface-card);
+  color: var(--vipasa-blue-700);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="dark"] .gallery-view-toggle__btn.is-active {
+  color: var(--vipasa-blue-300);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.gallery-view-toggle__btn svg { width: 18px; height: 18px; }
+
+.gallery-section { padding-block: var(--space-6) var(--space-16); }
+
+/* Dynamic Layout Modes */
+.gallery-grid[data-view="grid"] {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+@media (max-width: 1199px) {
+  .gallery-grid[data-view="grid"] { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+}
+@media (max-width: 767px) {
+  .gallery-grid[data-view="grid"] { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+}
+@media (max-width: 479px) {
+  .gallery-grid[data-view="grid"] { grid-template-columns: 1fr; gap: var(--space-4); }
+}
+
+.gallery-grid[data-view="grid"] .gallery-item__trigger {
+  aspect-ratio: 4 / 4.8;
+}
+
+/* Masonry Layout */
+.gallery-grid[data-view="masonry"] {
+  columns: 4;
+  column-gap: var(--space-6);
+}
+
+.gallery-grid[data-view="masonry"] .gallery-item {
+  break-inside: avoid;
+  margin-bottom: var(--space-6);
+}
+
+.gallery-grid[data-view="masonry"] .gallery-item__trigger {
+  aspect-ratio: auto;
+}
+
+@media (max-width: 1199px) {
+  .gallery-grid[data-view="masonry"] { columns: 3; column-gap: var(--space-5); }
+  .gallery-grid[data-view="masonry"] .gallery-item { margin-bottom: var(--space-5); }
+}
+@media (max-width: 767px) {
+  .gallery-grid[data-view="masonry"] { columns: 2; column-gap: var(--space-4); }
+  .gallery-grid[data-view="masonry"] .gallery-item { margin-bottom: var(--space-4); }
+}
+@media (max-width: 479px) {
+  .gallery-grid[data-view="masonry"] { columns: 1; }
+}
+
+/* Prime Gallery Card */
+.gallery-item {
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.gallery-item[hidden] {
+  display: none !important;
+}
+
+.gallery-item__trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+  background-color: var(--surface-bg-alt);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 20px -4px rgba(15, 51, 73, 0.05);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.gallery-item:hover .gallery-item__trigger {
+  transform: translateY(-6px) scale(1.015);
+  border-color: rgba(45, 106, 136, 0.3);
+  box-shadow: 0 20px 40px -12px rgba(15, 51, 73, 0.16), 0 0 24px rgba(232, 150, 60, 0.12);
+}
+
+:root[data-theme="dark"] .gallery-item:hover .gallery-item__trigger {
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5), 0 0 24px rgba(78, 147, 176, 0.25);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.gallery-item__trigger img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: var(--surface-bg-alt);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+  will-change: transform;
+}
+
+.gallery-item:hover .gallery-item__trigger img {
+  transform: scale(1.08);
+}
+
+/* Category Badge on Top-Left */
+.gallery-item__badge {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.68rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: rgba(11, 38, 53, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, background 0.3s ease;
+  pointer-events: none;
+}
+
+.gallery-item:hover .gallery-item__badge {
+  background: rgba(20, 66, 94, 0.85);
+  transform: translateY(-2px);
+}
+
+/* Hover Zoom Circle Indicator */
+.gallery-item__zoom {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(to top, rgba(11, 38, 53, 0.75) 0%, rgba(11, 38, 53, 0.25) 50%, rgba(11, 38, 53, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gallery-item__zoom-icon {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--vipasa-blue-700);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 16px rgba(232, 150, 60, 0.3);
+  transform: scale(0.75);
+  transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.gallery-item:hover .gallery-item__zoom {
+  opacity: 1;
+}
+
+.gallery-item:hover .gallery-item__zoom-icon {
+  transform: scale(1);
+}
+
+.gallery-item__zoom-icon svg { width: 22px; height: 22px; }
+
+.gallery-item__caption {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  line-height: 1.4;
+}
+
+.gallery-item__caption-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gallery-item__caption-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.gallery-item:hover .gallery-item__caption-icon {
+  opacity: 1;
+  color: var(--saffron-500);
+}
+
+/* Ultra-Luxurious Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: rgba(7, 26, 36, 0.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  animation: vy-fade-in var(--duration-base) var(--ease-out) both;
+}
+
+.lightbox[hidden] { display: none !important; }
+
+/* Lightbox Top Control Bar */
+.lightbox__topbar {
+  position: absolute;
+  top: var(--space-5);
+  left: var(--space-6);
+  right: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.lightbox__topbar > * {
+  pointer-events: auto;
+}
+
+.lightbox__counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.02em;
+}
+
+.lightbox__hints {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.72rem;
+}
+
+.lightbox__key {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-family: monospace;
+  font-size: 0.7rem;
+}
+
+.lightbox__figure {
+  max-width: min(92vw, 1150px);
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  position: relative;
+  z-index: 5;
+}
+
+.lightbox__img-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.7), 0 0 50px rgba(45, 106, 136, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.lightbox__figure img {
+  max-width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  border-radius: var(--radius-2xl);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.lightbox__figure figcaption {
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  max-width: 650px;
+}
+
+.lightbox__close,
+.lightbox__nav {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lightbox__close:hover,
+.lightbox__nav:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 0 16px rgba(255, 255, 255, 0.2);
+}
+
+.lightbox__close:active,
+.lightbox__nav:active {
+  transform: scale(0.95);
+}
+
+.lightbox__close { position: relative; }
+.lightbox__nav--prev { position: absolute; left: var(--space-6); top: 50%; transform: translateY(-50%); z-index: 10; }
+.lightbox__nav--next { position: absolute; right: var(--space-6); top: 50%; transform: translateY(-50%); z-index: 10; }
+
+.lightbox__nav--prev:hover { transform: translateY(-50%) scale(1.08); }
+.lightbox__nav--next:hover { transform: translateY(-50%) scale(1.08); }
+
+.lightbox__close svg, .lightbox__nav svg { width: 22px; height: 22px; }
+
+@media (max-width: 767px) {
+  .lightbox { padding: var(--space-4); }
+  .lightbox__hints { display: none; }
+  .lightbox__topbar { top: var(--space-3); left: var(--space-3); right: var(--space-3); }
+  .lightbox__close, .lightbox__nav { width: 2.75rem; height: 2.75rem; }
+  .lightbox__nav--prev { left: var(--space-3); }
+  .lightbox__nav--next { right: var(--space-3); }
+}
+
+/* =========================================================================
+   Reviews — continuously scrolling marquee (distinct from the Testimonials
+   carousel). The track holds the review list twice back-to-back; the
+   animation slides it one full list-width so the loop is seamless. Moves
+   left → right (translateX -50% → 0). Pauses on hover and honours
+   prefers-reduced-motion.
+   Markup contract:
+     <div class="review-marquee">
+       <div class="review-marquee__track">
+         <div class="review-card">...</div>   (list rendered twice; the
+         ...                                    second pass is aria-hidden)
+       </div>
+     </div>
+   ========================================================================= */
+.review-marquee {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.review-marquee__track {
+  display: flex;
+  gap: var(--space-5);
+  width: max-content;
+  animation: vy-review-scroll 45s linear infinite;
+}
+
+.review-marquee:hover .review-marquee__track {
+  animation-play-state: paused;
+}
+
+@keyframes vy-review-scroll {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .review-marquee__track { animation: none; }
 }
 
 .review-card {
+  flex: 0 0 clamp(260px, 24vw, 340px);
   padding: var(--space-5);
   background-color: var(--surface-card);
   border: 1px solid var(--border-subtle);
@@ -1329,3 +2403,4 @@
 .blog-card__body { padding: var(--space-5); }
 .blog-card__body .chip { margin-bottom: var(--space-3); }
 .blog-card__body h3 { margin: var(--space-2) 0; font-size: var(--font-size-lg); }
+

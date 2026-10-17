@@ -1,0 +1,97 @@
+/* =========================================================================
+   Vipasa Yoga — Error pages (404 / 500)
+   Shared markup contract:
+     <div class="error-page">
+       <div class="error-page__glow" aria-hidden="true"></div>
+       <div class="error-page__content">
+         <div class="error-page__icon">{icon}</div>
+         <div class="error-page__code">404</div>
+         <h1 class="error-page__title">...</h1>
+         <p class="error-page__message">...</p>
+         <div class="error-page__actions">...</div>
+       </div>
+     </div>
+   ========================================================================= */
+
+.error-page {
+  position: relative;
+  min-height: calc(100vh - 88px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: var(--space-8) var(--space-6);
+}
+
+.error-page__glow {
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-mesh);
+  pointer-events: none;
+}
+
+.error-page__content {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  text-align: center;
+  padding: var(--space-10) var(--space-8);
+  border-radius: 24px;
+  background-color: var(--surface-glass-strong);
+  border: 1px solid var(--surface-glass-border);
+  backdrop-filter: blur(var(--surface-glass-blur));
+  -webkit-backdrop-filter: blur(var(--surface-glass-blur));
+  box-shadow: var(--shadow-xl);
+}
+
+.error-page__icon {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto var(--space-5);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.error-page__code {
+  font-family: var(--font-hero);
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1;
+  margin-bottom: var(--space-3);
+}
+
+.error-page__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-3);
+}
+
+.error-page__message {
+  color: var(--text-muted);
+  margin-bottom: var(--space-8);
+}
+
+.error-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+}
+
+.error-page__trace {
+  text-align: left;
+  margin-top: var(--space-6);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: var(--font-size-xs);
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+}

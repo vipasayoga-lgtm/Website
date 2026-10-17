@@ -8,14 +8,27 @@ $pageCss = 'auth';
 <div class="auth-page">
     <div class="auth-split">
         <div class="auth-split__branding">
-            <img class="auth-split__branding-photo" src="/assets/img/client/pose-side-stretch.webp" alt="">
-            <div class="auth-split__branding-content">
-                <div class="splash__wordmark" style="color:inherit">Vipasa Yoga</div>
+            <div class="auth-split__bg-photo"></div>
+            <div class="auth-split__logo-box">
+                <img class="auth-split__logo-img" src="/assets/img/brand/loginlogo-gold.png" alt="Vipasa Yoga Logo">
             </div>
-            <p class="auth-split__quote">"Yoga is the journey of the self, through the self, to the self." Sign in and continue where you left off.</p>
+            <div class="auth-split__quote-wrap">
+                <div class="auth-split__quote-main">
+                    <span class="auth-split__quote-mark">“</span>
+                    <p class="auth-split__quote">Yoga is the journey of the self, through the self, to the self.</p>
+                </div>
+                <div class="auth-split__quote-divider"></div>
+                <p class="auth-split__quote-sub">Continue your practice. One breath at a time.</p>
+            </div>
         </div>
         <div class="auth-split__form-side">
             <div class="auth-split__form-inner">
+                <a href="/" class="auth-back-btn btn btn-ghost btn-sm">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M10.5 12l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Back to home
+                </a>
                 <h1 class="auth-card__title">Welcome back</h1>
                 <p class="auth-card__subtitle">Sign in to continue your practice.</p>
                 <div class="auth-social">
@@ -73,6 +86,8 @@ if (googleError === 'not_configured') {
     toast.error('Google sign-in isn\'t configured yet. Please use email/password.');
 } else if (googleError === 'failed') {
     toast.error('Google sign-in failed. Please try again.');
+} else if (params.get('error') === 'account_inactive') {
+    toast.error('Your instructor account is currently inactive. Access denied. Please contact the administrator.');
 }
 
 // Carries a booking/browse page a visitor was bounced from (see

@@ -11,6 +11,7 @@ use App\Models\ActivityLog;
 use App\Models\Booking;
 use App\Models\BookingRescheduleRequest;
 use App\Models\BookingSlot;
+use App\Models\ClientProfile;
 use App\Models\Coupon;
 use App\Models\Instructor;
 use App\Models\InstructorReview;
@@ -33,6 +34,18 @@ final class BookingController extends Controller
 
         if (!$instructorId || !$packageId || $slotDate === '' || $startTime === '') {
             $this->fail('Instructor, package, date, and time are required.', 422);
+        }
+
+        $profile = ClientProfile::findByUserId(Auth::id());
+        $profile = $profile ? ClientProfile::hydrate($profile) : null;
+        $stage = ClientProfile::stageReached($profile);
+
+        if ($stage < 2) {
+            $this->fail('Please complete your health & safety questionnaire before booking.', 422, [], ['redirect' => '/onboarding/health-assessment']);
+        }
+
+        if ($stage < 4 && count(Booking::forClient(Auth::id())) >= 1) {
+            $this->fail('Please complete your advanced health check-in before your next booking.', 422, [], ['redirect' => '/onboarding/advanced-health']);
         }
 
         $instructor = Instructor::find($instructorId);
@@ -172,8 +185,8 @@ final class BookingController extends Controller
             $this->fail('Booking not found.', 404);
         }
 
-        if ($booking['status'] !== 'completed') {
-            $this->fail('You can only rate a trainer after the session is completed.', 422);
+        if (!in_array($booking['status'], ['completed', 'confirmed'], true)) {
+            $this->fail('You can only rate a trainer after booking a session.', 422);
         }
 
         if (InstructorReview::existsForBooking((int) $booking['id'])) {

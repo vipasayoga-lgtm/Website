@@ -361,3 +361,75 @@
     position: static;
   }
 }
+
+/* Package Selection Modal & Compact Card System */
+#package-modal-overlay .modal {
+  max-width: 540px;
+  padding: 16px 20px;
+  border-radius: var(--radius-xl);
+}
+
+#package-modal-overlay .modal__header {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+#package-modal-overlay .modal__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+#package-modal-overlay .modal__header p {
+  font-size: 0.78rem !important;
+  margin: 0;
+}
+
+#package-modal-overlay .package-card {
+  padding: 10px 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+#package-modal-overlay .package-card__name {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+#package-modal-overlay .package-card h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 2px 0 4px;
+}
+
+#package-modal-overlay .package-card__price {
+  margin-block: 2px 4px;
+}
+
+#package-modal-overlay .package-card__price-value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+#package-modal-overlay .package-card__features {
+  margin-block: 4px 8px;
+  gap: 2px;
+}
+
+#package-modal-overlay .package-card__feature {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+#package-modal-overlay .package-card .btn {
+  font-size: 11px;
+  padding: 4px 10px;
+}

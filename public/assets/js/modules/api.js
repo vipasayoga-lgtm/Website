@@ -27,6 +27,17 @@ export async function apiRequest(method, path, body) {
 
   const response = await fetch(path, init);
 
+  const newCsrf = response.headers.get('X-CSRF-Token');
+  if (newCsrf) {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    if (meta) {
+      meta.content = newCsrf;
+    }
+    document.querySelectorAll('input[name="csrf_token"]').forEach((input) => {
+      input.value = newCsrf;
+    });
+  }
+
   let data = null;
   try {
     data = await response.json();

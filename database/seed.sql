@@ -50,7 +50,7 @@ SELECT r.id, p.id FROM roles r CROSS JOIN permissions p
 WHERE r.slug = 'client' AND p.slug IN ('book_session', 'join_live_class');
 
 INSERT INTO users (name, email, password_hash, role, status, email_verified_at) VALUES
-('Vipasa Admin', 'admin@vipasa.demo', '$2y$10$Z1nErVE8dSNWjpJszb2U4utmpyvD04.QvizW0qyOB9QNMxmIZWHai', 'admin', 'active', NOW());
+('Vipasa Admin', 'info@vipasayoga.com', '$2y$10$5GorX5xT53tekFzz.4oDH.iMQ0UdnevVjJFEYSlWW5APEI9lpw116', 'admin', 'active', NOW());
 
 INSERT INTO service_types (slug, name, description, icon, sort_order) VALUES
 ('one-to-one', 'One to One Session', 'Private personalized yoga session with a dedicated instructor.', 'user', 1),

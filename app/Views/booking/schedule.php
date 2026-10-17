@@ -10,7 +10,7 @@ $active = 'services';
 <div class="booking-page container page-enter">
     <div class="booking-layout">
         <div class="slot-picker">
-            <div class="card">
+            <div class="card card-glass">
                 <div class="card__header">
                     <div>
                         <div class="card__title"><?= View::e($package['name']) ?></div>

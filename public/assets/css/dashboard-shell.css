@@ -7,13 +7,15 @@
 .dash-shell {
   display: flex;
   min-height: 100vh;
-  background: var(--surface-bg);
+  background: #ffffff;
 }
 
 /* ---- Sidebar ---------------------------------------------------------- */
 .dash-sidebar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  bottom: 0;
   height: 100vh;
   width: var(--sidebar-width);
   flex-shrink: 0;
@@ -33,27 +35,39 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-4) var(--space-5) var(--space-3);
+  height: 74px;
+  background: var(--sidebar-bg);
   overflow: hidden;
+  transition: padding var(--transition-slow), height var(--transition-slow);
 }
 
 .dash-sidebar__brand-logo {
-  height: 84px;
+  height: 54px;
   width: auto;
   max-width: 100%;
   object-fit: contain;
   display: block;
+  /* The full-lockup source (lotus + "VIPASA") is dark-navy ink on a solid
+     white background with no alpha. grayscale+invert turns the ink light and
+     the white ground black; `screen` then drops that black ground into the
+     navy sidebar, leaving the complete logo in near-white — no white chip,
+     no cropping. */
+  filter: grayscale(1) invert(1) brightness(1.15);
+  mix-blend-mode: screen;
 }
 
-/* Collapsed sidebar is icon-only and too narrow for the full lockup — crop
-   to just the mark at the top of the square source image instead of
-   squeezing the whole wordmark+tagline into a sliver. */
+/* Collapsed sidebar is icon-only — crop to the lotus at the top of the mark. */
+.dash-shell.is-collapsed .dash-sidebar__brand {
+  padding: var(--space-3) var(--space-2);
+  height: 58px;
+}
+
 .dash-shell.is-collapsed .dash-sidebar__brand-logo {
   height: 40px;
   width: 40px;
   object-fit: cover;
   object-position: top center;
-  border-radius: var(--radius-md);
 }
 
 .dash-sidebar__nav {
@@ -70,7 +84,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-3);
+  padding: 8px 12px;
   border-radius: var(--radius-md);
   color: var(--sidebar-text);
   text-decoration: none;
@@ -82,21 +96,18 @@
 }
 
 .dash-sidebar__link:hover {
-  background: var(--color-primary-soft);
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
 }
 
 .dash-sidebar__link.is-active {
   background: var(--sidebar-active-bg);
-  color: var(--sidebar-text-active);
+  color: #FFFFFF;
   border-left-color: var(--sidebar-active-border);
 }
 
-/* Client icon spec: active icon = Vipasa Blue, inactive = Slate. The label
-   text stays --sidebar-text-active (Ink) for readability — only the icon
-   itself picks up the brand blue when its nav item is active. Inactive
-   icons already inherit Slate via .dash-sidebar__link's own color. */
 .dash-sidebar__link.is-active .dash-sidebar__icon {
-  color: var(--color-primary);
+  color: #F59E0B;
 }
 
 .dash-sidebar__link.is-active:hover {
@@ -118,11 +129,11 @@
   justify-content: center;
   gap: var(--space-2);
   margin: var(--space-3);
-  padding: var(--space-3);
-  border: 1px solid var(--sidebar-border);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--sidebar-text);
+  background: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
   cursor: pointer;
   transition: transform var(--transition-slow);
 }
@@ -141,11 +152,135 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
+  margin-left: var(--sidebar-width);
+  transition: margin-left var(--transition-slow);
+}
+
+.dash-shell.is-collapsed .dash-shell__main {
+  margin-left: var(--sidebar-width-collapsed);
 }
 
 .dash-shell__content {
   flex: 1;
-  padding: var(--space-6) var(--space-8) var(--space-16);
+  width: 100%;
+  max-width: 100%;
+  padding: var(--space-4) var(--space-6) var(--space-8);
+}
+
+.dash-shell .container {
+  max-width: 100%;
+  width: 100%;
+}
+
+/* ---- Dashboard insight panels (client home) --------------------------- */
+.dash-insights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-4);
+}
+
+.dash-insights__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.dash-mini-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.dash-mini-row__avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dash-mini-row__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dash-mini-row__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-mini-row__title {
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-mini-row__meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Dashboard pages reuse the public site's .services-hero/__title component
+   for page headers, which is sized for a marketing-page hero (36px/18px) —
+   too large for a dense dashboard context sitting right below a compact
+   topbar. Scoped down here rather than shrinking the shared class, since
+   the public Services page still wants the full-size version. */
+.dash-shell .services-hero {
+  text-align: left;
+  max-width: none;
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+
+.dash-shell .services-hero__title {
+  font-size: var(--font-size-xl);
+}
+
+.dash-shell .services-hero__subtitle {
+  font-size: var(--font-size-sm);
+}
+
+/* Dashboard is a dense, utility context — trim the shared button scale a
+   notch tighter than the marketing site so actions read as controls, not
+   hero CTAs. Scoped to .dash-shell so the public site keeps its larger
+   buttons. */
+.dash-shell .btn {
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+}
+
+.dash-shell .btn-sm {
+  padding: 5px 11px;
+  font-size: 0.78rem;
+}
+
+.dash-shell .btn-xs {
+  padding: 3px 9px;
+  font-size: 0.72rem;
+}
+
+.dash-shell .btn-lg {
+  padding: 8px 16px;
+  font-size: var(--font-size-sm);
 }
 
 /* ---- Topbar ------------------------------------------------------------ */
@@ -313,11 +448,21 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
+/* Cap the dropdown height so a long list scrolls inside the panel rather
+   than growing the whole box past the viewport. */
+.dash-topbar__panel--notifications [data-notif-list] {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
 .dash-topbar__notif-item {
-  display: block;
-  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   border-bottom: 1px solid var(--border-subtle);
   font-size: var(--font-size-sm);
+  line-height: 1.35;
 }
 
 .dash-topbar__notif-item:last-child {
@@ -326,6 +471,42 @@
 
 .dash-topbar__notif-item.is-unread {
   background: var(--color-primary-soft);
+}
+
+.dash-topbar__notif-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-topbar__notif-body .text-muted {
+  font-size: 0.78rem;
+}
+
+.dash-topbar__notif-delete {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.dash-topbar__notif-delete:hover {
+  background: var(--color-error-soft, rgba(220, 38, 38, 0.1));
+  color: var(--color-error);
+}
+
+.dash-topbar__notif-delete:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .dash-topbar__panel-footer {
@@ -356,6 +537,11 @@
 
 /* ---- Responsive: sidebar becomes an off-canvas drawer ------------------ */
 @media (max-width: 900px) {
+  .dash-shell__main,
+  .dash-shell.is-collapsed .dash-shell__main {
+    margin-left: 0 !important;
+  }
+
   .dash-sidebar {
     position: fixed;
     left: 0;
@@ -385,6 +571,10 @@
     display: none;
   }
 
+  .dash-topbar {
+    padding: var(--space-3) var(--space-4);
+  }
+
   .dash-topbar__menu-btn {
     display: flex;
   }
@@ -398,6 +588,31 @@
   }
 
   .dash-shell__content {
-    padding: var(--space-5) var(--space-4) var(--space-12);
+    padding: var(--space-4) var(--space-3) var(--space-10);
+  }
+}
+
+@media print {
+  .dash-sidebar,
+  .dash-topbar,
+  .dash-sidebar__mobile-overlay,
+  .no-print {
+    display: none !important;
+  }
+
+  .dash-shell,
+  .dash-shell__main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+
+  .dash-shell__content {
+    padding: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }

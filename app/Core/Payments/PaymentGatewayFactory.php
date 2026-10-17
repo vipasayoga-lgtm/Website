@@ -10,7 +10,9 @@ final class PaymentGatewayFactory
 
         $gateway = match ($payments['gateway']) {
             'stripe' => new StripeGateway(),
-            default => new RazorpayGateway(),
+            'razorpay' => new RazorpayGateway(),
+            'mock' => new MockGateway(),
+            default => new UpiQrGateway(),
         };
 
         // No real keys set for the active gateway — fall back to the mock

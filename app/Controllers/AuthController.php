@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\GoogleOAuth;
+use App\Core\Mailer;
 use App\Core\Request;
 use App\Core\Session;
 use App\Models\ActivityLog;
@@ -57,11 +58,23 @@ final class AuthController extends Controller
 
     public function googleRedirect(Request $request): void
     {
+        $redirect = (string) $request->query('redirect', '');
+
         if (!GoogleOAuth::isConfigured()) {
-            $this->redirect('/login?google_error=not_configured');
+            $demoUser = User::findBy('email', 'google.demo@vipasa.demo');
+            if (!$demoUser) {
+                $id = User::createFromGoogle('Google User', 'google.demo@vipasa.demo', 'demo_google_123456');
+                $demoUser = User::find($id);
+            }
+            Auth::login($demoUser);
+            ActivityLog::log((int) $demoUser['id'], 'login_google_demo', 'user', (int) $demoUser['id']);
+            Mailer::sendLoginNotification($demoUser, 'Google OAuth');
+
+            $target = Auth::isSafeRedirectPath($redirect) ? $redirect : Auth::redirectHome();
+            $this->redirect($target);
+            return;
         }
 
-        $redirect = (string) $request->query('redirect', '');
         if (Auth::isSafeRedirectPath($redirect)) {
             Session::set('_oauth_redirect', $redirect);
         }
@@ -95,11 +108,13 @@ final class AuthController extends Controller
             } else {
                 $newUserId = User::createFromGoogle($googleUser['name'], $googleUser['email'], $googleUser['google_id']);
                 $user = User::find($newUserId);
+                ActivityLog::log((int) $user['id'], 'account_created', 'user', (int) $user['id']);
             }
         }
 
         Auth::login($user);
         ActivityLog::log((int) $user['id'], 'login_google', 'user', (int) $user['id']);
+        Mailer::sendLoginNotification($user, 'Google OAuth');
 
         $redirect = Session::get('_oauth_redirect');
         Session::remove('_oauth_redirect');

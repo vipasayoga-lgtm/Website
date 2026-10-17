@@ -62,6 +62,20 @@
   --mist-900: #23282d;
   --mist-950: #1a2733; /* client: "Ink" */
 
+  /* Dashboard-only teal accent — not part of the client's public-site brand
+     scale, scoped to .dash-shell (see below) so the public marketing pages
+     are untouched. */
+  --teal-50:  #eafbf8;
+  --teal-100: #d1f5ef;
+  --teal-200: #a3ebe0;
+  --teal-300: #6ddcd0;
+  --teal-400: #3dc9ba;
+  --teal-500: #22b3a4;
+  --teal-600: #1a8f83;
+  --teal-700: #156f66;
+  --teal-800: #114f49;
+  --teal-900: #0d3a35;
+
   /* Neutral gray scale — kept true-neutral (not blue-tinted) so it sits
      cleanly behind the Vipasa Blue/Saffron brand colors and the pure
      white/near-black surfaces the client's spec calls for by exact hex value. */
@@ -165,7 +179,7 @@
   /* ---------------------------------------------------------------------
      Text
      --------------------------------------------------------------------- */
-  --text-primary: var(--mist-950); /* client: "Ink" */
+  --text-primary: var(--color-primary); /* client: "Ink" — updated from near-black to brand primary blue */
   --text-secondary: var(--mist-600); /* client: "Slate" */
   --text-muted: var(--mist-500); /* client: "Mist" */
   --text-disabled: var(--gray-400);
@@ -228,6 +242,17 @@
   --font-display: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
     Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  /* Landing-page hero display face only (Playfair Display) — falls back to
+     the Poppins display stack everywhere it isn't explicitly loaded, so
+     nothing breaks on pages that don't reference it. */
+  --font-hero: "Playfair Display", var(--font-display);
+  /* Forward-compatible fallback chain for non-Latin scripts (Tamil,
+     Malayalam, Hindi/Devanagari) — named here so text in those scripts
+     renders correctly if/when it's ever added. Deliberately NOT loaded via
+     a Google Fonts <link> today since nothing on the site renders these
+     scripts yet — eagerly downloading unused font weights would hurt load
+     performance for zero visible benefit. */
+  --font-sans-intl: var(--font-sans), "Noto Sans Tamil", "Noto Sans Malayalam", "Noto Sans Devanagari";
 
   --font-size-xs: 0.75rem;    /* 12px */
   --font-size-sm: 0.875rem;   /* 14px */
@@ -286,33 +311,52 @@
      --------------------------------------------------------------------- */
   --sidebar-width: 264px;
   --sidebar-width-collapsed: 76px;
-  --sidebar-bg: var(--surface-elevated);
-  --sidebar-text: var(--text-secondary);
-  --sidebar-text-active: var(--text-primary);
-  --sidebar-active-bg: var(--color-primary-soft);
-  --sidebar-active-border: var(--color-primary);
-  --sidebar-border: var(--border-subtle);
-  --topbar-bg: var(--surface-elevated);
+  --sidebar-bg: #0B2635;
+  --sidebar-text: #CBD5E1;
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.14);
+  --sidebar-active-border: #F59E0B;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --topbar-bg: #FFFFFF;
 }
 
-/* =========================================================================
-   Portal identity — Admin / Trainer / Client
-   The client's design system is a single unified brand (one blue, one
-   accent, strict color-usage ratios) with no per-role hue — so all three
-   portals share one sidebar/topbar identity. Kept as a [data-portal] hook
-   (rather than deleting it) so a future per-portal accent is still a
-   one-block change if ever requested, without touching the sidebar markup.
-   ========================================================================= */
 [data-portal="admin"],
 [data-portal="trainer"],
 [data-portal="client"] {
-  --sidebar-bg: var(--surface-elevated);
-  --sidebar-text: var(--text-secondary);
-  --sidebar-text-active: var(--text-primary);
-  --sidebar-active-bg: var(--color-primary-soft);
-  --sidebar-active-border: var(--color-primary);
-  --sidebar-border: var(--border-subtle);
-  --topbar-bg: var(--surface-elevated);
+  --sidebar-bg: #0B2635;
+  --sidebar-text: #CBD5E1;
+  --sidebar-text-active: #FFFFFF;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.14);
+  --sidebar-active-border: #F59E0B;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --topbar-bg: #FFFFFF;
+}
+
+/* Dashboard-only teal tertiary accent (badges, chart lines, secondary
+   highlights) — replaces the grayish "Mist" tertiary used on public pages.
+   Scoped to .dash-shell so it never touches the public marketing site.
+   Same three-tier override order as the base tokens above: OS preference,
+   then explicit dark, then explicit light always wins last. */
+.dash-shell {
+  --color-tertiary: var(--teal-600);
+  --color-tertiary-soft: var(--teal-50);
+}
+
+@media (prefers-color-scheme: dark) {
+  .dash-shell {
+    --color-tertiary: var(--teal-300);
+    --color-tertiary-soft: rgba(61, 201, 186, 0.16);
+  }
+}
+
+:root[data-theme="dark"] .dash-shell {
+  --color-tertiary: var(--teal-300);
+  --color-tertiary-soft: rgba(61, 201, 186, 0.16);
+}
+
+:root[data-theme="light"] .dash-shell {
+  --color-tertiary: var(--teal-600);
+  --color-tertiary-soft: var(--teal-50);
 }
 
 /* =========================================================================
@@ -329,17 +373,17 @@
     --color-primary-soft: rgba(45, 106, 136, 0.22);
     --color-primary-contrast: var(--mist-950);
 
-    --color-accent: var(--saffron-500);
-    --color-accent-hover: var(--saffron-600);
-    --color-accent-active: var(--saffron-700);
-    --color-accent-soft: rgba(232, 150, 60, 0.18);
+    --color-accent: #e98d2c;
+    --color-accent-hover: #d97e1f;
+    --color-accent-active: #c06f19;
+    --color-accent-soft: rgba(233, 141, 44, 0.18);
     --color-accent-contrast: var(--mist-950);
 
     --color-tertiary: var(--mist-400);
     --color-tertiary-soft: rgba(165, 176, 183, 0.16);
 
-    --color-success: var(--color-success-500);
-    --color-success-soft: rgba(47, 168, 99, 0.16);
+    --color-success: #27ae60;
+    --color-success-soft: rgba(39, 174, 96, 0.16);
     --color-warning: var(--color-warning-500);
     --color-warning-soft: rgba(226, 165, 48, 0.16);
     --color-error: var(--color-error-500);
@@ -349,39 +393,40 @@
 
     --gradient-primary: linear-gradient(135deg, var(--vipasa-blue-400) 0%, var(--vipasa-blue-600) 100%);
     --gradient-primary-hover: linear-gradient(135deg, var(--vipasa-blue-300) 0%, var(--vipasa-blue-500) 100%);
-    --gradient-accent: linear-gradient(135deg, var(--saffron-400) 0%, var(--saffron-600) 100%);
-    --gradient-border: linear-gradient(135deg, var(--vipasa-blue-300) 0%, var(--saffron-400) 100%);
+    --gradient-accent: linear-gradient(135deg, #e98d2c 0%, #c06f19 100%);
+    --gradient-border: linear-gradient(135deg, var(--vipasa-blue-300) 0%, #e98d2c 100%);
     --gradient-mesh: radial-gradient(60% 60% at 20% 20%, rgba(45, 106, 136, 0.22) 0%, transparent 60%),
-                     radial-gradient(50% 50% at 85% 15%, rgba(232, 150, 60, 0.14) 0%, transparent 60%);
+                     radial-gradient(50% 50% at 85% 15%, rgba(233, 141, 44, 0.14) 0%, transparent 60%);
 
-    --surface-bg: #0f2e42;
-    --surface-bg-alt: #123852;
-    --surface-card: #1b4a66;
-    --surface-elevated: #224f6e;
-    --surface-sunken: #0a2231;
-    --input-bg: #234f6c;
-    --surface-overlay: rgba(15, 46, 66, 0.6);
+    --surface-bg: #071523;
+    --surface-bg-alt: #081827;
+    --surface-card: #10263a;
+    --surface-elevated: #132c44;
+    --surface-hover: #193a55;
+    --surface-sunken: #050e18;
+    --input-bg: #132c44;
+    --surface-overlay: rgba(7, 21, 35, 0.6);
 
-    --surface-glass: rgba(27, 74, 102, 0.55);
-    --surface-glass-strong: rgba(27, 74, 102, 0.78);
-    --surface-glass-border: rgba(245, 248, 250, 0.14);
+    --surface-glass: rgba(16, 38, 58, 0.55);
+    --surface-glass-strong: rgba(16, 38, 58, 0.78);
+    --surface-glass-border: rgba(255, 255, 255, 0.06);
 
-    --text-primary: #f5f8fa;
-    --text-secondary: #b7c3cb;
+    --text-primary: #ffffff;
+    --text-secondary: #bfc8d2;
     --text-muted: #8a9ba8;
     --text-disabled: #5c707e;
     --text-inverse: var(--mist-950);
     --text-link: var(--vipasa-blue-300);
 
-    --border-subtle: rgba(245, 248, 250, 0.06);
-    --border-default: #2d4e63;
-    --border-strong: rgba(245, 248, 250, 0.2);
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: #234055;
+    --border-strong: rgba(255, 255, 255, 0.2);
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32), 0 1px 1px rgba(0, 0, 0, 0.24);
     --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.36), 0 2px 4px rgba(0, 0, 0, 0.24);
     --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.42), 0 4px 8px rgba(0, 0, 0, 0.28);
     --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.5), 0 8px 16px rgba(0, 0, 0, 0.32);
-    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(245, 248, 250, 0.06);
+    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     --shadow-focus-ring: 0 0 0 4px rgba(130, 179, 203, 0.35);
     --shadow-glow: 0 0 24px rgba(130, 179, 203, 0.35);
   }
@@ -402,17 +447,21 @@
   --color-primary-soft: rgba(45, 106, 136, 0.22);
   --color-primary-contrast: var(--mist-950);
 
-  --color-accent: var(--saffron-500);
-  --color-accent-hover: var(--saffron-600);
-  --color-accent-active: var(--saffron-700);
-  --color-accent-soft: rgba(232, 150, 60, 0.18);
+  /* Client-supplied exact hex values (superseding the raw saffron/success
+     scale references below them) — kept as direct hex rather than
+     var(--saffron-500)/var(--color-success-500) so this palette pass is
+     pixel-exact to spec rather than "close enough via the existing scale". */
+  --color-accent: #e98d2c;
+  --color-accent-hover: #d97e1f;
+  --color-accent-active: #c06f19;
+  --color-accent-soft: rgba(233, 141, 44, 0.18);
   --color-accent-contrast: var(--mist-950);
 
   --color-tertiary: var(--mist-400);
   --color-tertiary-soft: rgba(165, 176, 183, 0.16);
 
-  --color-success: var(--color-success-500);
-  --color-success-soft: rgba(47, 168, 99, 0.16);
+  --color-success: #27ae60;
+  --color-success-soft: rgba(39, 174, 96, 0.16);
   --color-warning: var(--color-warning-500);
   --color-warning-soft: rgba(226, 165, 48, 0.16);
   --color-error: var(--color-error-500);
@@ -422,39 +471,44 @@
 
   --gradient-primary: linear-gradient(135deg, var(--vipasa-blue-400) 0%, var(--vipasa-blue-600) 100%);
   --gradient-primary-hover: linear-gradient(135deg, var(--vipasa-blue-300) 0%, var(--vipasa-blue-500) 100%);
-  --gradient-accent: linear-gradient(135deg, var(--saffron-400) 0%, var(--saffron-600) 100%);
-  --gradient-border: linear-gradient(135deg, var(--vipasa-blue-300) 0%, var(--saffron-400) 100%);
+  --gradient-accent: linear-gradient(135deg, #e98d2c 0%, #c06f19 100%);
+  --gradient-border: linear-gradient(135deg, var(--vipasa-blue-300) 0%, #e98d2c 100%);
   --gradient-mesh: radial-gradient(60% 60% at 20% 20%, rgba(45, 106, 136, 0.22) 0%, transparent 60%),
-                   radial-gradient(50% 50% at 85% 15%, rgba(232, 150, 60, 0.14) 0%, transparent 60%);
+                   radial-gradient(50% 50% at 85% 15%, rgba(233, 141, 44, 0.14) 0%, transparent 60%);
 
-  --surface-bg: #0f2e42;
-  --surface-bg-alt: #123852;
-  --surface-card: #1b4a66;
-  --surface-elevated: #224f6e;
-  --surface-sunken: #0a2231;
-  --input-bg: #234f6c;
-  --surface-overlay: rgba(15, 46, 66, 0.6);
+  /* Client-supplied 5-step elevation scale (Background/Secondary/Card/
+     Surface/Hover, darkest to lightest) — replaces the earlier values,
+     which were already close (same vipasa-blue-navy family) but not
+     pixel-exact to the newly supplied hex codes. */
+  --surface-bg: #071523;
+  --surface-bg-alt: #081827;
+  --surface-card: #10263a;
+  --surface-elevated: #132c44;
+  --surface-hover: #193a55;
+  --surface-sunken: #050e18;
+  --input-bg: #132c44;
+  --surface-overlay: rgba(7, 21, 35, 0.6);
 
-  --surface-glass: rgba(27, 74, 102, 0.55);
-  --surface-glass-strong: rgba(27, 74, 102, 0.78);
-  --surface-glass-border: rgba(245, 248, 250, 0.14);
+  --surface-glass: rgba(16, 38, 58, 0.55);
+  --surface-glass-strong: rgba(16, 38, 58, 0.78);
+  --surface-glass-border: rgba(255, 255, 255, 0.06);
 
-  --text-primary: #f5f8fa;
-  --text-secondary: #b7c3cb;
+  --text-primary: #ffffff;
+  --text-secondary: #bfc8d2;
   --text-muted: #8a9ba8;
   --text-disabled: #5c707e;
   --text-inverse: var(--mist-950);
   --text-link: var(--vipasa-blue-300);
 
-  --border-subtle: rgba(245, 248, 250, 0.06);
-  --border-default: #2d4e63;
-  --border-strong: rgba(245, 248, 250, 0.2);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: #234055;
+  --border-strong: rgba(255, 255, 255, 0.2);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32), 0 1px 1px rgba(0, 0, 0, 0.24);
   --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.36), 0 2px 4px rgba(0, 0, 0, 0.24);
   --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.42), 0 4px 8px rgba(0, 0, 0, 0.28);
   --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.5), 0 8px 16px rgba(0, 0, 0, 0.32);
-  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(245, 248, 250, 0.06);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --shadow-focus-ring: 0 0 0 4px rgba(130, 179, 203, 0.35);
   --shadow-glow: 0 0 24px rgba(130, 179, 203, 0.35);
 }
@@ -509,7 +563,7 @@
   --surface-glass-strong: rgba(255, 255, 255, 0.78);
   --surface-glass-border: rgba(255, 255, 255, 0.45);
 
-  --text-primary: var(--mist-950);
+  --text-primary: var(--color-primary);
   --text-secondary: var(--mist-600);
   --text-muted: var(--mist-500);
   --text-disabled: var(--gray-400);

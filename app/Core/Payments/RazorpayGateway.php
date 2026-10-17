@@ -24,6 +24,7 @@ final class RazorpayGateway implements PaymentGateway
     {
         $config = self::config();
 
+        $verifySsl = (\App\Core\Env::get('APP_ENV', 'local') === 'production');
         $ch = curl_init(self::API_BASE . '/orders');
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
@@ -31,6 +32,7 @@ final class RazorpayGateway implements PaymentGateway
             CURLOPT_TIMEOUT => 15,
             CURLOPT_USERPWD => $config['key_id'] . ':' . $config['key_secret'],
             CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_SSL_VERIFYPEER => $verifySsl,
             CURLOPT_POSTFIELDS => json_encode([
                 'amount' => $amountInSmallestUnit,
                 'currency' => $currency,
@@ -42,6 +44,28 @@ final class RazorpayGateway implements PaymentGateway
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $ok = curl_errno($ch) === 0;
         curl_close($ch);
+
+        if ((!$ok || $body === false || $status >= 300) && \App\Core\Env::get('APP_ENV', 'local') !== 'production') {
+            $ch = curl_init(self::API_BASE . '/orders');
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 15,
+                CURLOPT_USERPWD => $config['key_id'] . ':' . $config['key_secret'],
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_POSTFIELDS => json_encode([
+                    'amount' => $amountInSmallestUnit,
+                    'currency' => $currency,
+                    'receipt' => $receipt,
+                    'payment_capture' => 1,
+                ]),
+            ]);
+            $body = curl_exec($ch);
+            $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $ok = curl_errno($ch) === 0;
+            curl_close($ch);
+        }
 
         if (!$ok || $body === false || $status >= 300) {
             return null;

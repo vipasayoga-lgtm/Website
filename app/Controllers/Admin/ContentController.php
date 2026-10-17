@@ -19,6 +19,8 @@ final class ContentController extends Controller
             'testimonials' => PageContent::getSection('testimonials') ?? PageContent::defaultTestimonials(),
             'faqs' => PageContent::getSection('faqs') ?? PageContent::defaultFaqs(),
             'contact' => PageContent::getSection('contact') ?? PageContent::defaultContact(),
+            'howItWorks' => PageContent::getSection('how_it_works') ?? PageContent::defaultHowItWorks(),
+            'blogPosts' => PageContent::getSection('blog') ?? PageContent::defaultBlogPosts(),
         ], 'dashboard');
     }
 
@@ -28,6 +30,7 @@ final class ContentController extends Controller
             'eyebrow' => trim((string) $request->input('eyebrow', '')),
             'tagline' => trim((string) $request->input('tagline', '')),
             'title' => trim((string) $request->input('title', '')),
+            'titleHighlight' => trim((string) $request->input('titleHighlight', '')),
             'subtitle' => trim((string) $request->input('subtitle', '')),
         ]);
 
@@ -84,6 +87,24 @@ final class ContentController extends Controller
 
         ActivityLog::log(Auth::id(), 'content_updated', 'page_content', null, ['section' => 'programs']);
         $this->success(null, 'Programs updated.');
+    }
+
+    public function updateHowItWorks(Request $request): void
+    {
+        $items = $this->sanitizeItems($request->input('items', []), ['icon', 'title', 'text']);
+        PageContent::saveSection('how_it_works', $items);
+
+        ActivityLog::log(Auth::id(), 'content_updated', 'page_content', null, ['section' => 'how_it_works']);
+        $this->success(null, 'How It Works section updated.');
+    }
+
+    public function updateBlog(Request $request): void
+    {
+        $items = $this->sanitizeItems($request->input('items', []), ['title', 'excerpt', 'img', 'tag']);
+        PageContent::saveSection('blog', $items);
+
+        ActivityLog::log(Auth::id(), 'content_updated', 'page_content', null, ['section' => 'blog']);
+        $this->success(null, 'Blog posts updated.');
     }
 
     private function sanitizeItems(mixed $items, array $fields): array

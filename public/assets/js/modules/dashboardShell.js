@@ -1,4 +1,4 @@
-import { apiGet } from './api.js';
+import { apiGet, apiPost } from './api.js';
 
 const shell = document.querySelector('.dash-shell');
 
@@ -88,25 +88,61 @@ async function loadNotifications() {
         const result = await apiGet('/api/notifications');
         const { notifications, unread_count: unreadCount } = result.data;
 
-        if (unreadCount > 0) {
-            badge.hidden = false;
-            badge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
-        }
+        setNotifBadge(badge, unreadCount);
+        renderNotifications(list, badge, notifications);
+    } catch {
+        list.innerHTML = emptyNotifMarkup('Could not load notifications.');
+    }
+}
 
-        if (!notifications.length) {
-            list.innerHTML = '<p class="text-muted" style="padding:var(--space-4);font-size:var(--font-size-sm)">No notifications yet.</p>';
-            return;
-        }
+function setNotifBadge(badge, count) {
+    const n = Math.max(0, Number(count) || 0);
+    badge.hidden = n === 0;
+    badge.textContent = n > 9 ? '9+' : String(n);
+}
 
-        list.innerHTML = notifications.map((n) => `
-            <div class="dash-topbar__notif-item${n.is_read == 0 ? ' is-unread' : ''}">
+function emptyNotifMarkup(message) {
+    return `<p class="text-muted" style="padding:var(--space-4);font-size:var(--font-size-sm)">${message}</p>`;
+}
+
+function renderNotifications(list, badge, notifications) {
+    if (!notifications.length) {
+        list.innerHTML = emptyNotifMarkup('No notifications yet.');
+        return;
+    }
+
+    list.innerHTML = notifications.map((n) => `
+        <div class="dash-topbar__notif-item${n.is_read == 0 ? ' is-unread' : ''}" data-notif-id="${n.id}">
+            <div class="dash-topbar__notif-body">
                 <strong>${escapeHtml(n.title)}</strong>
                 ${n.body ? `<div class="text-muted" style="margin-top:2px">${escapeHtml(n.body)}</div>` : ''}
             </div>
-        `).join('');
-    } catch {
-        list.innerHTML = '<p class="text-muted" style="padding:var(--space-4);font-size:var(--font-size-sm)">Could not load notifications.</p>';
-    }
+            <button type="button" class="dash-topbar__notif-delete" data-notif-delete="${n.id}" aria-label="Delete notification" title="Delete">&times;</button>
+        </div>
+    `).join('');
+
+    list.querySelectorAll('[data-notif-delete]').forEach((btn) => {
+        btn.addEventListener('click', async (event) => {
+            event.stopPropagation();
+            const id = btn.getAttribute('data-notif-delete');
+            const item = list.querySelector(`.dash-topbar__notif-item[data-notif-id="${id}"]`);
+            const wasUnread = item?.classList.contains('is-unread') ?? false;
+            btn.disabled = true;
+
+            try {
+                await apiPost(`/api/notifications/${id}/delete`);
+                item?.remove();
+                if (wasUnread) {
+                    setNotifBadge(badge, (parseInt(badge.textContent, 10) || 1) - 1);
+                }
+                if (!list.querySelector('.dash-topbar__notif-item')) {
+                    list.innerHTML = emptyNotifMarkup('No notifications yet.');
+                }
+            } catch {
+                btn.disabled = false;
+            }
+        });
+    });
 }
 
 function escapeHtml(str) {

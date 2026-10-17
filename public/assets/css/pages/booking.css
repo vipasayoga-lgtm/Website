@@ -108,6 +108,84 @@
   padding: var(--space-6);
 }
 
+.booking-summary textarea,
+.booking-summary input {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background-color: var(--surface-sunken);
+  padding: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.booking-summary textarea:focus,
+.booking-summary input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+@media print {
+  @page {
+    margin: 10mm;
+    size: auto;
+  }
+  
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .no-print,
+  .sidebar,
+  .dashboard-header,
+  .dashboard-sidebar,
+  .app-sidebar,
+  header,
+  nav,
+  aside,
+  .portal-nav,
+  .dashboard-nav,
+  .portal-header {
+    display: none !important;
+  }
+
+  .dash-shell,
+  .dash-shell__main,
+  .dash-shell__content,
+  .dashboard-main,
+  .dashboard-content,
+  .dashboard-layout,
+  .container {
+    padding: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .invoice-card {
+    margin: 0 auto !important;
+    max-width: 620px !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: 1px solid #d0d0d0 !important;
+    padding: 24px !important;
+    background: #ffffff !important;
+    page-break-inside: avoid;
+  }
+}
+
 @media (max-width: 1023px) {
   .booking-summary { position: static; }
 }
@@ -245,4 +323,237 @@
 
 @media (prefers-reduced-motion: reduce) {
   .booking-success__icon { animation: none; }
+}
+
+/* =========================================================================
+   Admin — customer funnel segment tabs (Views/admin/customers.php, which
+   loads this file via $pageCss = 'booking'). Each tab is a link that reloads
+   the list with ?segment=, so the count is always server-truth rather than
+   something the page has to keep in sync.
+   ========================================================================= */
+.customer-segments {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.customer-segment {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-card);
+  text-decoration: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.customer-segment:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.customer-segment.is-active {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-soft);
+  box-shadow: var(--shadow-glow);
+}
+
+.customer-segment__label {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.customer-segment__count {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.customer-segment__hint {
+  grid-column: 1;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+/* =========================================================================
+   Admin — assessment Q&A blocks (Views/partials/assessment-answers.php),
+   used by the customer profile page. Two columns on wide screens so a long
+   answer list stays scannable; one column once that would squeeze the answers.
+   ========================================================================= */
+.qa-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.qa-section {
+  padding: var(--space-5);
+}
+
+.qa-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.qa-section__title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.qa-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-3);
+  padding-block: 5px;
+  font-size: var(--font-size-sm);
+  border-bottom: 1px dashed var(--border-subtle);
+}
+
+.qa-row:last-child { border-bottom: 0; }
+
+.qa-row__q {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.qa-row__a {
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* Per-condition / per-pain-area detail groups nested inside a section. */
+.qa-block {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-bg-alt);
+}
+
+.qa-block__title {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+/* =========================================================================
+   Admin — Manage Bookings list (Views/admin/bookings.php)
+   Replaces a stack of 820px-wide cards, each carrying two full-width form
+   rows, with a compact full-width row per booking: identity line, a
+   separator-joined meta line, and both actions on one toolbar line.
+   ========================================================================= */
+.booking-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.booking-admin-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.booking-admin-row__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.booking-admin-row__who {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-size: var(--font-size-sm);
+  min-width: 0;
+}
+
+.booking-admin-row__who .text-muted {
+  font-size: var(--font-size-xs);
+  overflow-wrap: anywhere;
+}
+
+/* Meta reads as one "a · b · c" line, with the separators drawn by CSS so the
+   markup stays a plain list of spans and no stray dot is left when a value is
+   missing at either end. */
+.booking-admin-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.booking-admin-row__meta span + span::before {
+  content: "·";
+  margin-right: var(--space-2);
+  color: var(--border-strong);
+}
+
+.booking-admin-row__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-5);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.booking-admin-row__tool {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* The link form takes the leftover width so the URL stays readable; the
+   reschedule form is fixed-size (date + time + button) and shouldn't stretch. */
+.booking-admin-row__tools .meeting-link-form {
+  flex: 1 1 320px;
+}
+
+.booking-admin-row__tools .reschedule-form {
+  flex: 0 0 auto;
+}
+
+/* Inputs here are chrome for a dense list, not a form to fill in slowly, so
+   they're a size down from the standard control. */
+.booking-admin-row .form-group__control {
+  padding: 5px 9px;
+  font-size: var(--font-size-xs);
+  width: auto;
+  min-width: 0;
+}
+
+.booking-admin-row__url {
+  flex: 1;
+  min-width: 200px;
+}
+
+@media (max-width: 639px) {
+  .booking-admin-row__tool { width: 100%; }
+  .booking-admin-row__url { min-width: 0; }
 }

@@ -15,11 +15,22 @@ final class Auth
     private static bool $resolved = false;
     private static ?array $permissions = null;
 
-    public static function attempt(string $email, string $password, bool $remember = false): ?array
+    public static function validateCredentials(string $email, string $password): ?array
     {
         $user = User::findBy('email', $email);
 
         if (!$user || $user['password_hash'] === null || !password_verify($password, $user['password_hash'])) {
+            return null;
+        }
+
+        return $user;
+    }
+
+    public static function attempt(string $email, string $password, bool $remember = false): ?array
+    {
+        $user = self::validateCredentials($email, $password);
+
+        if (!$user) {
             return null;
         }
 
@@ -34,6 +45,7 @@ final class Auth
         Session::set(self::SESSION_KEY, $user['id']);
         self::$user = $user;
         self::$resolved = true;
+        self::$permissions = null;
 
         User::update($user['id'], ['last_login_at' => date('Y-m-d H:i:s')]);
 
@@ -58,6 +70,9 @@ final class Auth
         if (isset($_COOKIE[self::REMEMBER_COOKIE])) {
             setcookie(self::REMEMBER_COOKIE, '', time() - 3600, '/');
         }
+
+        Session::start();
+        Csrf::token();
     }
 
     public static function check(): bool
@@ -108,7 +123,7 @@ final class Auth
         return match ($user['role']) {
             'admin' => '/admin',
             'instructor' => '/trainer/dashboard',
-            default => ClientProfile::findByUserId((int) $user['id']) !== null ? '/dashboard' : '/onboarding/profile',
+            default => ClientProfile::findByUserId((int) $user['id']) !== null ? '/dashboard' : '/onboarding/get-started',
         };
     }
 

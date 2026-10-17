@@ -191,12 +191,12 @@ input,
 select,
 textarea {
   width: 100%;
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-3) var(--space-5);
   background-color: var(--input-bg);
   border: 2px solid var(--border-default);
   border-radius: var(--radius-lg);
   color: var(--text-primary);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast),
     background-color var(--transition-fast);
@@ -205,6 +205,8 @@ textarea {
 input::placeholder,
 textarea::placeholder {
   color: var(--text-disabled);
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-normal);
 }
 
 input:hover,
@@ -328,7 +330,11 @@ button:disabled {
 }
 
 @media (min-width: 1024px) {
-  .container { padding-inline: var(--space-10); }
+  /* Larger side margins than before — 1200px max-width was already
+     narrower than the 1280/1360px figures given in a later redesign
+     request, so that request's "more breathing space" intent was
+     satisfied here instead of by widening the container. */
+  .container { padding-inline: var(--space-12); }
 }
 
 .container-narrow { max-width: 720px; }

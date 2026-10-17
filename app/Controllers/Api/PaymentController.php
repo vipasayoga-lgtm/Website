@@ -11,6 +11,7 @@ use App\Core\View;
 use App\Models\ActivityLog;
 use App\Models\Booking;
 use App\Models\Instructor;
+use App\Models\Notification;
 use App\Models\Package;
 use App\Models\Payment;
 use App\Models\User;
@@ -52,7 +53,7 @@ final class PaymentController extends Controller
             $this->fail('Booking not found.', 404);
         }
 
-        if (in_array($booking['status'], ['awaiting_trainer_approval', 'confirmed'], true)) {
+        if (in_array($booking['status'], ['confirmed', 'completed'], true)) {
             $this->success(['redirect' => '/booking/' . $booking['booking_ref'] . '/success']);
         }
 
@@ -67,62 +68,222 @@ final class PaymentController extends Controller
         }
 
         Payment::markSuccessByOrderId($result['order_id'], $result['transaction_id'] ?? $result['order_id']);
-        Booking::update($booking['id'], ['status' => 'awaiting_trainer_approval']);
+        Booking::update($booking['id'], ['status' => 'confirmed']);
         ActivityLog::log(Auth::id(), 'payment_success', 'booking', (int) $booking['id'], [
             'booking_ref' => $booking['booking_ref'],
             'amount' => $booking['total_amount'],
         ]);
 
-        $this->sendPaymentReceiptEmails($booking, $result['transaction_id'] ?? $result['order_id']);
+        // Create in-app notifications
+        $instructor = Instructor::findWithName((int) $booking['instructor_id']);
+        $package = Package::find((int) $booking['package_id']);
+        $dateLabel = date('d M Y', strtotime($booking['slot_date']));
+        $timeLabel = date('g:i A', strtotime($booking['start_time']));
+
+        Notification::create(
+            (int) $booking['client_id'],
+            'booking',
+            'Booking confirmed — ' . $booking['booking_ref'],
+            'Your session for ' . ($package['name'] ?? 'Session') . ' with ' . ($instructor['name'] ?? 'Instructor') . ' on ' . $dateLabel . ' at ' . $timeLabel . ' is confirmed!'
+        );
+
+        if (!empty($instructor['user_id'])) {
+            Notification::create(
+                (int) $instructor['user_id'],
+                'booking',
+                'New booking received — ' . $booking['booking_ref'],
+                'A new session was booked for ' . $dateLabel . ' at ' . $timeLabel . '. Please attach the meeting link for your student.'
+            );
+        }
+
+        Mailer::sendPaymentInvoiceEmail($booking, $result['transaction_id'] ?? $result['order_id']);
 
         $this->success(['redirect' => '/booking/' . $booking['booking_ref'] . '/success']);
     }
 
-    private function sendPaymentReceiptEmails(array $booking, ?string $transactionId): void
+    public function submitProof(Request $request): void
     {
-        $client = User::find((int) $booking['client_id']);
+        $ref = (string) $request->input('booking_ref', '');
+        $booking = Booking::findByRef($ref);
 
-        if (!$client || !$client['email']) {
-            return;
+        if (!$booking || (int) $booking['client_id'] !== Auth::id()) {
+            $this->fail('Booking not found.', 404);
         }
 
-        $config = require dirname(__DIR__, 2) . '/Config/app.php';
+        if ($booking['status'] !== 'pending_payment') {
+            $this->fail('This booking is not awaiting payment verification.', 422);
+        }
+
+        $utrNumber = trim((string) $request->input('utr_number', $request->input('transaction_id', '')));
+        if ($utrNumber === '') {
+            $this->fail('Please enter the UPI Transaction / UTR reference number.', 422);
+        }
+
+        $payerPhone = trim((string) $request->input('payer_phone', ''));
+        $screenshotPath = null;
+
+        if (!empty($_FILES['screenshot']) && $_FILES['screenshot']['error'] === UPLOAD_ERR_OK) {
+            $file = $_FILES['screenshot'];
+            if ($file['size'] > 10 * 1024 * 1024) {
+                $this->fail('Payment screenshot must be smaller than 10MB.', 422);
+            }
+
+            $ext = strtolower((string) pathinfo($file['name'], PATHINFO_EXTENSION));
+            if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+                $this->fail('Screenshot must be a JPG, PNG, or WebP image.', 422);
+            }
+
+            $uploadDir = dirname(__DIR__, 3) . '/public/uploads/payment-proofs';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $filename = sprintf('proof_%d_%s.%s', $booking['id'], bin2hex(random_bytes(6)), $ext);
+            $destination = $uploadDir . '/' . $filename;
+
+            if (move_uploaded_file($file['tmp_name'], $destination)) {
+                $screenshotPath = '/uploads/payment-proofs/' . $filename;
+            }
+        }
+
+        $extra = [
+            'utr' => $utrNumber,
+            'payer_phone' => $payerPhone,
+            'submitted_at' => date('Y-m-d H:i:s'),
+        ];
+
+        Payment::createOrUpdateManualUpi(
+            (int) $booking['id'],
+            $utrNumber,
+            (float) $booking['total_amount'],
+            $booking['currency'],
+            $screenshotPath,
+            $extra
+        );
+
+        ActivityLog::log(Auth::id(), 'payment_proof_submitted', 'booking', (int) $booking['id'], [
+            'booking_ref' => $booking['booking_ref'],
+            'utr' => $utrNumber,
+        ]);
+
+        $client = User::find(Auth::id());
+        $clientName = $client['name'] ?? 'Client';
+
+        foreach (User::where(['role' => 'admin']) as $admin) {
+            Notification::create(
+                (int) $admin['id'],
+                'payment',
+                'Payment submitted — ' . $booking['booking_ref'],
+                'Client ' . $clientName . ' submitted UPI payment proof (UTR: ' . $utrNumber . ') for booking ' . $booking['booking_ref'] . '. Please verify in Admin > Payments.'
+            );
+        }
+
+        $this->success([
+            'redirect' => '/booking/confirm/' . $booking['booking_ref'],
+        ], 'Payment details submitted successfully! Awaiting admin verification.');
+    }
+
+    public function approve(Request $request, int $id): void
+    {
+        if (!Auth::hasRole('admin')) {
+            $this->fail('Only administrators can approve payments.', 403);
+        }
+
+        $payment = Payment::find($id);
+        if (!$payment) {
+            $this->fail('Payment record not found.', 404);
+        }
+
+        $booking = Booking::find($payment['booking_id']);
+        if (!$booking) {
+            $this->fail('Associated booking not found.', 404);
+        }
+
+        Payment::markSuccessById($id);
+        Booking::update($booking['id'], ['status' => 'confirmed']);
+
+        ActivityLog::log(Auth::id(), 'payment_approved', 'booking', (int) $booking['id'], [
+            'booking_ref' => $booking['booking_ref'],
+            'payment_id' => $id,
+        ]);
+
         $instructor = Instructor::findWithName((int) $booking['instructor_id']);
         $package = Package::find((int) $booking['package_id']);
-        $clientName = View::e($client['name']);
-        $ref = View::e($booking['booking_ref']);
-        $dateLabel = View::e(date('l, d M Y', strtotime($booking['slot_date'])));
-        $timeLabel = View::e(date('g:i A', strtotime($booking['start_time'])));
-        $packageName = View::e($package['name'] ?? 'Session');
-        $instructorName = View::e($instructor['name'] ?? 'your instructor');
-        $total = View::e($booking['currency']) . ' ' . number_format((float) $booking['total_amount'], 2);
-        $successUrl = $config['url'] . '/booking/' . $booking['booking_ref'] . '/success';
-        $invoiceUrl = $config['url'] . '/booking/' . $booking['booking_ref'] . '/invoice';
-        $transactionIdSafe = View::e((string) $transactionId);
+        $dateLabel = date('d M Y', strtotime($booking['slot_date']));
+        $timeLabel = date('g:i A', strtotime($booking['start_time']));
 
-        Mailer::send($client['email'], 'Booking received — ' . $booking['booking_ref'], <<<HTML
-            <p>Hi {$clientName},</p>
-            <p>We've received your payment and your booking request has been sent to {$instructorName} for confirmation:</p>
-            <p><strong>{$packageName}</strong> with {$instructorName}<br>{$dateLabel} at {$timeLabel}</p>
-            <p>Reference: {$ref}</p>
-            <p>You'll get an email as soon as it's confirmed.</p>
-            <p><a href="{$successUrl}">View booking</a></p>
-            HTML);
+        Notification::create(
+            (int) $booking['client_id'],
+            'booking',
+            'Booking confirmed — ' . $booking['booking_ref'],
+            'Your payment has been verified by admin. Your session for ' . ($package['name'] ?? 'Session') . ' with ' . ($instructor['name'] ?? 'Instructor') . ' on ' . $dateLabel . ' at ' . $timeLabel . ' is confirmed!'
+        );
 
-        Mailer::send($client['email'], 'Payment receipt — ' . $booking['booking_ref'], <<<HTML
-            <p>Hi {$clientName},</p>
-            <p>We've received your payment for booking {$ref}.</p>
-            <p>Amount paid: <strong>{$total}</strong></p>
-            <p>Transaction ID: {$transactionIdSafe}</p>
-            <p><a href="{$invoiceUrl}">View invoice</a></p>
-            HTML);
+        if (!empty($instructor['user_id'])) {
+            Notification::create(
+                (int) $instructor['user_id'],
+                'booking',
+                'New booking confirmed — ' . $booking['booking_ref'],
+                'A new session was booked for ' . $dateLabel . ' at ' . $timeLabel . '. Please attach the meeting link for your student.'
+            );
+        }
 
-        Mailer::send($client['email'], 'Invoice — ' . $booking['booking_ref'], <<<HTML
-            <p>Hi {$clientName},</p>
-            <p>Your invoice for booking {$ref} is ready.</p>
-            <p><strong>{$packageName}</strong> with {$instructorName} — Total {$total}</p>
-            <p><a href="{$invoiceUrl}">View / print invoice</a></p>
-            HTML);
+        Mailer::sendPaymentInvoiceEmail($booking, $payment['gateway_txn_id'] ?? ('#' . $payment['id']));
+
+        $this->success(null, 'Payment approved and booking confirmed successfully.');
+    }
+
+    public function reject(Request $request, int $id): void
+    {
+        if (!Auth::hasRole('admin')) {
+            $this->fail('Only administrators can reject payments.', 403);
+        }
+
+        $payment = Payment::find($id);
+        if (!$payment) {
+            $this->fail('Payment record not found.', 404);
+        }
+
+        $booking = Booking::find($payment['booking_id']);
+        if (!$booking) {
+            $this->fail('Associated booking not found.', 404);
+        }
+
+        Payment::markFailedById($id);
+        Booking::update($booking['id'], ['status' => 'cancelled']);
+
+        if (!empty($booking['slot_id'])) {
+            \App\Models\BookingSlot::release((int) $booking['slot_id']);
+        }
+
+        ActivityLog::log(Auth::id(), 'payment_rejected', 'booking', (int) $booking['id'], [
+            'booking_ref' => $booking['booking_ref'],
+            'payment_id' => $id,
+        ]);
+
+        Notification::create(
+            (int) $booking['client_id'],
+            'booking',
+            'Payment verification failed — ' . $booking['booking_ref'],
+            'Your payment verification for booking ' . $booking['booking_ref'] . ' could not be verified by admin and has been cancelled. Please contact support.'
+        );
+
+        $this->success(null, 'Payment rejected and booking cancelled.');
+    }
+
+    public function delete(Request $request, int $id): void
+    {
+        if (!Auth::hasRole('admin')) {
+            $this->fail('Only administrators can delete payment records.', 403);
+        }
+
+        $payment = Payment::find($id);
+        if (!$payment) {
+            $this->fail('Payment record not found.', 404);
+        }
+
+        Payment::delete($id);
+        $this->success(null, 'Payment record deleted successfully.');
     }
 
     private function ownedPendingBooking(Request $request): array

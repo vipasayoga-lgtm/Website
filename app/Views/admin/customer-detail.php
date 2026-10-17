@@ -26,14 +26,17 @@ $paymentStatusMeta = [
     <p class="mb-4"><a href="/admin/customers">&larr; Back to Customers</a></p>
 
     <div class="card mb-8" style="padding:var(--space-6);max-width:820px;margin-inline:auto">
-        <div class="flex items-center gap-4 mb-4">
-            <?php if (!empty($customer['avatar_path'])): ?>
-            <img src="<?= View::e($customer['avatar_path']) ?>" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover">
-            <?php endif; ?>
-            <div>
-                <div style="font-weight:var(--font-weight-semibold);font-size:var(--font-size-lg)"><?= View::e($customer['name']) ?></div>
-                <div class="text-muted" style="font-size:var(--font-size-sm)"><?= View::e($customer['email'] ?: '—') ?> · <?= View::e($customer['phone'] ?: '—') ?></div>
+        <div class="flex items-center justify-between gap-4 mb-4 flex-wrap">
+            <div class="flex items-center gap-4">
+                <?php if (!empty($customer['avatar_path'])): ?>
+                <img src="<?= View::e($customer['avatar_path']) ?>" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover">
+                <?php endif; ?>
+                <div>
+                    <div style="font-weight:var(--font-weight-semibold);font-size:var(--font-size-lg)"><?= View::e($customer['name']) ?></div>
+                    <div class="text-muted" style="font-size:var(--font-size-sm)"><?= View::e($customer['email'] ?: '—') ?> · <?= View::e($customer['phone'] ?: '—') ?></div>
+                </div>
             </div>
+            <a href="/admin/customers/<?= (int) $customer['id'] ?>/health-record" class="btn btn-accent btn-sm">View Health Record</a>
         </div>
         <?php if (!empty($customer['bio'])): ?>
         <p class="text-muted mb-3" style="font-size:var(--font-size-sm)"><?= View::e($customer['bio']) ?></p>
@@ -41,9 +44,34 @@ $paymentStatusMeta = [
         <p class="text-muted" style="font-size:var(--font-size-sm)">
             Age: <?= View::e((string) ($customer['age'] ?? '—')) ?>
             · Gender: <?= View::e($customer['gender'] ?? '—') ?>
+            · Category: <?= View::e($customer['client_category'] ? ucwords(str_replace('_', ' ', $customer['client_category'])) : '—') ?>
+            · City: <?= View::e($customer['city'] ?: '—') ?>
             · Country: <?= View::e($customer['country'] ?: '—') ?>
             · Timezone: <?= View::e($customer['timezone'] ?: '—') ?>
         </p>
+        <p class="text-muted" style="font-size:var(--font-size-sm);margin-top:var(--space-2)">
+            Height: <?= View::e($customer['height_cm'] ? $customer['height_cm'] . ' cm' : '—') ?>
+            · Weight: <?= View::e($customer['weight_kg'] ? $customer['weight_kg'] . ' kg' : '—') ?>
+            · Emergency contact: <?= View::e($customer['emergency_contact_name'] ?: '—') ?><?= $customer['emergency_contact_phone'] ? ' (' . View::e($customer['emergency_contact_phone']) . ')' : '' ?>
+            <?= $customer['emergency_contact_relationship'] ? ' · ' . View::e($customer['emergency_contact_relationship']) : '' ?>
+        </p>
+        <p class="text-muted" style="font-size:var(--font-size-sm);margin-top:var(--space-2)">
+            Assessment: <?= ($stage ?? 0) >= 5 ? 'complete' : 'stage ' . (int) ($stage ?? 0) . ' of 5' ?>
+            · Profile <?= (int) ($completionPercent ?? 0) ?>% complete
+            · <?= !empty($customer['onboarding_completed_at']) ? 'Onboarded ' . date('d M Y', strtotime($customer['onboarding_completed_at'])) : 'Onboarding not finished' ?>
+        </p>
+        <?php if (!empty($customer['medical_notes'])): ?>
+        <p class="text-muted" style="font-size:var(--font-size-sm);margin-top:var(--space-2)">
+            <strong>Notes:</strong> <?= View::e($customer['medical_notes']) ?>
+        </p>
+        <?php endif; ?>
+    </div>
+
+    <div style="max-width:820px;margin-inline:auto">
+        <?= View::partial('partials/assessment-answers', [
+            'assessment' => $customer['health_assessment'] ?? null,
+            'heading' => 'Questions & answers',
+        ]) ?>
     </div>
 
     <h2 class="mb-4" style="max-width:820px;margin-inline:auto">Booking History</h2>

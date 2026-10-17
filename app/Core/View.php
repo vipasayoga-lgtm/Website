@@ -24,6 +24,21 @@ final class View
     }
 
     /**
+     * Appends a `?v=<mtime>` cache-buster to a /public asset path, so editing
+     * a CSS/JS file changes its URL and forces browsers to fetch the new
+     * version instead of serving a stale cached copy — the site had no such
+     * versioning before, and stale-CSS-cache was a real, repeated source of
+     * "my edit isn't showing up" confusion during development.
+     */
+    public static function asset(string $publicPath): string
+    {
+        $fsPath = __DIR__ . '/../../public' . $publicPath;
+        $version = is_file($fsPath) ? filemtime($fsPath) : time();
+
+        return $publicPath . '?v=' . $version;
+    }
+
+    /**
      * Child templates set $pageTitle/$pageCss as plain local variables, but PHP's
      * include() scopes those to this call — they don't propagate to the layout's
      * separate renderTemplate() call on their own. Capture that small whitelist of
@@ -43,7 +58,7 @@ final class View
         $content = (string) ob_get_clean();
 
         if ($meta !== null) {
-            foreach (['pageTitle', 'pageCss', 'hideFloatingThemeToggle', 'portal', 'active'] as $metaKey) {
+            foreach (['pageTitle', 'pageCss', 'portal', 'active'] as $metaKey) {
                 if (isset($$metaKey)) {
                     $meta[$metaKey] = $$metaKey;
                 }
@@ -107,6 +122,7 @@ final class View
         'video' => '<path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/>',
         'map-pin' => '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
         'zoom-in' => '<circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="11" x2="11" y1="8" y2="14"/><line x1="8" x2="14" y1="11" y2="11"/>',
+        'lock' => '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
     ];
 
     public static function icon(string $name, string $class = 'icon', int $size = 20): string

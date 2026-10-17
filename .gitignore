@@ -4,6 +4,10 @@
 !/storage/cache/.gitkeep
 /storage/logs/*
 !/storage/logs/.gitkeep
+/storage/backups/*
+!/storage/backups/.gitkeep
+/scratch/
 *.log
 .DS_Store
 Thumbs.db
+

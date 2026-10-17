@@ -14,10 +14,10 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
-  font-size: var(--font-size-base);
+  padding: 8px 16px;
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  line-height: 1;
+  line-height: 1.2;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   white-space: nowrap;
@@ -59,22 +59,24 @@
 
 /* Variants */
 .btn-primary {
-  background: var(--gradient-primary);
-  color: var(--color-primary-contrast);
-  box-shadow: var(--shadow-sm);
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #0F172A;
+  font-weight: var(--font-weight-semibold);
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
 }
 .btn-primary:hover:not(:disabled) {
-  background: var(--gradient-primary-hover);
-  box-shadow: var(--shadow-md), var(--shadow-glow);
+  background: linear-gradient(135deg, #FBBF24 0%, #E8963C 100%);
+  color: #070A13;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
   transform: translateY(-1px);
 }
 .btn-primary:active:not(:disabled) {
-  filter: brightness(0.96);
+  filter: brightness(0.95);
   transform: translateY(0);
 }
 
 .btn-secondary {
-  background-color: var(--surface-card);
+  background-color: #ffffff;
   color: var(--text-primary);
   border-color: var(--border-default);
   box-shadow: var(--shadow-sm);
@@ -93,13 +95,15 @@
 }
 
 .btn-accent {
-  background: var(--gradient-accent);
-  color: var(--color-accent-contrast);
-  box-shadow: var(--shadow-sm);
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: #0F172A;
+  font-weight: var(--font-weight-semibold);
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
 }
 .btn-accent:hover:not(:disabled) {
-  filter: brightness(1.05);
-  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, #FBBF24 0%, #E8963C 100%);
+  color: #070A13;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
   transform: translateY(-1px);
 }
 
@@ -123,18 +127,23 @@
 }
 
 /* Sizes */
+.btn-xs {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+}
 .btn-sm {
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--font-size-sm);
+  padding: 6px 12px;
+  font-size: 0.8125rem;
   border-radius: var(--radius-sm);
 }
 .btn-lg {
-  padding: var(--space-4) var(--space-6);
-  font-size: var(--font-size-md);
-  border-radius: var(--radius-lg);
+  padding: 10px 20px;
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-md);
 }
 .btn-icon {
-  padding: var(--space-3);
+  padding: 6px;
   border-radius: var(--radius-md);
   aspect-ratio: 1 / 1;
 }
@@ -184,7 +193,7 @@
 .card {
   background-color: var(--surface-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   padding: var(--space-6);
   transition: box-shadow var(--transition-base), transform var(--transition-base),
@@ -195,6 +204,122 @@
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
   border-color: var(--border-default);
+}
+
+/* =========================================================================
+   Dashboard Table — .dashboard-table-container / .dashboard-table
+   Clean, responsive data table for Payments, Invoices, and History.
+   ========================================================================= */
+.dashboard-table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--font-size-sm);
+}
+
+.dashboard-table th {
+  background-color: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-semibold);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.dashboard-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.dashboard-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.dashboard-table tbody tr {
+  transition: background-color var(--transition-fast);
+}
+
+.dashboard-table tbody tr:hover {
+  background-color: var(--surface-sunken);
+}
+
+/* =========================================================================
+   Notification Cards — .notif-item-card
+   ========================================================================= */
+.notif-item-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-xs);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+.notif-item-card:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-sm);
+}
+
+.notif-item-card__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.notif-item-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-item-card__title {
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.notif-item-card__text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 4px;
+}
+
+.notif-item-card__meta {
+  font-size: 0.78rem;
+  color: var(--text-disabled);
+}
+
+.notif-item-card__actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 /* Generic hover-lift utility — for any element that should read as
@@ -221,6 +346,50 @@
   justify-content: space-between;
   gap: var(--space-3);
   margin-bottom: var(--space-4);
+}
+
+/* =========================================================================
+   Tabs — .tab-nav / .tab-panel
+   A general-purpose tab switcher (first use: Admin Health Record Center).
+   Pure CSS layout + a tiny inline script toggles .is-active / [hidden] —
+   reuse this pattern rather than inventing another one.
+   ========================================================================= */
+.tab-nav {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: var(--space-6);
+  -ms-overflow-style: none;
+  scrollbar-width: thin;
+}
+
+.tab-nav__item {
+  flex-shrink: 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.tab-nav__item:hover {
+  color: var(--text-primary);
+}
+
+.tab-nav__item.is-active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tab-panel[hidden] {
+  display: none;
 }
 
 .card__title {
@@ -271,6 +440,323 @@
 .card-flat {
   box-shadow: none;
   border-color: var(--border-default);
+}
+
+/* Generic empty state — icon + message, for any list page with zero rows
+   (dashboard payments/invoices/favorites/notifications and similar). */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-10) var(--space-6);
+  text-align: center;
+  border-radius: var(--radius-xl);
+  background-color: var(--surface-glass);
+  border: 1px dashed var(--surface-glass-border);
+}
+
+.empty-state__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+/* =========================================================================
+   KPI / stat cards — .stat-card-row / .stat-card
+   Small glass metric tiles for dashboard summaries (client/trainer/admin
+   all share this one component instead of each rolling their own).
+   ========================================================================= */
+.stat-card-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card__label {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.stat-card__value {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+/* =========================================================================
+   Progress bar — .progress-bar / .progress-bar__fill
+   Linear determinate progress (profile completion, upload progress, etc).
+   ========================================================================= */
+.progress-bar {
+  height: 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--surface-bg-alt);
+  overflow: hidden;
+}
+
+.progress-bar__fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  transition: width 0.6s ease;
+}
+
+/* Skeleton loaders already exist as .skeleton/.skeleton-text/.skeleton-avatar/
+   .skeleton-block/.skeleton-card further down this file — reuse those. */
+
+/* =========================================================================
+   Tooltip — .tooltip (CSS-only, [data-tooltip] attribute contract)
+   Markup: <span class="tooltip" data-tooltip="Explanation text">...</span>
+   ========================================================================= */
+.tooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--gray-900);
+  color: #ffffff;
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  z-index: 40;
+}
+
+.tooltip:hover::after,
+.tooltip:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* =========================================================================
+   Breadcrumbs — .breadcrumb
+   ========================================================================= */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--space-5);
+}
+
+.breadcrumb__link {
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.breadcrumb__link:hover {
+  color: var(--color-primary);
+}
+
+.breadcrumb__current {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.breadcrumb__sep {
+  color: var(--text-disabled);
+  display: inline-flex;
+}
+
+/* =========================================================================
+   Pagination — .pagination
+   ========================================================================= */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-8);
+}
+
+.pagination__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--surface-card);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: border-color var(--transition-fast), color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.pagination__item:hover:not(.is-disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pagination__item.is-active {
+  background: var(--gradient-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.pagination__item.is-disabled {
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.pagination__ellipsis {
+  color: var(--text-disabled);
+  padding-inline: var(--space-1);
+}
+
+/* =========================================================================
+   Drawer — .drawer / .drawer-overlay (slide-in panel, mirrors .modal)
+   Markup contract: <div class="drawer-overlay" data-drawer-overlay>
+     <aside class="drawer" data-drawer>...</aside></div>
+   JS toggles .is-open on both the overlay and the drawer.
+   ========================================================================= */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 32, 0.5);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-base);
+  z-index: 90;
+}
+
+.drawer-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(420px, 100%);
+  background-color: var(--surface-card);
+  border-left: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-xl);
+  transform: translateX(100%);
+  transition: transform var(--transition-base) var(--ease-standard);
+  z-index: 91;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.drawer.is-open {
+  transform: translateX(0);
+}
+
+.drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.drawer__body {
+  padding: var(--space-6);
+  flex: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer, .drawer-overlay { transition: none; }
+}
+
+/* =========================================================================
+   Accordion — generic .accordion / .accordion-item
+   Generalized from the landing page's FAQ pattern (.faq-item) so any page
+   can use the same collapse behavior. JS toggles .is-open + aria-expanded.
+   ========================================================================= */
+.accordion-item {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.accordion-item__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4) 0;
+  background: none;
+  border: none;
+  text-align: left;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.accordion-item__icon {
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+  color: var(--text-muted);
+}
+
+.accordion-item.is-open .accordion-item__trigger { color: var(--color-primary); }
+.accordion-item.is-open .accordion-item__icon { transform: rotate(180deg); color: var(--color-primary); }
+
+.accordion-item__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--transition-base);
+}
+
+.accordion-item.is-open .accordion-item__panel {
+  grid-template-rows: 1fr;
+}
+
+.accordion-item__panel-inner {
+  overflow: hidden;
+}
+
+.accordion-item__body {
+  padding-bottom: var(--space-4);
+  color: var(--text-secondary);
+}
+
+/* .avatar / .avatar-group already exist further down this file — reuse those
+   (adds an .avatar__status indicator dot and a 6-step size scale). */
+
+.empty-state__text {
+  color: var(--text-muted);
 }
 
 .card-compact { padding: var(--space-4); }
@@ -749,17 +1235,17 @@
    ========================================================================= */
 .form-group {
   position: relative;
-  margin-bottom: var(--space-5);
+  margin-bottom: 14px;
 }
 
 .form-group__control {
   width: 100%;
-  padding: var(--space-6) var(--space-5) var(--space-3);
+  padding: 16px 14px 4px;
   background-color: var(--input-bg);
-  border: 2px solid var(--border-default);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   color: var(--text-primary);
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
@@ -793,10 +1279,10 @@
 
 .form-group__label {
   position: absolute;
-  left: var(--space-4);
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   color: var(--text-muted);
   pointer-events: none;
   transform-origin: left top;
@@ -809,14 +1295,14 @@
 .form-group__control:not(:placeholder-shown) ~ .form-group__label,
 .form-group__control.has-value ~ .form-group__label,
 .form-group__control:-webkit-autofill ~ .form-group__label {
-  top: 0.85rem;
-  transform: translateY(-50%) scale(0.78);
+  top: 0.55rem;
+  transform: translateY(-50%) scale(0.75);
   color: var(--color-primary);
 }
 
 .form-group__hint {
-  margin-top: var(--space-2);
-  font-size: var(--font-size-xs);
+  margin-top: 2px;
+  font-size: 0.75rem;
   color: var(--text-muted);
 }
 
@@ -831,6 +1317,52 @@
 }
 .form-group.has-error .form-group__label {
   color: var(--color-error);
+}
+
+/* Password visibility toggle button */
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
+  z-index: 10;
+}
+
+.password-toggle:hover,
+.password-toggle:focus-visible {
+  color: var(--text-primary);
+  background-color: var(--surface-sunken, rgba(0, 0, 0, 0.06));
+  outline: none;
+}
+
+.password-toggle:active {
+  transform: translateY(-50%) scale(0.92);
+}
+
+.password-toggle svg {
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.form-group:has(.password-toggle) .form-group__control,
+.form-group--password .form-group__control,
+.form-group__control[type="password"],
+.form-group__control[data-is-password="true"] {
+  padding-right: 44px;
 }
 
 /* =========================================================================
@@ -954,84 +1486,6 @@
 }
 
 /* =========================================================================
-   Theme toggle — .theme-toggle (pure CSS sun/moon switch)
-   Markup contract: <button class="theme-toggle" aria-pressed="true|false">
-     <span class="theme-toggle__track"><span class="theme-toggle__thumb">
-     <svg class="theme-toggle__icon-sun">...<svg class="theme-toggle__icon-moon">...
-     </span></span></button>
-   JS toggles [data-theme] on <html> and/or aria-pressed here; CSS reacts to
-   aria-pressed="true" to represent the dark state.
-   ========================================================================= */
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  border-radius: var(--radius-full);
-}
-
-.theme-toggle__track {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  width: 3.25rem;
-  height: 1.75rem;
-  padding: 3px;
-  border-radius: var(--radius-full);
-  background-color: var(--gray-300);
-  transition: background-color var(--transition-base);
-}
-
-.theme-toggle[aria-pressed="true"] .theme-toggle__track {
-  background-color: var(--vipasa-blue-700);
-}
-
-.theme-toggle__thumb {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.4rem;
-  height: 1.4rem;
-  border-radius: 50%;
-  background-color: #ffffff;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-base) var(--ease-spring);
-  color: var(--color-warning);
-}
-
-.theme-toggle[aria-pressed="true"] .theme-toggle__thumb {
-  transform: translateX(1.5rem);
-  color: var(--color-tertiary);
-}
-
-.theme-toggle__icon-sun,
-.theme-toggle__icon-moon {
-  position: absolute;
-  /* Flexbox centering on .theme-toggle__thumb (align-items/justify-content)
-     doesn't reliably apply once a child is absolutely positioned — center
-     explicitly instead, otherwise the icon sits offset toward its static
-     flow position and overlaps the thumb's edge. These are <span> text
-     glyphs (☀/☾), which are inline by default — width/height don't apply
-     to inline elements, and an emoji glyph's own ink isn't centered within
-     its line box — so this also needs display:flex + a fixed line-height to
-     actually center the glyph itself, not just the element's box. */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 0.9rem;
-  height: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  line-height: 1;
-  transition: opacity var(--transition-fast);
-}
-
-.theme-toggle__icon-moon { opacity: 0; }
-.theme-toggle[aria-pressed="true"] .theme-toggle__icon-moon { opacity: 1; }
-.theme-toggle[aria-pressed="true"] .theme-toggle__icon-sun { opacity: 0; }
-
-/* =========================================================================
    Progress steps — .progress-steps (multi-step wizard)
    ========================================================================= */
 .progress-steps {
@@ -1124,36 +1578,52 @@
    Floating glass navigation — .nav-glass
    ========================================================================= */
 .nav-glass {
+  /* Same treatment as the landing hero's floating pill nav (formerly only
+     .nav-glass--hero-overlay) — now the one nav look used everywhere,
+     rather than a plain thinner/fuller-pill bar on every other page. */
   position: sticky;
   top: 0;
   z-index: var(--z-nav);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin: var(--space-4) auto 0;
-  padding: var(--space-3) var(--space-5);
-  max-width: 1200px;
-  border-radius: var(--radius-full);
-  background-color: var(--surface-glass);
+  justify-content: center;
+  gap: var(--space-7);
+  margin: 24px auto 0;
+  padding-inline: var(--space-8);
+  width: min(88vw, 1280px);
+  height: 78px;
+  border-radius: 22px;
+  background-color: var(--surface-glass-strong);
   border: 1px solid var(--surface-glass-border);
-  box-shadow: var(--shadow-glass);
-  backdrop-filter: blur(var(--surface-glass-blur)) saturate(160%);
-  -webkit-backdrop-filter: blur(var(--surface-glass-blur)) saturate(160%);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
   transition: box-shadow var(--transition-base);
-}
-
-@supports not (backdrop-filter: blur(1px)) {
-  .nav-glass {
-    background-color: var(--surface-glass-strong);
-  }
 }
 
 @media (max-width: 639px) {
   .nav-glass {
-    margin: 0;
-    border-radius: 0;
+    margin: 16px auto 0;
+    width: calc(100% - 32px);
+    height: auto;
     padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-xl);
+  }
+}
+
+/* Client-approved dark-theme glass treatment (brand-tinted navy, not a
+   translucent tint of the light surface tokens) — preserved from the
+   original landing-hero-only styling, now shared by every .nav-glass. */
+:root[data-theme="dark"] .nav-glass {
+  background-color: rgba(7, 21, 36, 0.55);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .nav-glass {
+    background-color: rgba(7, 21, 36, 0.55);
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
   }
 }
 
@@ -1167,7 +1637,7 @@
 }
 
 .nav-glass__brand-logo {
-  height: 34px;
+  height: 36px;
   width: auto;
   display: block;
 }
@@ -1182,26 +1652,45 @@
    this file, so equal-specificity rules would let its `display: block` win
    over this file's `display: none` regardless of theme. The extra element
    qualifier keeps this toggle authoritative no matter the CSS file order. */
-img.brand-logo--dark { display: none; }
+img.brand-logo--light { display: none; }
+img.brand-logo--dark { display: block; }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) img.brand-logo--dark { display: block; }
-  :root:not([data-theme="light"]) img.brand-logo--light { display: none; }
+  :root:not([data-theme="light"]) img.brand-logo--dark { display: none; }
+  :root:not([data-theme="light"]) img.brand-logo--light { display: block; }
 }
 
-:root[data-theme="dark"] img.brand-logo--dark { display: block; }
-:root[data-theme="dark"] img.brand-logo--light { display: none; }
+:root[data-theme="dark"] img.brand-logo--dark { display: none; }
+:root[data-theme="dark"] img.brand-logo--light { display: block; }
 
 .nav-glass__links {
   display: flex;
   align-items: center;
-  gap: var(--space-6);
+  /* Fluid, because the landing nav carries 8 links and can't hold a wide gap
+     all the way down to the 900px hamburger breakpoint: interpolates from
+     var(--space-4) at 900px to var(--space-14) at 1440px and holds at 56px
+     above that (7.4vw - 50px is the line through those two points). */
+  gap: clamp(var(--space-4), calc(7.4vw - 50px), var(--space-14));
+  /* flex-start, never space-evenly: the row still takes the leftover width
+     (flex:1, so the actions stay pinned right), but the links group at the
+     left edge — after the brand logo on pages that have one — at the gap
+     above. Under space-evenly `gap` has no visible effect at all, since it
+     redistributes every spare pixel between the items, so spacing is tuned
+     with that gap and this left alignment. */
+  flex: 1;
+  justify-content: flex-start;
 }
 
 .nav-glass__link {
+  /* position + padding-block exist for the ::after marker below: it anchors
+     to this box, and the padding gives the bar room to sit clear of the
+     text baseline instead of touching the descenders. */
+  position: relative;
+  padding-block: 6px;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--text-secondary);
+  transition: color var(--transition-base);
 }
 
 .nav-glass__link:hover,
@@ -1209,10 +1698,51 @@ img.brand-logo--dark { display: none; }
   color: var(--color-primary);
 }
 
+/* Current page/section marker — the saffron underline that tells a visitor
+   where they are. Server-rendered pages get .is-active from the layout
+   (layouts/main.php, matched on the request path); the landing page's
+   in-page anchors get it from the scroll spy in modules/landing.js.
+   The bar is always in the DOM and scaled to 0 when inactive so it grows
+   out from the centre rather than popping in, and hover only previews it at
+   partial opacity so the genuinely active link still reads strongest. */
+.nav-glass__link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-accent);
+  opacity: 0;
+  transform: scaleX(0);
+  transition: transform var(--transition-base), opacity var(--transition-base);
+}
+
+.nav-glass__link:hover::after {
+  opacity: 0.45;
+  transform: scaleX(1);
+}
+
+.nav-glass__link.is-active {
+  font-weight: var(--font-weight-semibold);
+}
+
+.nav-glass__link.is-active::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
 .nav-glass__actions {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-6);
+  margin-left: auto;
+  /* Enough room to read as a separated group after the divider, without the
+     3cm (~113px) this once used — that was what opened the wide dead gap
+     between the last link and the buttons. */
+  padding-left: var(--space-9);
+  border-left: 1px solid var(--surface-glass-border);
 }
 
 /* =========================================================================
@@ -1252,27 +1782,59 @@ img.brand-logo--dark { display: none; }
 .nav-glass.is-open .nav-glass__toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 @media (max-width: 899px) {
-  .nav-glass__toggle { display: inline-flex; }
+  .nav-glass {
+    margin: 12px auto 0;
+    width: calc(100% - 24px);
+    height: 64px;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-xl);
+    gap: var(--space-3);
+    justify-content: space-between;
+  }
+
+  .nav-glass__brand-logo {
+    height: 32px;
+  }
+
+  .nav-glass__actions {
+    margin-left: auto;
+    padding-left: 0;
+    border-left: none;
+    gap: var(--space-2);
+  }
+
+  .nav-glass__actions .btn-lg {
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+  }
+
+  .nav-glass__toggle {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
 
   .nav-glass__links {
     position: absolute;
-    top: calc(100% + var(--space-3));
-    left: var(--space-4);
-    right: var(--space-4);
+    top: calc(100% + var(--space-2));
+    left: 0;
+    right: 0;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-1);
     padding: var(--space-4);
-    background-color: var(--surface-glass-strong);
-    border: 1px solid var(--surface-glass-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    backdrop-filter: blur(var(--surface-glass-blur)) saturate(160%);
-    -webkit-backdrop-filter: blur(var(--surface-glass-blur)) saturate(160%);
+    background-color: #ffffff !important;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-8px);
     transition: opacity var(--transition-base), transform var(--transition-base), visibility var(--transition-base);
+    z-index: 1000;
+  }
+
+  :root[data-theme="dark"] .nav-glass__links {
+    background-color: #10263a !important;
   }
 
   .nav-glass.is-open .nav-glass__links {
@@ -1282,6 +1844,53 @@ img.brand-logo--dark { display: none; }
   }
 
   .nav-glass__link { width: 100%; padding-block: var(--space-2); }
+
+  /* In the stacked dropdown a full-width underline would read as a row
+     divider rather than a marker, so the same saffron indicator becomes a
+     left-edge bar (still driven by .is-active / :hover). */
+  .nav-glass__link::after {
+    top: 0;
+    bottom: 0;
+    left: calc(var(--space-2) * -1);
+    right: auto;
+    width: 3px;
+    height: auto;
+    transform: scaleY(0);
+  }
+
+  .nav-glass__link:hover::after,
+  .nav-glass__link.is-active::after {
+    transform: scaleY(1);
+  }
+
+  .nav-glass__mobile-auth {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-glass {
+    padding: 6px 12px;
+    gap: 6px;
+    width: calc(100% - 16px);
+  }
+
+  .nav-glass__actions .btn-ghost {
+    display: none;
+  }
+
+  .nav-glass__actions .btn-accent {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+  }
+
+  .nav-glass__actions .chip {
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.75rem;
+  }
 }
 
 /* =========================================================================
@@ -1291,6 +1900,10 @@ img.brand-logo--dark { display: none; }
   display: block;
   width: 100%;
   height: auto;
+  /* The 320x110 viewBox scales to container width; without a cap a full-width
+     card would render the chart hundreds of px tall (and blow the node dots
+     up with it). Cap the height — preserveAspectRatio keeps it centered. */
+  max-height: 150px;
 }
 
 .chart-card__title {
@@ -1299,3 +1912,270 @@ img.brand-logo--dark { display: none; }
   color: var(--text-secondary);
   margin-bottom: var(--space-4);
 }
+
+/* =========================================================================
+   Pagination — .pagination / .pagination__btn
+   Reusable pager for paginated tables/lists (gallery, admin lists, etc).
+   ========================================================================= */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+  align-items: center;
+  margin-top: var(--space-5);
+}
+
+.pagination__btn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.pagination__btn:hover:not(:disabled):not(.is-active) {
+  background: var(--surface-sunken);
+  border-color: var(--border-strong);
+}
+
+.pagination__btn.is-active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+  cursor: default;
+}
+
+.pagination__btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* =========================================================================
+   Data Table Component — .data-table & .table-responsive
+   ========================================================================= */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-card);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.84rem;
+}
+
+.data-table th {
+  padding: 10px 14px;
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background-color: var(--surface-bg-alt);
+}
+
+/* Compact Notification Box */
+.notif-card-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.notif-card-compact:hover {
+  border-color: var(--border-strong);
+}
+
+.notif-card-compact__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-card-compact__title {
+  font-weight: var(--font-weight-semibold);
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.notif-card-compact__body {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notif-card-compact__meta {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.notif-card-compact__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* =========================================================================
+   Site Preloader & Page Entry Reveal
+   ========================================================================= */
+.site-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.95) 0%, rgba(253, 251, 247, 0.98) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: opacity 0.45s ease, filter 0.45s ease, visibility 0.45s ease;
+}
+
+.site-preloader.is-done {
+  opacity: 0;
+  filter: blur(10px);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.site-preloader__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: #ffffff;
+  border-radius: var(--radius-2xl);
+  border: 1px solid rgba(212, 163, 115, 0.25);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.08);
+}
+
+.site-preloader__logo-wrap {
+  position: relative;
+}
+
+.site-preloader__logo-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224, 122, 95, 0.3) 0%, transparent 70%);
+  filter: blur(10px);
+}
+
+.site-preloader__logo-box {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  padding: 10px;
+  border-radius: var(--radius-xl);
+  background: #ffffff;
+  border: 1px solid rgba(212, 163, 115, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.site-preloader__logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.site-preloader__wordmark {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.site-preloader__bar {
+  width: 160px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background-color: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.site-preloader__bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  transition: width 0.1s linear;
+}
+
+/* Page Entry Animations */
+body {
+  opacity: 0.98;
+  transition: opacity 0.4s ease;
+}
+
+body.page-entered {
+  opacity: 1;
+}
+
+body.page-entered .hero__content {
+  animation: vy-hero-entry 0.7s var(--ease-out) forwards;
+}
+
+@keyframes vy-hero-entry {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Image Focal Point & Fit Utilities */
+.img-focus-top { object-position: center top !important; }
+.img-focus-center { object-position: center center !important; }
+.img-focus-bottom { object-position: center bottom !important; }
+.img-focus-15 { object-position: center 15% !important; }
+.img-focus-20 { object-position: center 20% !important; }
+.img-focus-25 { object-position: center 25% !important; }
+.img-focus-30 { object-position: center 30% !important; }
+.img-fit-contain { object-fit: contain !important; }
+.img-fit-cover { object-fit: cover !important; }

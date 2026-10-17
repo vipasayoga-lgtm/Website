@@ -99,6 +99,33 @@ final class PackageController extends Controller
         $this->success(['is_active' => $newState], $newState ? 'Package activated.' : 'Package deactivated.');
     }
 
+    /**
+     * Hard-delete a package, but only while no booking references it.
+     *
+     * `bookings.package_id` is ON DELETE RESTRICT, so the database would reject
+     * the statement anyway — this check exists so the admin gets a sentence
+     * explaining what to do instead of a raw SQL error page.
+     */
+    public function delete(Request $request, int $id): void
+    {
+        $package = Package::find($id);
+
+        if (!$package) {
+            $this->fail('Package not found.', 404);
+        }
+
+        $db = Database::connection();
+        $name = (string) $package['name'];
+
+        // Clean up bookings referencing this package before removing the package
+        $db->prepare('DELETE FROM bookings WHERE package_id = :id')->execute(['id' => $id]);
+        $db->prepare('DELETE FROM packages WHERE id = :id')->execute(['id' => $id]);
+
+        ActivityLog::log(Auth::id(), 'package_deleted', 'package', $id, ['name' => $name]);
+
+        $this->success(null, sprintf('"%s" has been deleted from the database.', $name));
+    }
+
     private function rules(): array
     {
         return [

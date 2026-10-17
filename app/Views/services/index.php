@@ -18,10 +18,13 @@ $active = 'services';
     <?php else: ?>
     <div class="service-grid">
         <?php
+        // 'position' overrides the default centered crop for pose-side-stretch.webp,
+        // a tall portrait photo whose face sits in the top third — centering would
+        // otherwise cut it out of this card's short 16:10 media box.
         $packagePhotos = [
-            'Single Session' => '/assets/img/client/pose-side-stretch.webp',
-            'Weekly Package' => '/assets/img/client/pose-crow-2.webp',
-            'Monthly Package' => '/assets/img/client/hero-banner.webp',
+            'Single Session' => ['file' => '/assets/img/client/pose-side-stretch.webp', 'position' => 'center top'],
+            'Weekly Package' => ['file' => '/assets/img/client/pose-crow-2.webp'],
+            'Monthly Package' => ['file' => '/assets/img/client/hero-banner.webp'],
         ];
         ?>
         <?php foreach ($packages as $i => $package): ?>
@@ -29,9 +32,9 @@ $active = 'services';
             <?php if ($i === 1): ?>
             <span class="package-card__ribbon">Most popular</span>
             <?php endif; ?>
-            <?php if (isset($packagePhotos[$package['name']])): ?>
+            <?php if (isset($packagePhotos[$package['name']])): $photo = $packagePhotos[$package['name']]; ?>
             <div class="package-card__media">
-                <img src="<?= View::e($packagePhotos[$package['name']]) ?>" alt="" loading="lazy">
+                <img src="<?= View::e($photo['file']) ?>" alt="" loading="lazy"<?= isset($photo['position']) ? ' style="object-position:' . View::e($photo['position']) . '"' : '' ?>>
             </div>
             <?php endif; ?>
             <div class="package-card__name"><?= (int) $package['sessions_count'] ?> session<?= (int) $package['sessions_count'] > 1 ? 's' : '' ?></div>
@@ -44,7 +47,7 @@ $active = 'services';
                 <div class="package-card__feature"><?= (int) $package['duration_minutes'] ?> minutes per session</div>
                 <div class="package-card__feature">Up to <?= (int) $package['max_participants'] ?> participant<?= (int) $package['max_participants'] > 1 ? 's' : '' ?></div>
             </div>
-            <a href="/instructors?package=<?= (int) $package['id'] ?>" class="btn btn-accent btn-block">Choose instructor</a>
+            <a href="<?= View::e($instructorsBase ?? '/instructors') ?>?package=<?= (int) $package['id'] ?>" class="btn btn-accent btn-block">Choose instructor</a>
         </div>
         <?php endforeach; ?>
     </div>

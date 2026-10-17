@@ -75,6 +75,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 25%;
   transition: transform var(--transition-slow);
 }
 
@@ -161,3 +162,339 @@
   color: var(--color-success);
   flex: none;
 }
+
+/* =========================================================================
+   Admin — record tiles, shared by the admin list pages that manage one kind
+   of record each (Views/admin/packages.php, Views/admin/instructors.php).
+   Those pages set $pageCss = 'services' so they can reuse .services-hero from
+   this file; these tiles are the admin-side equivalent of .package-card
+   above, minus the public pricing-table styling.
+   ========================================================================= */
+
+/* Up to 4 per row, sized off the container rather than the viewport. It can't
+   reuse .service-grid: that grid's media queries measure the viewport, but
+   these pages sit beside the dashboard sidebar (264px, 76px collapsed,
+   off-canvas below 900px), so at a 1100px viewport it would hold 4 columns
+   inside an ~836px content area and shred every card. The max() makes each
+   track a quarter-row wherever that is >= 230px and a flat 230px otherwise,
+   letting auto-fill fall to 3 / 2 / 1 columns on its own — correct at any
+   sidebar state without a single breakpoint. */
+.admin-tile-grid {
+  --tile-gap: var(--space-5);
+  display: grid;
+  gap: var(--tile-gap);
+  grid-template-columns: repeat(auto-fill, minmax(max(240px, calc((100% - 3 * var(--tile-gap)) / 4)), 1fr));
+}
+
+.admin-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+}
+
+.admin-tile__name {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
+  line-height: var(--leading-tight);
+  color: var(--text-primary);
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.admin-tile__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.admin-tile__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.admin-tile__meta li {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.admin-tile__price {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* margin-top:auto pins the buttons to the bottom of every tile, so a row of
+   cards with differing name lengths still has its actions on one line. */
+.admin-tile__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* =========================================================================
+   Admin — Calendar (Views/admin/calendar.php)
+   Month grid, whole-year overview tiles, and the filter bar above them.
+   ========================================================================= */
+.calendar-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.calendar-filters__field {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1 1 128px;
+  min-width: 0;
+}
+
+.calendar-filters__field > span {
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.calendar-filters .form-group__control {
+  padding: 4px 8px;
+  font-size: var(--font-size-xs);
+  width: 100%;
+}
+
+.calendar-filters__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+}
+
+.calendar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.calendar-toolbar__period { text-align: center; flex: 1 1 auto; }
+
+.calendar-toolbar__label {
+  margin: 0;
+  font-size: var(--font-size-md);
+}
+
+.calendar-toolbar__summary {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.calendar-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+.calendar-card {
+  padding: var(--space-2);
+  overflow-x: auto;
+}
+
+.calendar-grid {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+  table-layout: fixed;
+}
+
+.calendar-grid th {
+  text-align: left;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.calendar-grid__cell {
+  vertical-align: top;
+  padding: 3px var(--space-1) var(--space-1);
+  border: 1px solid var(--border-subtle);
+  height: 68px;
+}
+
+.calendar-grid__cell.is-empty { background-color: var(--surface-bg-alt); }
+.calendar-grid__cell.is-today { background-color: var(--color-primary-soft); }
+
+.calendar-grid__daytop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+  margin-bottom: 2px;
+}
+
+.calendar-grid__daynum {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+}
+
+.calendar-grid__daycount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding-inline: 4px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.calendar-grid__events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Each chip links down to that booking's row in the detail table below, so a
+   day with more sessions than fit still has a route to the full record. */
+.calendar-event {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  line-height: 1.35;
+  text-decoration: none;
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 1px 2px;
+}
+
+.calendar-event:hover { background-color: var(--surface-bg-alt); }
+
+.calendar-event__time { color: var(--text-muted); flex: none; }
+
+.calendar-event__who {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The dot borrows its colour from whichever .badge-* status class is also on
+   it: those classes set `color` to the strong status colour (and a soft
+   background), so currentColor gives the dot the right hue without defining a
+   second status palette here. The compound selector outranks .badge-*'s own
+   background-color regardless of stylesheet order. */
+.calendar-event .calendar-event__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex: none;
+  padding: 0;
+}
+
+.calendar-grid__more {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Whole-year mode: one tile per month, sized off the container so it holds 4
+   across beside the dashboard sidebar and folds to 3/2/1 as space runs out. */
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.year-grid__month {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1px var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.year-grid__month:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.year-grid__month.has-bookings { background-color: var(--surface-card); }
+.year-grid__month.is-current { border-color: var(--color-accent); }
+
+.year-grid__name {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.year-grid__count {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.year-grid__month:not(.has-bookings) .year-grid__count { color: var(--text-muted); }
+
+.year-grid__meta {
+  grid-column: 1;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+/* Destructive action in the admin lists — icon-only, and deliberately quiet
+   until hovered so it never competes with Edit/Activate. Lives here (not with
+   .btn-danger in components.css) because it stays ghost-styled: a permanently
+   red button on every row reads as an alarm rather than an option. */
+.admin-tile__delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--space-2);
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.admin-tile__delete:hover:not(:disabled) {
+  color: var(--color-error-600);
+  background-color: var(--color-error-soft);
+}
+
+.admin-tile__delete .icon { flex: none; }
+
+/* In the customers table the actions cell is already a tight flex row, so the
+   auto margin that pushes this to the end of a tile isn't wanted there. */
+.data-table .admin-tile__delete { margin-left: 0; }

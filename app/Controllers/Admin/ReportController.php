@@ -15,12 +15,16 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 final class ReportController extends Controller
 {
     private const TYPES = ['revenue', 'bookings', 'payments', 'instructor_performance'];
+    private const FORMATS = ['print', 'csv', 'xlsx', 'pdf'];
 
     public function page(Request $request): void
     {
+        [$from, $to] = $this->normaliseRange($request->query('from'), $request->query('to'));
+
         $this->view('admin/reports', [
-            'from' => $request->query('from') ?: date('Y-m-d', strtotime('-30 days')),
-            'to' => $request->query('to') ?: date('Y-m-d'),
+            'from' => $from,
+            'to' => $to,
+            'counts' => $this->rowCounts($from, $to),
         ], 'dashboard');
     }
 
@@ -28,11 +32,13 @@ final class ReportController extends Controller
     {
         $type = (string) $request->query('type', 'revenue');
         $format = (string) $request->query('format', 'csv');
-        $from = (string) $request->query('from', date('Y-m-d', strtotime('-30 days')));
-        $to = (string) $request->query('to', date('Y-m-d'));
+        [$from, $to] = $this->normaliseRange($request->query('from'), $request->query('to'));
 
         if (!in_array($type, self::TYPES, true)) {
             $this->fail('Unknown report type.', 422);
+        }
+        if (!in_array($format, self::FORMATS, true)) {
+            $this->fail('Unknown export format.', 422);
         }
 
         [$headers, $rows] = $this->buildReport($type, $from, $to);
@@ -56,6 +62,58 @@ final class ReportController extends Controller
             'headers' => $headers,
             'rows' => $rows,
         ], 'bare');
+    }
+
+    /**
+     * from/to arrive raw from the query string and used to go straight into
+     * SQL: "from=garbage", "from=" or a missing param matched nothing and
+     * handed the admin a header-only file with no hint that the dates were the
+     * problem. Anything that isn't a real Y-m-d date now falls back to the
+     * default 30-day window, and a reversed range is swapped rather than
+     * rejected since the intent is obvious.
+     *
+     * @return array{0: string, 1: string}
+     */
+    private function normaliseRange(mixed $from, mixed $to): array
+    {
+        $valid = static function (mixed $value): ?string {
+            $value = trim((string) $value);
+            if ($value === '') {
+                return null;
+            }
+            $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+
+            // createFromFormat accepts "2026-13-45" and rolls it over, so the
+            // round-trip check is what actually rejects impossible dates.
+            return $date !== false && $date->format('Y-m-d') === $value ? $value : null;
+        };
+
+        $fromDate = $valid($from) ?? date('Y-m-d', strtotime('-30 days'));
+        $toDate = $valid($to) ?? date('Y-m-d');
+
+        if ($fromDate > $toDate) {
+            [$fromDate, $toDate] = [$toDate, $fromDate];
+        }
+
+        return [$fromDate, $toDate];
+    }
+
+    /**
+     * How many rows each report would return for the current range, so the
+     * page can say "0 rows" up front instead of the admin discovering it after
+     * downloading four empty files.
+     *
+     * @return array<string, int>
+     */
+    private function rowCounts(string $from, string $to): array
+    {
+        $counts = [];
+        foreach (self::TYPES as $type) {
+            [, $rows] = $this->buildReport($type, $from, $to);
+            $counts[$type] = count($rows);
+        }
+
+        return $counts;
     }
 
     private function buildReport(string $type, string $from, string $to): array
@@ -138,6 +196,9 @@ final class ReportController extends Controller
         header('Content-Disposition: attachment; filename="' . $type . '-report-' . date('Y-m-d') . '.csv"');
 
         $out = fopen('php://output', 'w');
+        // UTF-8 BOM so Excel reads client names and ₹ amounts correctly instead
+        // of showing mojibake when the file is double-clicked.
+        fwrite($out, "\xEF\xBB\xBF");
         fputcsv($out, $headers);
         foreach ($rows as $row) {
             fputcsv($out, array_values($row));
@@ -163,6 +224,13 @@ final class ReportController extends Controller
             )) . '</tr>',
             $rows
         ));
+
+        // An empty range previously produced a PDF with a lone header row and
+        // nothing else, which reads as a broken export rather than "no data".
+        if ($bodyHtml === '') {
+            $bodyHtml = '<tr><td colspan="' . count($headers) . '" style="text-align:center;color:#666">'
+                . 'No records in this date range.</td></tr>';
+        }
 
         $html = <<<HTML
             <!doctype html>

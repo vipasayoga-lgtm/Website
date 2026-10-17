@@ -15,6 +15,34 @@
     var(--surface-bg);
 }
 
+/* Photo-backed variant for the simple centered-card screens (currently the
+   forgot-password / reset flow). A full-bleed premium yoga photograph sits
+   behind the card; a diagonal blue scrim over it guarantees depth and keeps
+   the card legible regardless of the photo's own tones. Scoped to the
+   modifier class so the login/signup split screens are untouched. */
+.auth-page--photo {
+  position: relative;
+  background: none;
+}
+
+.auth-page--photo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(155deg, rgba(15, 46, 66, 0.74), rgba(15, 46, 66, 0.55) 55%, rgba(120, 63, 4, 0.5)),
+    url("/assets/img/client/about-journey.webp");
+  background-size: cover;
+  background-position: center;
+}
+
+/* Lift the card above the ::before scrim layer. */
+.auth-page--photo > * {
+  position: relative;
+  z-index: 1;
+}
+
 /* Simple centered-card layout (login / forgot-password / OTP) */
 .auth-card {
   width: 100%;
@@ -35,6 +63,19 @@
   align-items: center;
   justify-content: center;
   margin-bottom: var(--space-5);
+}
+
+.auth-card__logo-wrap {
+  margin-bottom: var(--space-3);
+  display: flex;
+  align-items: center;
+}
+
+.auth-card__brand-logo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .auth-card__title {
@@ -98,57 +139,203 @@
   overflow: hidden;
 }
 
+/* Compact variant (signup) — the signup form has more fields than login, so
+   its box runs longer. Narrow the overall width, drop the min-height floor,
+   and tighten the panel padding so the box reads smaller and shorter. */
+.auth-split--compact {
+  max-width: 960px;
+  min-height: auto;
+}
+
+.auth-split--compact .auth-split__branding,
+.auth-split--compact .auth-split__form-side {
+  padding: var(--space-5) var(--space-8);
+}
+
+.auth-split--compact .auth-card__title {
+  font-size: var(--font-size-xl);
+  margin-bottom: 2px;
+}
+
+.auth-split--compact .auth-card__subtitle {
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+.auth-split--compact .auth-social .btn {
+  padding-block: var(--space-2);
+  font-size: var(--font-size-xs);
+}
+
+.auth-split--compact .auth-divider {
+  margin-block: var(--space-3);
+  font-size: 0.68rem;
+}
+
+.auth-split--compact .form-group {
+  margin-bottom: var(--space-3);
+}
+
+.auth-split--compact .form-group__control {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-md);
+}
+
+.auth-split--compact .form-group__label {
+  font-size: var(--font-size-xs);
+}
+
+.auth-split--compact .form-group__control:focus ~ .form-group__label,
+.auth-split--compact .form-group__control:not(:placeholder-shown) ~ .form-group__label,
+.auth-split--compact .form-group__control.has-value ~ .form-group__label,
+.auth-split--compact .form-group__control:-webkit-autofill ~ .form-group__label {
+  top: 0.65rem;
+}
+
+.auth-split--compact .form-group__hint {
+  margin-top: 2px;
+  font-size: 0.7rem;
+}
+
+.auth-split--compact .btn-block.btn-lg {
+  padding-block: var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.auth-split--compact .auth-card__footer {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+/* On the compact (signup) box the form is tall and vertically centred, so the
+   absolutely-positioned back button collides with the title. Put it back into
+   normal flow above the form content instead. */
+.auth-split--compact .auth-split__form-side {
+  align-items: stretch;
+}
+
+.auth-split--compact .auth-back-btn {
+  position: static;
+  margin-bottom: var(--space-2);
+  padding: 2px 6px;
+  font-size: var(--font-size-xs);
+}
+
 .auth-split__branding {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
   padding: var(--space-10);
   color: #ffffff;
-  background: linear-gradient(155deg, var(--vipasa-blue-600), var(--vipasa-blue-800) 60%, var(--saffron-700));
+  background: #071927;
   overflow: hidden;
 }
 
-.auth-split__branding-photo {
+.auth-split__bg-photo {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  background-image:
+    linear-gradient(175deg, rgba(8, 30, 48, 0.74) 0%, rgba(6, 22, 36, 0.88) 55%, rgba(4, 16, 26, 0.96) 100%),
+    url("/assets/img/client/pose-mountain-sunrise.jpg");
+  background-size: cover;
+  background-position: center;
   z-index: 0;
 }
 
-.auth-split__branding::before {
-  content: "";
+.auth-split__ornament {
   position: absolute;
-  inset: 0;
   z-index: 1;
-  /* Strong scrim at both ends for guaranteed text contrast regardless of what
-     tones happen to sit behind the brand name / quote in the photo — don't
-     rely on a gradient tuned to one specific image. */
-  background:
-    linear-gradient(0deg, rgba(15, 46, 66, 0.88) 0%, rgba(15, 46, 66, 0.35) 35%, rgba(15, 46, 66, 0.15) 55%, rgba(15, 46, 66, 0.55) 100%),
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1), transparent 55%);
+  pointer-events: none;
 }
 
-.auth-split__branding-content {
+.auth-split__ornament--top-right {
+  top: -20px;
+  right: -20px;
+}
+
+.auth-split__ornament--bottom-left {
+  bottom: -20px;
+  left: -20px;
+}
+
+.auth-split__logo-box {
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-block: auto;
+  padding: var(--space-4);
+  text-align: center;
 }
 
-.auth-split__branding-content .splash__wordmark {
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+.auth-split__logo-img {
+  max-width: 320px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+  transition: transform 0.3s ease;
+}
+
+.auth-split__logo-img:hover {
+  transform: scale(1.03);
+}
+
+.auth-split__quote-wrap {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  width: 100%;
+  max-width: 440px;
+}
+
+.auth-split__quote-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.auth-split__quote-mark {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 2.2rem;
+  line-height: 1;
+  color: #e5a93c;
+  font-weight: bold;
+  opacity: 0.95;
+  margin-top: -6px;
 }
 
 .auth-split__quote {
-  position: relative;
-  z-index: 2;
-  font-size: var(--font-size-lg);
-  line-height: var(--leading-relaxed);
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+  font-weight: 400;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.auth-split__quote-divider {
+  width: 44px;
+  height: 1px;
+  background: rgba(229, 169, 60, 0.6);
+  margin: var(--space-3) auto;
+}
+
+.auth-split__quote-sub {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.03em;
+  margin: 0;
 }
 
 .auth-split__form-side {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,9 +356,31 @@
   .auth-split__form-side { padding: var(--space-8); }
 }
 
+/* Back-to-home button — sits at the top-left of the form side on both
+   login and signup split-screen pages. A small ghost button with an
+   arrow icon, always visible even on mobile. */
+.auth-back-btn {
+  position: absolute;
+  top: var(--space-6);
+  left: var(--space-6);
+  z-index: 3;
+}
+
+@media (max-width: 1023px) {
+  .auth-back-btn {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin-bottom: var(--space-4);
+  }
+}
+
 @media (max-width: 639px) {
   .auth-page { padding: var(--space-4); }
   .auth-card { padding: var(--space-6); border-radius: var(--radius-lg); }
   .auth-split__form-side { padding: var(--space-6); }
+  .auth-back-btn {
+    top: var(--space-4);
+    left: var(--space-4);
+  }
 }
-

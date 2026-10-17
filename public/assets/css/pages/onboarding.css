@@ -11,44 +11,282 @@
 .onboarding-panel {
   background-color: var(--surface-card);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
-  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5) var(--space-6);
 }
 
 @media (max-width: 639px) {
-  .onboarding-panel { padding: var(--space-5); border-radius: var(--radius-lg); }
+  .onboarding-panel { padding: var(--space-4); border-radius: var(--radius-md); }
+}
+
+/* Profile page redesign: the profile card should be centered but occupy the
+   available width rather than being pinned to a narrow 560px column. */
+.onboarding-panel--profile {
+  max-width: 880px;
+  width: 100%;
+  margin-inline: auto;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 479px) {
+  .profile-header { flex-direction: column; text-align: center; }
+}
+
+.profile-header__name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.profile-header__email {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  margin: 2px 0 var(--space-2);
+}
+
+.profile-section + .profile-section {
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.profile-section__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.profile-header .avatar {
+  width: 56px;
+  height: 56px;
+  font-size: 1.2rem;
+  flex-shrink: 0;
 }
 
 .form-section__grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px 20px;
+}
+
+/* Stage-1 "Get Started" intake — a focused, standalone screen with full-bleed animated background */
+.get-started-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background-image:
+    linear-gradient(135deg, rgba(7, 21, 36, 0.78) 0%, rgba(15, 46, 66, 0.65) 50%, rgba(120, 63, 4, 0.55) 100%),
+    url("/assets/img/client/pose-mountain-sunrise.webp");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  overflow: hidden;
+}
+
+/* Floating animated mesh glow behind the card */
+.get-started-page::before {
+  content: "";
+  position: absolute;
+  top: 5%;
+  left: 15%;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(66, 153, 225, 0.35) 0%, transparent 70%);
+  filter: blur(60px);
+  animation: vy-bg-float 12s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.get-started-page::after {
+  content: "";
+  position: absolute;
+  bottom: 5%;
+  right: 15%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(221, 107, 32, 0.35) 0%, transparent 70%);
+  filter: blur(60px);
+  animation: vy-bg-float 15s ease-in-out infinite alternate-reverse;
+  pointer-events: none;
+}
+
+@keyframes vy-bg-float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -30px) scale(1.15); }
+  100% { transform: translate(-30px, 40px) scale(0.95); }
+}
+
+.get-started-card {
+  position: relative;
+  z-index: 2;
+  max-width: 1060px;
+  width: 100%;
+  background: var(--surface-glass-strong);
+  border: 1px solid var(--surface-glass-border);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  padding: var(--space-4) var(--space-7);
+  animation: vy-card-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes vy-card-pop {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.get-started-card__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 4px 10px 4px 6px;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.get-started-card__back:hover {
+  background: rgba(11, 38, 53, 0.08);
+  color: var(--color-primary);
+}
+
+.get-started-card__back .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.get-started-card__header {
+  text-align: center;
+  margin-bottom: var(--space-3);
+}
+
+.get-started-card__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin: 2px 0;
+}
+
+.get-started-card__subtitle {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  margin: 0;
+}
+
+.get-started-card__divider {
+  margin-top: var(--space-1);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.get-started-form__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-4);
+}
+
+.get-started-form__grid .form-group {
+  margin-bottom: var(--space-2);
+}
+
+.get-started-form__grid .form-group__control {
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-md);
+}
+
+.get-started-form__grid .form-group__label {
+  font-size: var(--font-size-xs);
+}
+
+.get-started-form__grid .form-group__control:focus ~ .form-group__label,
+.get-started-form__grid .form-group__control:not(:placeholder-shown) ~ .form-group__label,
+.get-started-form__grid .form-group__control.has-value ~ .form-group__label,
+.get-started-form__grid .form-group__control:-webkit-autofill ~ .form-group__label {
+  top: 0.65rem;
+}
+
+@media (max-width: 899px) {
+  .get-started-form__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 639px) {
-  .form-section__grid { grid-template-columns: 1fr; }
+  .get-started-form__grid { grid-template-columns: 1fr; }
 }
 
-.form-section__full { grid-column: 1 / -1; }
+.form-section__full {
+  grid-column: 1 / -1;
+}
 
-/* Selectable option cards (e.g. yoga style / goal preferences) */
+.form-section__label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--space-1);
+}
+
+.option-grid--4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.option-grid--6 {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+@media (max-width: 899px) {
+  .option-grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .option-grid--6 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 479px) {
+  .option-grid--4, .option-grid--6 { grid-template-columns: 1fr; }
+}
+
+/* Selectable option cards */
 .option-card {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.4rem 0.6rem;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-default);
+  border: 1.5px solid var(--border-default);
   background-color: var(--surface-card);
   cursor: pointer;
-  transition: border-color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .option-card:hover {
   border-color: var(--color-primary);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .option-card.is-selected {
@@ -58,29 +296,279 @@
 }
 
 .option-card__title {
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
   color: var(--text-primary);
 }
 
-.option-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
-}
-
-@media (max-width: 639px) {
-  .option-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-/* Form footer actions (was a sticky per-step wizard nav in an earlier design;
-   the profile page is now one long form, so this just sits at its end). */
+/* Form footer actions */
 .onboarding-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-top: var(--space-8);
-  padding-top: var(--space-5);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
   border-top: 1px solid var(--border-subtle);
+}
+
+.onboarding-nav .btn {
+  padding-block: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.form-section__full label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.onboarding-panel input,
+.onboarding-panel select,
+.onboarding-panel textarea {
+  width: 100%;
+  padding: 7px 11px;
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: var(--font-weight-medium);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.onboarding-panel input::placeholder,
+.onboarding-panel select::placeholder,
+.onboarding-panel textarea::placeholder {
+  font-size: 0.78rem;
+  font-weight: var(--font-weight-normal);
+  color: var(--text-disabled);
+}
+
+.onboarding-panel input {
+  height: 38px;
+}
+
+.onboarding-panel select {
+  height: 38px;
+  cursor: pointer;
+}
+
+.onboarding-panel textarea {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.profile-section__title {
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* =========================================================================
+   Conversational assessment wizards — shared by health-assessment.php,
+   advanced-health.php, wellness-profile.php and complete-profile.php, which
+   all render the same #assessment-progress / #step-container markup from
+   their own renderProgress()/renderStep() pair.
+   ========================================================================= */
+
+/* Segmented progress bar: one .assessment-progress__dot per visible step,
+   rebuilt on every step change. Completed steps read green and the current
+   one blue — is-current is declared last because renderProgress() sets both
+   classes on the active segment. */
+.assessment-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--space-3);
+}
+
+.assessment-progress__dot {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--border-subtle);
+  transition: background-color var(--transition-base);
+}
+
+.assessment-progress__dot.is-done { background-color: var(--color-success); }
+.assessment-progress__dot.is-current { background-color: var(--color-primary); }
+
+/* Meta row above the bar: which step you're on, how long the whole thing
+   takes, and the escape hatch that saves and returns to the dashboard. */
+.assessment-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.assessment-meta__step {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.assessment-meta__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.assessment-meta__save {
+  margin-left: auto;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  background: none;
+  border: 0;
+  padding: 2px 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.assessment-meta__save:disabled { opacity: 0.5; cursor: default; }
+
+/* Trust badges — reassurance that health answers are handled carefully.
+   Purely informational, hence the muted treatment. */
+.assessment-trust {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.assessment-trust__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-success-700);
+  background-color: var(--color-success-soft);
+  border: 1px solid var(--color-success-100);
+}
+
+:root[data-theme="dark"] .assessment-trust__badge { color: var(--color-success); border-color: transparent; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .assessment-trust__badge { color: var(--color-success); border-color: transparent; }
+}
+
+/* One yes/no screening question plus its reveal-on-yes follow-up. */
+.screening-row + .screening-row {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.screening-row__question {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.screening-row__followup { margin-top: var(--space-2); }
+
+/* 1-10 pain scale — ten narrow option cards on one row, so a client picks a
+   number outright rather than dragging a slider that would otherwise record
+   an untouched default as a real answer. */
+.severity-scale {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.severity-scale .option-card { padding: 0.35rem 0; }
+
+@media (max-width: 479px) {
+  .severity-scale { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+.severity-scale__hint {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Completion screen shown in place of the wizard once the final step saves. */
+.assessment-done {
+  text-align: center;
+  padding: var(--space-4) 0 var(--space-2);
+}
+
+.assessment-done__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--space-3);
+  border-radius: var(--radius-full);
+  color: var(--color-success);
+  background-color: var(--color-success-soft);
+}
+
+.assessment-done__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--space-1);
+}
+
+.assessment-done__text {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0 auto var(--space-4);
+  max-width: 46ch;
+}
+
+.assessment-done__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+@media (max-width: 639px) {
+  .assessment-done__stats { grid-template-columns: 1fr; }
+}
+
+.assessment-done__stat {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--surface-card);
+}
+
+.assessment-done__stat-label {
+  display: block;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.assessment-done__stat-value {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.assessment-done__note {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  margin: 0 auto;
+  max-width: 52ch;
 }

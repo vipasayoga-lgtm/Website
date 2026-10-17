@@ -4,11 +4,11 @@ use App\Core\Env;
 use App\Models\Setting;
 
 return [
-    'name' => Env::get('APP_NAME', 'Vipasa Yoga'),
+    'name' => Setting::get('site_name', Env::get('APP_NAME', 'Vipasa Yoga')),
     'env' => Env::get('APP_ENV', 'local'),
     'debug' => filter_var(Env::get('APP_DEBUG', false), FILTER_VALIDATE_BOOLEAN),
     'url' => rtrim((string) Env::get('APP_URL', 'http://localhost:8000'), '/'),
-    'timezone' => Env::get('APP_TIMEZONE', 'Asia/Kolkata'),
+    'timezone' => Setting::get('default_timezone', Env::get('APP_TIMEZONE', 'Asia/Kolkata')),
     'key' => Env::get('APP_KEY', ''),
 
     'session' => [
@@ -43,7 +43,13 @@ return [
         // 'razorpay' | 'stripe' — the active gateway. Switching gateways, or
         // switching test -> live credentials for the active gateway, is
         // an admin-settings or .env change; no code changes needed.
-        'gateway' => Setting::get('payment_gateway', Env::get('PAYMENT_GATEWAY', 'razorpay')),
+        'gateway' => Setting::get('payment_gateway', Env::get('PAYMENT_GATEWAY', 'upi_qr')),
+        'upi' => [
+            'id' => Setting::get('upi_id', 'vijayaparameshh@oksbi'),
+            'name' => Setting::get('upi_name', 'Vijaya Parameswaran'),
+            'phone' => Setting::get('upi_phone', '+91 70127 75990'),
+            'qr_image' => Setting::get('upi_qr_image', '/assets/img/payment-qr.jpg'),
+        ],
         'razorpay' => [
             'key_id' => Setting::get('razorpay_key_id', Env::get('RAZORPAY_KEY_ID', '')),
             'key_secret' => Setting::get('razorpay_key_secret', Env::get('RAZORPAY_KEY_SECRET', '')),

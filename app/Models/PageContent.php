@@ -35,7 +35,8 @@ final class PageContent extends Model
         return [
             'eyebrow' => 'Live 1:1 & group yoga, booked in minutes',
             'tagline' => 'Flow Like a River',
-            'title' => 'Find your practice, your people, your peace.',
+            'title' => 'Find calm. Book your next live yoga session.',
+            'titleHighlight' => 'yoga',
             'subtitle' => 'Book certified yoga instructors for live sessions tailored to your goals — from a single drop-in class to a full monthly practice.',
         ];
     }
@@ -91,6 +92,26 @@ final class PageContent extends Model
             ['name' => 'Face Yoga', 'img' => '/assets/img/programs/face-yoga.webp', 'description' => 'Gentle facial exercises and massage techniques to relax tension and support natural radiance.'],
             ['name' => 'Kids Yoga', 'img' => '/assets/img/programs/kids-yoga.webp', 'description' => 'Playful, imaginative sessions that introduce children to movement, focus, and calm.'],
             ['name' => 'Private Session', 'img' => '/assets/img/client/pose-dramatic-stretch.webp', 'description' => 'One-on-one attention, fully tailored to your goals, pace, and comfort level.'],
+        ];
+    }
+
+    public static function defaultHowItWorks(): array
+    {
+        return [
+            ['icon' => 'sliders', 'title' => 'Choose a Program', 'text' => 'Browse practice styles — from Regular Yoga to Prenatal, Therapy, or Private sessions.'],
+            ['icon' => 'user', 'title' => 'Choose Your Trainer', 'text' => 'Pick a certified instructor by specialty, rating, and real student reviews.'],
+            ['icon' => 'calendar-week', 'title' => 'Select a Date', 'text' => 'Book a slot that fits your schedule — single session, weekly, or monthly.'],
+            ['icon' => 'credit-card', 'title' => 'Secure Payment', 'text' => 'Pay safely through a trusted gateway and get an instant invoice.'],
+            ['icon' => 'video', 'title' => 'Join Live Session', 'text' => 'Meet your instructor live — real-time guidance, not a recording.'],
+        ];
+    }
+
+    public static function defaultBlogPosts(): array
+    {
+        return [
+            ['title' => '5 Morning Rituals for a Calmer Day', 'excerpt' => 'Small, sustainable habits that set the tone before you even open your laptop.', 'img' => '/assets/img/blog/blog-01.webp', 'tag' => 'Mindfulness'],
+            ['title' => "Eating for Energy: A Yogi's Guide to Nutrition", 'excerpt' => 'What to eat before and after practice to actually feel the difference.', 'img' => '/assets/img/blog/blog-02.jpg', 'tag' => 'Nutrition'],
+            ['title' => 'Yoga for Busy People: 10-Minute Desk Stretches', 'excerpt' => 'No mat, no studio — just a few stretches you can do between meetings.', 'img' => '/assets/img/blog/blog-03.webp', 'tag' => 'Practice'],
         ];
     }
 }

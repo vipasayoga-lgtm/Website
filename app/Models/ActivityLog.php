@@ -38,4 +38,20 @@ final class ActivityLog extends Model
             return $row;
         }, $stmt->fetchAll());
     }
+
+    /**
+     * A client's own timeline — every call site logs `user_id` as the actor,
+     * and in this app the client is always acting on their own account
+     * (signup, booking, payment, consent, rating), so a straight `user_id`
+     * filter is exactly the client's journey, oldest first.
+     */
+    public static function forUser(int $userId, int $limit = 100): array
+    {
+        $rows = self::where(['user_id' => $userId], 'id ASC', $limit);
+
+        return array_map(static function (array $row): array {
+            $row['meta'] = $row['meta'] !== null ? json_decode($row['meta'], true) : null;
+            return $row;
+        }, $rows);
+    }
 }

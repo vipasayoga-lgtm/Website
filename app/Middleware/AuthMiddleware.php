@@ -12,6 +12,24 @@ final class AuthMiddleware implements MiddlewareInterface
     public function handle(Request $request): void
     {
         if (Auth::check()) {
+            $user = Auth::user();
+            $isInactive = ($user['status'] ?? '') === 'inactive' || ($user['status'] ?? '') === 'suspended';
+
+            if (!$isInactive && ($user['role'] ?? '') === 'instructor') {
+                $instructor = \App\Models\Instructor::findByUserId((int) $user['id']);
+                if ($instructor && ($instructor['status'] ?? '') === 'inactive') {
+                    $isInactive = true;
+                }
+            }
+
+            if ($isInactive) {
+                Auth::logout();
+                if (str_starts_with($request->path(), '/api/')) {
+                    Response::json(['success' => false, 'message' => 'Your account is inactive. Please contact administrator.'], 403);
+                }
+                Response::redirect('/login?error=account_inactive');
+            }
+
             return;
         }
 

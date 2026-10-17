@@ -38,34 +38,48 @@ foreach ($windows as $window) {
     }
 }
 ?>
-<div class="container" style="padding-block:var(--space-8) var(--space-16)">
+<div class="container" style="padding-block:var(--space-4) var(--space-8)">
 
-    <div class="trainer-hero">
-        <div>
-            <h1 class="trainer-hero__title">Calendar</h1>
-            <p class="trainer-hero__subtitle">Your bookings, weekly availability, and blocked dates.</p>
+    <div class="trainer-hero-card mb-6">
+        <div class="trainer-hero-card__main">
+            <div class="trainer-hero-card__avatar">
+                <span class="trainer-hero-card__avatar-fallback">
+                    <?= View::icon('calendar-month', 'icon', 20) ?>
+                </span>
+            </div>
+            <div>
+                <h1 class="trainer-hero-card__title">Calendar &amp; Availability</h1>
+                <p class="trainer-hero-card__subtitle">Manage your session calendar, weekly recurring slots, and blocked holiday dates.</p>
+            </div>
+        </div>
+        <div class="trainer-hero-card__actions">
+            <div class="flex gap-1">
+                <a href="/trainer/calendar?view=month" class="btn btn-sm <?= $view === 'month' ? 'btn-primary' : 'btn-secondary' ?>">Month</a>
+                <a href="/trainer/calendar?view=week&date=<?= View::e($anchor) ?>" class="btn btn-sm <?= $view === 'week' ? 'btn-primary' : 'btn-secondary' ?>">Week</a>
+                <a href="/trainer/calendar?view=day&date=<?= View::e($anchor) ?>" class="btn btn-sm <?= $view === 'day' ? 'btn-primary' : 'btn-secondary' ?>">Day</a>
+            </div>
         </div>
     </div>
 
-    <div class="flex gap-2 mb-6">
-        <a href="/trainer/calendar?view=month" class="btn btn-sm <?= $view === 'month' ? 'btn-primary' : 'btn-secondary' ?>">Month</a>
-        <a href="/trainer/calendar?view=week&date=<?= View::e($anchor) ?>" class="btn btn-sm <?= $view === 'week' ? 'btn-primary' : 'btn-secondary' ?>">Week</a>
-        <a href="/trainer/calendar?view=day&date=<?= View::e($anchor) ?>" class="btn btn-sm <?= $view === 'day' ? 'btn-primary' : 'btn-secondary' ?>">Day</a>
-    </div>
-
     <?php if ($view === 'month'): ?>
-    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <a href="/trainer/calendar?month=<?= $prevMonth ?>&year=<?= $prevYear ?>" class="btn btn-secondary btn-sm">&larr; Prev</a>
-        <h2 style="font-size:var(--font-size-lg);margin:0"><?= View::e($monthLabel) ?></h2>
-        <a href="/trainer/calendar?month=<?= $nextMonth ?>&year=<?= $nextYear ?>" class="btn btn-secondary btn-sm">Next &rarr;</a>
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <a href="/trainer/calendar?month=<?= $prevMonth ?>&year=<?= $prevYear ?>" class="btn btn-secondary btn-sm flex items-center gap-1">
+            <?= View::icon('chevron-left', 'icon', 14) ?>
+            <span>Prev</span>
+        </a>
+        <h2 style="font-size:0.95rem;font-weight:700;margin:0;color:var(--text-primary)"><?= View::e($monthLabel) ?></h2>
+        <a href="/trainer/calendar?month=<?= $nextMonth ?>&year=<?= $nextYear ?>" class="btn btn-secondary btn-sm flex items-center gap-1">
+            <span>Next</span>
+            <?= View::icon('chevron-right', 'icon', 14) ?>
+        </a>
     </div>
 
-    <div class="card mb-8" style="padding:var(--space-4);overflow-x:auto">
-        <table style="width:100%;border-collapse:collapse;min-width:840px">
+    <div class="card mb-6" style="padding:10px;overflow-x:auto;border-radius:var(--radius-lg)">
+        <table style="width:100%;border-collapse:collapse;min-width:760px">
             <thead>
                 <tr>
                     <?php foreach ($weekdayLabels as $label): ?>
-                    <th style="text-align:left;padding:var(--space-2) var(--space-3);font-size:var(--font-size-xs);text-transform:uppercase;letter-spacing:0.03em;color:var(--text-secondary);border-bottom:1px solid var(--border-default)"><?= View::e($label) ?></th>
+                    <th style="text-align:left;padding:6px 10px;font-size:10.5px;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-secondary);border-bottom:1px solid var(--border-subtle)"><?= View::e($label) ?></th>
                     <?php endforeach; ?>
                 </tr>
             </thead>
@@ -74,7 +88,7 @@ foreach ($windows as $window) {
                 <tr>
                     <?php foreach ($week as $day):
                         if ($day === null) {
-                            echo '<td style="vertical-align:top;padding:var(--space-2);border:1px solid var(--border-default);background-color:var(--surface-bg-alt)"></td>';
+                            echo '<td style="vertical-align:top;padding:6px;border:1px solid var(--border-subtle);background-color:var(--surface-bg-alt)"></td>';
                             continue;
                         }
 
@@ -83,11 +97,11 @@ foreach ($windows as $window) {
                         $count = count($dayBookings);
                         $isToday = $dateKey === $today;
                     ?>
-                    <td style="vertical-align:top;padding:var(--space-2);border:1px solid var(--border-default);min-width:110px;<?= $isToday ? 'background-color:var(--color-primary-soft, var(--surface-bg-alt));' : '' ?>">
-                        <div class="flex items-center justify-between" style="margin-bottom:var(--space-1)">
-                            <span style="font-weight:var(--font-weight-semibold);font-size:var(--font-size-sm)"><?= $day ?></span>
+                    <td style="vertical-align:top;padding:6px;border:1px solid var(--border-subtle);min-width:98px;<?= $isToday ? 'background-color:var(--color-primary-soft, var(--surface-bg-alt));' : '' ?>">
+                        <div class="flex items-center justify-between" style="margin-bottom:4px">
+                            <span style="font-weight:700;font-size:0.78rem"><?= $day ?></span>
                             <?php if ($count > 0): ?>
-                            <span class="badge badge-neutral" style="font-size:9px;padding:2px var(--space-2)"><?= $count ?></span>
+                            <span class="badge badge-neutral" style="font-size:9px;padding:1px 5px"><?= $count ?></span>
                             <?php endif; ?>
                         </div>
                         <?php if ($count > 0): ?>
@@ -96,13 +110,13 @@ foreach ($windows as $window) {
                                 [$badgeClass, $badgeLabel] = $statusMeta[$booking['status']] ?? ['badge-neutral', ucfirst($booking['status'])];
                                 $timeLabel = date('g:i A', strtotime($booking['start_time']));
                             ?>
-                            <div style="font-size:10px;line-height:1.4" title="<?= View::e($booking['package_name'] . ' — ' . $booking['client_name']) ?>">
+                            <div style="font-size:9.5px;line-height:1.3" title="<?= View::e($booking['package_name'] . ' — ' . $booking['client_name']) ?>">
                                 <span class="text-muted"><?= View::e($timeLabel) ?></span>
-                                <span class="badge <?= $badgeClass ?>" style="font-size:8px;padding:1px var(--space-1)"><?= View::e($badgeLabel) ?></span>
+                                <span class="badge <?= $badgeClass ?>" style="font-size:8px;padding:0px 4px"><?= View::e($badgeLabel) ?></span>
                             </div>
                             <?php endforeach; ?>
                             <?php if ($count > $maxChips): ?>
-                            <div class="text-muted" style="font-size:10px">+<?= $count - $maxChips ?> more</div>
+                            <div class="text-muted" style="font-size:9px">+<?= $count - $maxChips ?> more</div>
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
@@ -115,28 +129,34 @@ foreach ($windows as $window) {
     </div>
 
     <?php elseif ($view === 'week'): ?>
-    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <a href="/trainer/calendar?view=week&date=<?= View::e($weekData['prevAnchor']) ?>" class="btn btn-secondary btn-sm">&larr; Prev week</a>
-        <h2 style="font-size:var(--font-size-lg);margin:0"><?= View::e(date('d M', strtotime($weekData['start']))) ?> – <?= View::e(date('d M Y', strtotime($weekData['end']))) ?></h2>
-        <a href="/trainer/calendar?view=week&date=<?= View::e($weekData['nextAnchor']) ?>" class="btn btn-secondary btn-sm">Next week &rarr;</a>
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <a href="/trainer/calendar?view=week&date=<?= View::e($weekData['prevAnchor']) ?>" class="btn btn-secondary btn-sm flex items-center gap-1">
+            <?= View::icon('chevron-left', 'icon', 14) ?>
+            <span>Prev week</span>
+        </a>
+        <h2 style="font-size:0.95rem;font-weight:700;margin:0"><?= View::e(date('d M', strtotime($weekData['start']))) ?> – <?= View::e(date('d M Y', strtotime($weekData['end']))) ?></h2>
+        <a href="/trainer/calendar?view=week&date=<?= View::e($weekData['nextAnchor']) ?>" class="btn btn-secondary btn-sm flex items-center gap-1">
+            <span>Next week</span>
+            <?= View::icon('chevron-right', 'icon', 14) ?>
+        </a>
     </div>
-    <div class="trainer-schedule mb-8">
+    <div class="trainer-schedule mb-6">
         <?php foreach ($weekData['days'] as $day): ?>
-        <div class="card" style="padding:var(--space-4) var(--space-5);<?= $day['date'] === $today ? 'border-left:3px solid var(--sidebar-active-border, var(--color-accent));' : '' ?>">
+        <div class="card" style="padding:10px 12px;<?= $day['date'] === $today ? 'border-left:3px solid var(--color-primary);' : '' ?>">
             <div class="flex items-center justify-between mb-2">
-                <strong><?= View::e(date('D, d M', strtotime($day['date']))) ?></strong>
-                <span class="text-muted" style="font-size:var(--font-size-sm)"><?= count($day['bookings']) ?> session(s)</span>
+                <strong style="font-size:0.8125rem"><?= View::e(date('D, d M', strtotime($day['date']))) ?></strong>
+                <span class="text-muted" style="font-size:11px"><?= count($day['bookings']) ?> session(s)</span>
             </div>
             <?php if (empty($day['bookings'])): ?>
-            <p class="text-muted" style="margin:0;font-size:var(--font-size-sm)">Nothing scheduled.</p>
+            <p class="text-muted" style="margin:0;font-size:11px">Nothing scheduled.</p>
             <?php else: ?>
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-1">
                 <?php foreach ($day['bookings'] as $booking):
                     [$badgeClass, $badgeLabel] = $statusMeta[$booking['status']] ?? ['badge-neutral', ucfirst($booking['status'])];
                 ?>
-                <div class="flex items-center justify-between flex-wrap gap-2">
-                    <span style="font-size:var(--font-size-sm)"><?= View::e(date('g:i A', strtotime($booking['start_time']))) ?> · <?= View::e($booking['client_name']) ?> · <?= View::e($booking['package_name']) ?></span>
-                    <span class="badge <?= $badgeClass ?>"><?= View::e($badgeLabel) ?></span>
+                <div class="flex items-center justify-between flex-wrap gap-2" style="font-size:11.5px">
+                    <span><?= View::e(date('g:i A', strtotime($booking['start_time']))) ?> · <?= View::e($booking['client_name']) ?> · <?= View::e($booking['package_name']) ?></span>
+                    <span class="badge <?= $badgeClass ?>" style="font-size:9.5px;padding:2px 6px"><?= View::e($badgeLabel) ?></span>
                 </div>
                 <?php endforeach; ?>
             </div>
@@ -146,30 +166,46 @@ foreach ($windows as $window) {
     </div>
 
     <?php else: ?>
-    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <a href="/trainer/calendar?view=day&date=<?= View::e($dayData['prevAnchor']) ?>" class="btn btn-secondary btn-sm">&larr; Prev day</a>
-        <h2 style="font-size:var(--font-size-lg);margin:0"><?= View::e(date('l, d M Y', strtotime($dayData['date']))) ?></h2>
-        <a href="/trainer/calendar?view=day&date=<?= View::e($dayData['nextAnchor']) ?>" class="btn btn-secondary btn-sm">Next day &rarr;</a>
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <a href="/trainer/calendar?view=day&date=<?= View::e($dayData['prevAnchor']) ?>" class="btn btn-secondary btn-sm flex items-center gap-1">
+            <?= View::icon('chevron-left', 'icon', 14) ?>
+            <span>Prev day</span>
+        </a>
+        <h2 style="font-size:0.95rem;font-weight:700;margin:0"><?= View::e(date('l, d M Y', strtotime($dayData['date']))) ?></h2>
+        <a href="/trainer/calendar?view=day&date=<?= View::e($dayData['nextAnchor']) ?>" class="btn btn-secondary btn-sm flex items-center gap-1">
+            <span>Next day</span>
+            <?= View::icon('chevron-right', 'icon', 14) ?>
+        </a>
     </div>
-    <div class="trainer-schedule mb-8">
+    <div class="trainer-schedule-list mb-6">
         <?php if (empty($dayData['bookings'])): ?>
-        <p class="text-muted">Nothing scheduled for this day.</p>
+        <div class="trainer-empty-state">
+            <div class="trainer-empty-state__icon"><?= View::icon('calendar-month', 'icon', 20) ?></div>
+            <h3 class="trainer-empty-state__title">Nothing scheduled for this day</h3>
+        </div>
         <?php else: ?>
         <?php foreach ($dayData['bookings'] as $booking):
             [$badgeClass, $badgeLabel] = $statusMeta[$booking['status']] ?? ['badge-neutral', ucfirst($booking['status'])];
         ?>
-        <div class="trainer-schedule-row">
-            <div class="flex items-center gap-4">
-                <span class="trainer-schedule-row__time"><?= View::e(date('g:i A', strtotime($booking['start_time']))) ?> – <?= View::e(date('g:i A', strtotime($booking['end_time']))) ?></span>
-                <div>
-                    <strong><?= View::e($booking['client_name']) ?></strong>
-                    <span class="text-muted" style="font-size:var(--font-size-sm)"> · <?= View::e($booking['package_name']) ?></span>
+        <div class="trainer-schedule-card">
+            <div class="trainer-schedule-card__left">
+                <div class="trainer-schedule-card__date-badge">
+                    <span><?= View::e(date('g:i A', strtotime($booking['start_time']))) ?> – <?= View::e(date('g:i A', strtotime($booking['end_time']))) ?></span>
+                </div>
+                <div class="trainer-schedule-card__user-info">
+                    <div class="trainer-avatar-chip"><?= View::e(strtoupper(substr($booking['client_name'] ?? 'C', 0, 2))) ?></div>
+                    <div>
+                        <h4 class="trainer-schedule-card__client-name"><?= View::e($booking['client_name']) ?></h4>
+                        <div class="trainer-schedule-card__meta">
+                            <span class="trainer-package-pill"><?= View::e($booking['package_name']) ?></span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
                 <span class="badge <?= $badgeClass ?>"><?= View::e($badgeLabel) ?></span>
                 <?php if (in_array($booking['status'], ['confirmed', 'completed'], true)): ?>
-                <a href="/trainer/sessions/<?= View::e($booking['booking_ref']) ?>" class="btn btn-secondary btn-sm">Session</a>
+                <a href="/trainer/sessions/<?= View::e($booking['booking_ref']) ?>" class="btn btn-secondary btn-sm">View Session</a>
                 <?php endif; ?>
             </div>
         </div>
@@ -178,55 +214,69 @@ foreach ($windows as $window) {
     </div>
     <?php endif; ?>
 
-    <h2 class="trainer-section-title">Weekly Availability</h2>
-    <div class="card mb-8" style="padding:var(--space-6)">
-        <form id="availability-form">
-            <div class="flex flex-col gap-3">
-                <?php foreach ($dayNames as $dow => $name): $existing = $recurringByDay[$dow][0] ?? null; ?>
-                <div class="flex items-center gap-3 flex-wrap">
-                    <label class="flex items-center gap-2" style="min-width:120px">
-                        <input type="checkbox" name="enabled[<?= $dow ?>]" <?= $existing ? 'checked' : '' ?>>
-                        <?= View::e($name) ?>
-                    </label>
-                    <input type="time" name="start[<?= $dow ?>]" class="form-group__control" style="max-width:130px" value="<?= View::e($existing['start_time'] ?? '09:00') ?>">
-                    <span class="text-muted">to</span>
-                    <input type="time" name="end[<?= $dow ?>]" class="form-group__control" style="max-width:130px" value="<?= View::e($existing['end_time'] ?? '17:00') ?>">
+    <div class="trainer-section-block">
+        <div class="trainer-section-header">
+            <div class="flex items-center gap-2">
+                <?= View::icon('clock', 'trainer-section-header__icon', 18) ?>
+                <h2 class="trainer-section-header__title">Weekly Availability</h2>
+            </div>
+        </div>
+        <div class="card mb-6" style="padding:14px;border-radius:var(--radius-lg)">
+            <form id="availability-form">
+                <div class="flex flex-col gap-2">
+                    <?php foreach ($dayNames as $dow => $name): $existing = $recurringByDay[$dow][0] ?? null; ?>
+                    <div class="flex items-center gap-3 flex-wrap" style="font-size:0.78rem">
+                        <label class="flex items-center gap-2" style="min-width:110px;font-weight:600">
+                            <input type="checkbox" name="enabled[<?= $dow ?>]" <?= $existing ? 'checked' : '' ?>>
+                            <?= View::e($name) ?>
+                        </label>
+                        <input type="time" name="start[<?= $dow ?>]" class="form-group__control" style="max-width:120px;padding:3px 8px;font-size:0.75rem" value="<?= View::e($existing['start_time'] ?? '09:00') ?>">
+                        <span class="text-muted">to</span>
+                        <input type="time" name="end[<?= $dow ?>]" class="form-group__control" style="max-width:120px;padding:3px 8px;font-size:0.75rem" value="<?= View::e($existing['end_time'] ?? '17:00') ?>">
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="form-group__error" id="availability-error"></div>
+                <button type="submit" class="btn btn-primary btn-sm mt-3">Save Availability</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="trainer-section-block">
+        <div class="trainer-section-header">
+            <div class="flex items-center gap-2">
+                <?= View::icon('x', 'trainer-section-header__icon', 18) ?>
+                <h2 class="trainer-section-header__title">Blocked Dates &amp; Holidays</h2>
+            </div>
+        </div>
+        <div class="card" style="padding:14px;border-radius:var(--radius-lg)">
+            <?php if (empty($blockedDates)): ?>
+            <p class="text-muted mb-3" style="font-size:0.75rem">No blocked dates.</p>
+            <?php else: ?>
+            <div class="flex flex-col gap-2 mb-4">
+                <?php foreach ($blockedDates as $blocked): ?>
+                <div class="flex items-center justify-between" style="padding:4px 0;border-bottom:1px solid var(--border-subtle);font-size:0.78rem">
+                    <span><?= View::e(date('d M Y', strtotime($blocked['blocked_date']))) ?><?= $blocked['reason'] ? ' — ' . View::e($blocked['reason']) : '' ?><?= $blocked['instructor_id'] === null ? ' <span class="text-muted">(platform holiday)</span>' : '' ?></span>
+                    <?php if ($blocked['instructor_id'] !== null): ?>
+                    <button type="button" class="btn btn-ghost btn-sm unblock-btn" data-id="<?= (int) $blocked['id'] ?>" style="font-size:10.5px;padding:2px 6px">Remove</button>
+                    <?php endif; ?>
                 </div>
                 <?php endforeach; ?>
             </div>
-            <div class="form-group__error" id="availability-error"></div>
-            <button type="submit" class="btn btn-primary mt-4">Save Availability</button>
-        </form>
-    </div>
+            <?php endif; ?>
 
-    <h2 class="trainer-section-title">Blocked Dates</h2>
-    <div class="card" style="padding:var(--space-6)">
-        <?php if (empty($blockedDates)): ?>
-        <p class="text-muted mb-4">No blocked dates.</p>
-        <?php else: ?>
-        <div class="flex flex-col gap-2 mb-6">
-            <?php foreach ($blockedDates as $blocked): ?>
-            <div class="flex items-center justify-between" style="padding:var(--space-2) 0;border-bottom:1px solid var(--border-subtle)">
-                <span><?= View::e(date('d M Y', strtotime($blocked['blocked_date']))) ?><?= $blocked['reason'] ? ' — ' . View::e($blocked['reason']) : '' ?><?= $blocked['instructor_id'] === null ? ' <span class="text-muted">(platform holiday)</span>' : '' ?></span>
-                <?php if ($blocked['instructor_id'] !== null): ?>
-                <button type="button" class="btn btn-ghost btn-sm unblock-btn" data-id="<?= (int) $blocked['id'] ?>">Remove</button>
-                <?php endif; ?>
-            </div>
-            <?php endforeach; ?>
+            <form id="block-date-form" class="flex gap-2 flex-wrap items-end">
+                <div class="form-group" style="margin:0">
+                    <input type="date" name="blocked_date" class="form-group__control" required style="padding:4px 8px;font-size:0.75rem">
+                    <label class="form-group__label">Date</label>
+                </div>
+                <div class="form-group" style="margin:0;flex:1;min-width:180px">
+                    <input type="text" name="reason" class="form-group__control" placeholder=" " maxlength="255" style="padding:4px 8px;font-size:0.75rem">
+                    <label class="form-group__label">Reason (optional)</label>
+                </div>
+                <button type="submit" class="btn btn-secondary btn-sm">Block Date</button>
+            </form>
         </div>
-        <?php endif; ?>
-
-        <form id="block-date-form" class="flex gap-3 flex-wrap items-end">
-            <div class="form-group" style="margin:0">
-                <input type="date" name="blocked_date" class="form-group__control" required>
-                <label class="form-group__label">Date</label>
-            </div>
-            <div class="form-group" style="margin:0;flex:1;min-width:200px">
-                <input type="text" name="reason" class="form-group__control" placeholder=" " maxlength="255">
-                <label class="form-group__label">Reason (optional)</label>
-            </div>
-            <button type="submit" class="btn btn-secondary">Block Date</button>
-        </form>
     </div>
 </div>
 <script type="module">

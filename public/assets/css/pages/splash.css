@@ -1,150 +1,261 @@
 /* =========================================================================
-   Vipasa Yoga — Splash / launch screen
-   Full-viewport centered logo, loading bar, tagline. Requires
-   design-tokens.css, base.css (and optionally components.css) loaded first.
+   Vipasa Yoga — Splash / Launch Screen
+   Full-viewport centered brand logo, loading progress bar, tagline.
+   Requires design-tokens.css, base.css loaded first.
    ========================================================================= */
 
 .splash {
   position: fixed;
   inset: 0;
-  z-index: var(--z-fixed);
+  z-index: var(--z-fixed, 9999);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-8);
-  text-align: center;
-  padding: var(--space-6);
+  padding: var(--space-6, 1.5rem);
   overflow: hidden;
   background:
-    radial-gradient(circle at 20% 20%, var(--color-primary-soft) 0%, transparent 55%),
-    radial-gradient(circle at 80% 30%, var(--color-tertiary-soft) 0%, transparent 50%),
-    radial-gradient(circle at 50% 90%, var(--color-accent-soft) 0%, transparent 55%),
-    var(--surface-bg);
-  transition: opacity var(--duration-slower) var(--ease-out), visibility var(--duration-slower);
+    radial-gradient(circle at 15% 15%, rgba(212, 163, 115, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 85% 25%, rgba(224, 122, 95, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 85%, rgba(42, 60, 50, 0.12) 0%, transparent 55%),
+    var(--surface-bg, #fdfbf7);
+  transition: opacity 0.5s ease, filter 0.5s ease, transform 0.5s ease, visibility 0.5s ease;
+  will-change: transform, opacity, filter;
 }
 
-/* Soft ambient glow orbs drifting behind the logo */
-.splash::before,
-.splash::after {
-  content: "";
+/* Ambient animated glowing background orbs */
+.splash__bg-orbs {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.splash__orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.5;
-  animation: vy-splash-drift 12s ease-in-out infinite alternate;
+  filter: blur(70px);
+  opacity: 0.45;
+  animation: vy-splash-float 14s ease-in-out infinite alternate;
 }
 
-.splash::before {
+.splash__orb--1 {
+  width: 380px;
+  height: 380px;
+  top: -100px;
+  left: -80px;
+  background: var(--color-primary, #2b4c3f);
+}
+
+.splash__orb--2 {
   width: 320px;
   height: 320px;
-  top: -80px;
-  left: -60px;
-  background: var(--color-primary);
+  bottom: -80px;
+  right: -60px;
+  background: var(--color-accent, #e07a5f);
+  animation-delay: -4s;
 }
 
-.splash::after {
+.splash__orb--3 {
   width: 260px;
   height: 260px;
-  bottom: -60px;
-  right: -40px;
-  background: var(--color-accent);
-  animation-delay: 2s;
+  top: 40%;
+  left: 60%;
+  background: var(--color-tertiary, #d4a373);
+  animation-delay: -7s;
 }
 
-@keyframes vy-splash-drift {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(30px, 20px) scale(1.08); }
+@keyframes vy-splash-float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(35px, -25px) scale(1.1); }
+  100% { transform: translate(-20px, 30px) scale(0.95); }
 }
 
-.splash__content {
+/* Main glass card container */
+.splash__card {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-6);
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-8, 2rem) var(--space-6, 1.5rem);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 20px 40px -15px rgba(35, 45, 40, 0.08),
+    0 0 0 1px rgba(224, 122, 95, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  animation: vy-splash-appear 0.6s ease-out forwards;
 }
 
-.splash__logo {
-  width: 88px;
-  height: 88px;
+@keyframes vy-splash-appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Logo Box & Glow effect */
+.splash__logo-wrap {
+  position: relative;
+  margin-bottom: var(--space-5, 1.25rem);
+}
+
+.splash__logo-glow {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224, 122, 95, 0.35) 0%, rgba(212, 163, 115, 0.15) 60%, transparent 100%);
+  filter: blur(14px);
+  animation: vy-glow-pulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes vy-glow-pulse {
+  0% { opacity: 0.4; transform: scale(0.92); }
+  100% { opacity: 0.85; transform: scale(1.12); }
+}
+
+.splash__logo-box {
+  position: relative;
+  z-index: 1;
+  width: 108px;
+  height: 108px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-2xl);
-  background-color: var(--surface-glass);
-  border: 1px solid var(--surface-glass-border);
-  box-shadow: var(--shadow-glass);
-  backdrop-filter: blur(var(--surface-glass-blur));
-  -webkit-backdrop-filter: blur(var(--surface-glass-blur));
-  animation: vy-logo-breathe 3.2s ease-in-out infinite;
+  padding: 16px;
+  border-radius: 26px;
+  background: linear-gradient(145deg, #1d332a 0%, #2b4c3f 100%);
+  border: 1.5px solid rgba(212, 163, 115, 0.45);
+  box-shadow:
+    0 14px 30px -8px rgba(29, 51, 42, 0.35),
+    inset 0 1px 2px rgba(255, 255, 255, 0.25);
+  animation: vy-logo-breathe 3.5s ease-in-out infinite;
 }
 
-.splash__logo svg,
-.splash__logo img {
-  width: 48px;
-  height: 48px;
+.splash__logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.06));
 }
 
 @keyframes vy-logo-breathe {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.06); }
+  50% { transform: scale(1.04); }
+}
+
+/* Wordmark & Tagline */
+.splash__text {
+  text-align: center;
+  margin-bottom: var(--space-6, 1.5rem);
 }
 
 .splash__wordmark {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
+  font-size: var(--font-size-2xl, 1.75rem);
+  font-weight: 700;
+  color: var(--text-primary, #1e2923);
+  letter-spacing: -0.02em;
+  margin: 0 0 4px 0;
+  background: linear-gradient(135deg, #1e2923 30%, #4a5d52 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .splash__tagline {
-  font-size: var(--font-size-base);
-  color: var(--text-muted);
-  max-width: 320px;
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--text-muted, #64748b);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
 }
 
-/* Loading bar */
+/* Loader & Progress Fill */
+.splash__loader-wrap {
+  width: 100%;
+  max-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+}
+
 .splash__loader {
-  width: 200px;
-  height: 4px;
-  border-radius: var(--radius-full);
-  background-color: var(--surface-sunken);
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-full, 9999px);
+  background-color: rgba(0, 0, 0, 0.06);
   overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .splash__loader-fill {
   height: 100%;
-  width: 40%;
-  border-radius: var(--radius-full);
-  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
-  animation: vy-loader-slide 1.4s var(--ease-standard) infinite;
+  width: 0%;
+  border-radius: var(--radius-full, 9999px);
+  background: linear-gradient(90deg, #e07a5f 0%, #d4a373 60%, #2b4c3f 100%);
+  transition: width 0.1s linear;
+  box-shadow: 0 0 12px rgba(224, 122, 95, 0.4);
 }
 
-@keyframes vy-loader-slide {
-  0% { transform: translateX(-120%); }
-  100% { transform: translateX(340%); }
+.splash__loader-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted, #64748b);
 }
 
-/* Fade-out hand-off to the next screen (JS toggles this class, then
-   removes the splash node after the transition ends) */
+.splash__loader-status {
+  opacity: 0.85;
+}
+
+.splash__loader-percent {
+  font-family: var(--font-mono, monospace);
+  font-weight: 600;
+  color: var(--color-accent, #e07a5f);
+}
+
+/* Cinematic Exit Hand-off */
 .splash.is-leaving {
   opacity: 0;
+  filter: blur(12px);
+  transform: scale(1.05);
   visibility: hidden;
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .splash::before,
-  .splash::after,
-  .splash__logo,
-  .splash__loader-fill {
-    animation: none;
+  .splash__orb,
+  .splash__card,
+  .splash__logo-glow,
+  .splash__logo-box {
+    animation: none !important;
+  }
+  .splash.is-leaving {
+    transition: opacity 0.2s ease;
+    filter: none;
+    transform: none;
   }
 }
 
 @media (max-width: 639px) {
-  .splash__logo { width: 72px; height: 72px; }
-  .splash__wordmark { font-size: var(--font-size-xl); }
+  .splash__card {
+    padding: var(--space-6, 1.5rem) var(--space-5, 1.25rem);
+    max-width: 340px;
+  }
+  .splash__logo-box { width: 88px; height: 88px; padding: 12px; }
+  .splash__wordmark { font-size: 1.5rem; }
 }
+

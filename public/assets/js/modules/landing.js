@@ -11,6 +11,10 @@ import { showFieldError, clearFieldError } from './validation.js';
 const SCROLL_THRESHOLD = 60;
 const COUNTER_DURATION = 1200;
 const SLIDE_INTERVAL = 5000;
+/* A section counts as "the one you're on" once its top has passed just below
+   the floating nav pill (78px tall, 12px from the top when stuck) — roughly
+   where the eye sits, rather than the very top of the viewport. */
+const SPY_OFFSET = 140;
 
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -25,7 +29,12 @@ function initStickyNav() {
 
   let ticking = false;
   const update = () => {
-    nav.classList.toggle('nav-glass--scrolled', window.scrollY > SCROLL_THRESHOLD);
+    const scrolled = window.scrollY > SCROLL_THRESHOLD;
+    nav.classList.toggle('nav-glass--scrolled', scrolled);
+    /* The landing nav is absolute inside .hero, so without this it scrolls
+       away with the hero and the active-section underline is never visible
+       while reading. --stuck re-pins it to the viewport (see landing.css). */
+    nav.classList.toggle('nav-glass--stuck', scrolled);
     ticking = false;
   };
 
@@ -45,6 +54,65 @@ function initStickyNav() {
       toggleBtn.setAttribute('aria-expanded', String(nav.classList.contains('is-open')));
     });
   });
+}
+
+/* -------------------------------------------------------------------------
+   1b. Nav scroll spy — marks the link for the section currently in view with
+   .is-active, which components.css renders as the saffron underline under
+   that link (a left-edge bar in the mobile dropdown). Other pages get the
+   same marker server-side from layouts/main.php.
+   ------------------------------------------------------------------------- */
+function initNavScrollSpy() {
+  const targets = Array.from(document.querySelectorAll('.nav-glass__link[href^="#"]'))
+    .map((link) => ({ link, section: document.getElementById(link.getAttribute('href').slice(1)) }))
+    .filter((entry) => entry.section);
+  if (!targets.length) return;
+
+  const docTop = (el) => el.getBoundingClientRect().top + window.scrollY;
+
+  const setActive = (activeLink) => {
+    targets.forEach(({ link }) => {
+      const on = link === activeLink;
+      link.classList.toggle('is-active', on);
+      if (on) {
+        link.setAttribute('aria-current', 'true');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+  };
+
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    const line = window.scrollY + SPY_OFFSET;
+    const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+
+    /* Pick by measured document position, not link order: the nav lists
+       Packages before Instructors while the sections run the other way
+       round, so walking the links in order would pick the wrong one. */
+    let active = null;
+    let bestTop = -Infinity;
+    targets.forEach((entry) => {
+      const top = docTop(entry.section);
+      if ((atBottom || top <= line) && top > bestTop) {
+        bestTop = top;
+        active = entry.link;
+      }
+    });
+
+    setActive(active);
+  };
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
+
+  update();
 }
 
 /* -------------------------------------------------------------------------
@@ -286,6 +354,7 @@ function initNewsletterForm() {
 
 export function initLanding() {
   initStickyNav();
+  initNavScrollSpy();
   initSmoothScroll();
   initHeroParallax();
   initStatCounters();

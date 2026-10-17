@@ -55,4 +55,56 @@ final class Env
             default => $value,
         };
     }
+
+    public static function update(array $pairs): void
+    {
+        $path = dirname(__DIR__, 2) . '/.env';
+        if (!is_file($path)) {
+            return;
+        }
+
+        $rawLines = file($path, FILE_IGNORE_NEW_LINES);
+        if ($rawLines === false) {
+            return;
+        }
+
+        $lines = $rawLines;
+
+        foreach ($pairs as $key => $val) {
+            $key = trim((string) $key);
+            $val = (string) $val;
+
+            if (preg_match('/[\s"#\'\\\\]/', $val) || $val === '') {
+                $formattedVal = '"' . addcslashes($val, '"\\') . '"';
+            } else {
+                $formattedVal = $val;
+            }
+
+            $found = false;
+            foreach ($lines as $i => $line) {
+                $trimmed = trim($line);
+                if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+                    continue;
+                }
+                if (!str_contains($trimmed, '=')) {
+                    continue;
+                }
+                [$currentKey] = explode('=', $trimmed, 2);
+                if (trim($currentKey) === $key) {
+                    $lines[$i] = "{$key}={$formattedVal}";
+                    $found = true;
+                    break;
+                }
+            }
+
+            if (!$found) {
+                $lines[] = "{$key}={$formattedVal}";
+            }
+
+            $_ENV[$key] = $val;
+            putenv("{$key}={$val}");
+        }
+
+        file_put_contents($path, implode(PHP_EOL, $lines) . PHP_EOL, LOCK_EX);
+    }
 }

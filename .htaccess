@@ -1,0 +1,20 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct browser access to sensitive files and directories
+    RewriteRule ^(\.env|\.git|\.claude|composer\.(json|lock|phar)|database/|storage/logs/|app/) - [F,L,NC]
+
+    # If the request is already for public, don't loop
+    RewriteCond %{REQUEST_URI} ^/public/ [NC]
+    RewriteRule ^ - [L]
+
+    # Rewrite all traffic to the public/ folder
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    RewriteRule ^$ public/ [L]
+</IfModule>
+
+# Prevent directory browsing
+Options -Indexes

@@ -46,7 +46,8 @@ final class StudentController extends Controller
         }
 
         $client = User::find($id);
-        $profile = ClientProfile::findByUserId($id);
+        $profileRow = ClientProfile::findByUserId($id);
+        $profile = $profileRow ? ClientProfile::hydrate($profileRow) : null;
 
         $historyStmt = $db->prepare(
             "SELECT b.*, p.name AS package_name
@@ -63,8 +64,16 @@ final class StudentController extends Controller
         $feedbackStmt->execute(['instructor_id' => $instructorId, 'client_id' => $id]);
 
         $this->view('trainer/student-detail', [
-            'client' => $client,
-            'profile' => $profile ? ClientProfile::hydrate($profile) : null,
+            'client' => [
+                'name' => $client['name'],
+                'email' => $client['email'],
+                'phone' => $client['phone'],
+                'created_at' => $client['created_at'] ?? null,
+                'last_login_at' => $client['last_login_at'] ?? null,
+            ],
+            'profile' => $profile,
+            'safety' => ClientProfile::safetySummary($profile),
+            'rawAssessment' => is_array($profile['health_assessment'] ?? null) ? $profile['health_assessment'] : [],
             'history' => $historyStmt->fetchAll(),
             'feedback' => $feedbackStmt->fetchAll(),
         ], 'dashboard');

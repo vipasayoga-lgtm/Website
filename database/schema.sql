@@ -102,11 +102,20 @@ CREATE TABLE role_permissions (
 CREATE TABLE client_profiles (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL UNIQUE,
+    date_of_birth DATE NULL,
     age TINYINT UNSIGNED NULL,
+    height_cm SMALLINT UNSIGNED NULL,
+    weight_kg SMALLINT UNSIGNED NULL,
     gender ENUM('female','male','non_binary','prefer_not_to_say') NULL,
     country VARCHAR(100) NULL,
+    city VARCHAR(100) NULL,
     bio VARCHAR(200) NULL,
     medical_notes TEXT NULL,
+    emergency_contact_name VARCHAR(150) NULL,
+    emergency_contact_phone VARCHAR(20) NULL,
+    emergency_contact_relationship VARCHAR(50) NULL,
+    client_category ENUM('child','teenager','adult','senior_citizen','pregnant_woman','postpartum_mother') NULL,
+    health_assessment JSON NULL,
     preferences JSON NULL,
     timezone VARCHAR(60) NOT NULL DEFAULT 'UTC',
     avatar_path VARCHAR(255) NULL,
@@ -142,6 +151,7 @@ CREATE TABLE instructor_reviews (
     booking_id BIGINT UNSIGNED NULL,
     rating TINYINT UNSIGNED NOT NULL,
     review_text TEXT NULL,
+    is_approved TINYINT(1) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_review_instructor FOREIGN KEY (instructor_id) REFERENCES instructors(id) ON DELETE CASCADE,
     CONSTRAINT fk_review_client FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -413,6 +423,23 @@ CREATE TABLE receipts (
     pdf_path VARCHAR(255) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_receipt_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Legal consent records, append-only. booking_id NULL = Stage 5's one-time
+-- general platform/liability consent; booking_id set = a future per-booking
+-- "before Join Session" consent reusing this same table.
+CREATE TABLE consents (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    booking_id BIGINT UNSIGNED NULL,
+    consent_version VARCHAR(20) NOT NULL,
+    ip_address VARCHAR(45) NULL,
+    user_agent VARCHAR(255) NULL,
+    timezone VARCHAR(60) NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_consent_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_consent_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE SET NULL,
+    INDEX idx_consent_user (user_id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE activity_logs (

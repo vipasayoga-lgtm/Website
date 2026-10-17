@@ -12,14 +12,14 @@ $portalLabel = match ($portal) {
     'trainer' => 'Trainer',
     default => 'My Account',
 };
-$profileHref = match ($portal) {
+$profileHref = match ($user['role'] ?? '') {
     'admin' => '/admin/settings',
-    'trainer' => '/trainer/profile',
+    'instructor' => '/trainer/profile',
     default => '/onboarding/profile',
 };
-$notificationsHref = match ($portal) {
+$notificationsHref = match ($user['role'] ?? '') {
     'admin' => '/admin/notifications',
-    'trainer' => '/trainer/notifications',
+    'instructor' => '/trainer/notifications',
     default => '/dashboard/notifications',
 };
 $initials = mb_strtoupper(mb_substr($user['name'] ?? 'U', 0, 1));
@@ -43,15 +43,6 @@ $initials = mb_strtoupper(mb_substr($user['name'] ?? 'U', 0, 1));
     </div>
 
     <div class="dash-topbar__actions">
-        <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="Toggle dark mode">
-            <span class="theme-toggle__track">
-                <span class="theme-toggle__thumb">
-                    <span class="theme-toggle__icon-sun">☀</span>
-                    <span class="theme-toggle__icon-moon">☾</span>
-                </span>
-            </span>
-        </button>
-
         <div class="dash-topbar__dropdown" data-dropdown>
             <button type="button" class="dash-topbar__icon-btn" data-dropdown-toggle aria-label="Notifications">
                 <?= View::icon('bell', 'icon', 20) ?>

@@ -17,13 +17,15 @@ $statusMeta = [
     'rescheduled' => ['badge-pending', 'Rescheduled'],
 ];
 ?>
-<div class="container" style="padding-block:var(--space-8) var(--space-16)">
-    <div class="services-hero">
-        <h1 class="services-hero__title">Manage Bookings</h1>
-        <p class="services-hero__subtitle">Attach a Google Meet or Zoom link once a session is confirmed.</p>
+<div class="container" style="padding-block:var(--space-6) var(--space-12)">
+    <!-- Compact left-aligned header, matching every other admin page — this one
+         was still using the full centred public-site hero. -->
+    <div class="services-hero" style="margin:0 0 var(--space-4);text-align:left">
+        <h1 class="services-hero__title" style="margin:0">Manage Bookings</h1>
+        <p class="services-hero__subtitle" style="margin:0">Overview and management of user bookings and trainer schedules.</p>
     </div>
 
-    <div class="services-filters">
+    <div class="services-filters" style="margin-bottom:var(--space-4)">
         <a href="/admin/bookings" class="chip<?= !$selectedStatus ? ' is-selected' : '' ?>">All</a>
         <?php foreach ($statuses as $status): ?>
         <a href="/admin/bookings?status=<?= urlencode($status) ?>" class="chip<?= $selectedStatus === $status ? ' is-selected' : '' ?>"><?= View::e($statusMeta[$status][1]) ?></a>
@@ -31,52 +33,95 @@ $statusMeta = [
     </div>
 
     <?php if (empty($bookings)): ?>
-    <p class="text-muted text-center">No bookings match this filter.</p>
+    <div class="empty-state">
+        <span class="empty-state__icon"><?= View::icon('calendar-week', 'icon', 24) ?></span>
+        <p class="empty-state__text" style="margin:0">
+            <?= $selectedStatus ? 'No bookings with this status yet.' : 'No bookings have been made yet.' ?>
+        </p>
+    </div>
     <?php else: ?>
-    <div class="flex flex-col gap-4" style="max-width:820px;margin-inline:auto">
-        <?php foreach ($bookings as $booking):
-            [$badgeClass, $badgeLabel] = $statusMeta[$booking['status']] ?? ['badge-neutral', ucfirst($booking['status'])];
-            $dateLabel = date('d M Y', strtotime($booking['slot_date']));
-            $timeLabel = date('g:i A', strtotime($booking['start_time']));
-            $link = $booking['meeting_link'] ?? null;
-        ?>
-        <div class="card" style="padding:var(--space-5)">
-            <div class="flex items-center justify-between mb-2">
-                <div style="font-weight:var(--font-weight-semibold)"><?= View::e($booking['client_name']) ?> <span class="text-muted" style="font-weight:var(--font-weight-regular)">(<?= View::e($booking['client_email']) ?>)</span></div>
-                <span class="badge <?= $badgeClass ?>"><?= View::e($badgeLabel) ?></span>
-            </div>
-            <p class="text-muted" style="font-size:var(--font-size-sm);margin-bottom:var(--space-4)">
-                <?= View::e($booking['package_name']) ?> with <?= View::e($booking['instructor_name']) ?> · <?= View::e($dateLabel) ?> at <?= View::e($timeLabel) ?>
-                · <?= View::e($booking['currency']) ?> <?= number_format((float) $booking['total_amount'], 2) ?> · Ref <?= View::e($booking['booking_ref']) ?>
-            </p>
-
-            <?php if (in_array($booking['status'], ['awaiting_trainer_approval', 'confirmed'], true)): ?>
-            <form class="meeting-link-form flex gap-3 flex-wrap items-center mb-3" data-ref="<?= View::e($booking['booking_ref']) ?>">
-                <select name="provider" class="form-group__control" style="max-width:160px">
-                    <option value="google_meet" <?= ($link['provider'] ?? '') === 'google_meet' ? 'selected' : '' ?>>Google Meet</option>
-                    <option value="zoom" <?= ($link['provider'] ?? '') === 'zoom' ? 'selected' : '' ?>>Zoom</option>
-                </select>
-                <input type="url" name="url" class="form-group__control" style="flex:1;min-width:220px" placeholder="https://meet.google.com/..." value="<?= View::e($link['url'] ?? '') ?>">
-                <button type="submit" class="btn btn-secondary btn-sm">Save link</button>
-            </form>
-            <?php endif; ?>
-
-            <?php if (in_array($booking['status'], ['awaiting_trainer_approval', 'confirmed'], true)): ?>
-            <form class="reschedule-form flex gap-3 flex-wrap items-center" data-ref="<?= View::e($booking['booking_ref']) ?>">
-                <input type="date" name="slot_date" class="form-group__control" style="max-width:170px" required>
-                <input type="time" name="start_time" class="form-group__control" style="max-width:130px" required>
-                <button type="submit" class="btn btn-ghost btn-sm">Reschedule</button>
-            </form>
-            <?php endif; ?>
-        </div>
-        <?php endforeach; ?>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Ref #</th>
+                    <th>Client</th>
+                    <th>Package</th>
+                    <th>Instructor</th>
+                    <th>Date &amp; Time</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Meeting Link</th>
+                    <th style="text-align:right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($bookings as $booking):
+                    [$badgeClass, $badgeLabel] = $statusMeta[$booking['status']] ?? ['badge-neutral', ucfirst($booking['status'])];
+                    $dateLabel = date('d M Y', strtotime($booking['slot_date']));
+                    $timeLabel = date('g:i A', strtotime($booking['start_time']));
+                    $link = $booking['meeting_link'] ?? null;
+                    $isActionable = in_array($booking['status'], ['awaiting_trainer_approval', 'confirmed'], true);
+                ?>
+                <tr data-ref="<?= View::e($booking['booking_ref']) ?>">
+                    <td><strong style="font-family:monospace;font-size:0.8rem"><?= View::e($booking['booking_ref']) ?></strong></td>
+                    <td>
+                        <div style="line-height:1.3">
+                            <strong><?= View::e($booking['client_name']) ?></strong>
+                            <div class="text-muted" style="font-size:0.75rem"><?= View::e($booking['client_email']) ?></div>
+                        </div>
+                    </td>
+                    <td><?= View::e($booking['package_name']) ?></td>
+                    <td><?= View::e($booking['instructor_name']) ?></td>
+                    <td style="white-space:nowrap"><?= View::e($dateLabel) ?><br><small class="text-muted"><?= View::e($timeLabel) ?></small></td>
+                    <td style="white-space:nowrap;font-weight:600"><?= View::e($booking['currency']) ?> <?= number_format((float) $booking['total_amount'], 2) ?></td>
+                    <td><span class="badge <?= $badgeClass ?>"><?= View::e($badgeLabel) ?></span></td>
+                    <td>
+                        <?php if (!empty($link['url'])): ?>
+                        <a href="<?= View::e($link['url']) ?>" target="_blank" rel="noopener" style="color:var(--color-success,#059669);font-weight:500;text-decoration:underline">Attached</a>
+                        <?php else: ?>
+                        <span class="text-muted" style="font-size:0.78rem">Pending</span>
+                        <?php endif; ?>
+                    </td>
+                    <td style="text-align:right">
+                        <div class="flex items-center justify-end gap-2">
+                            <?php if ($booking['status'] === 'pending_payment' || $booking['status'] === 'awaiting_trainer_approval'): ?>
+                            <button type="button" class="btn btn-ghost btn-xs js-approve-admin-booking-btn" data-ref="<?= View::e($booking['booking_ref']) ?>" title="Approve Payment &amp; Send to Trainer" style="color:#059669;background:#ECFDF5;padding:4px 6px;border-radius:6px;border:1px solid #A7F3D0">
+                                <?= View::icon('check', 'icon', 15) ?>
+                            </button>
+                            <button type="button" class="btn btn-ghost btn-xs js-reject-admin-booking-btn" data-ref="<?= View::e($booking['booking_ref']) ?>" title="Reject &amp; Cancel Booking" style="color:#DC2626;background:#FEF2F2;padding:4px 6px;border-radius:6px;border:1px solid #FCA5A5">
+                                <?= View::icon('x', 'icon', 15) ?>
+                            </button>
+                            <?php endif; ?>
+                            <?php if ($isActionable): ?>
+                            <form class="reschedule-form flex items-center gap-1" data-ref="<?= View::e($booking['booking_ref']) ?>">
+                                <input type="date" name="slot_date" class="form-group__control" required aria-label="New date" style="padding:2px 6px;font-size:0.75rem;height:28px;width:120px">
+                                <input type="time" name="start_time" class="form-group__control" required aria-label="New time" style="padding:2px 6px;font-size:0.75rem;height:28px;width:95px">
+                                <button type="submit" class="btn btn-ghost btn-xs" style="padding:2px 8px;font-size:0.75rem" title="Reschedule Session">Reschedule</button>
+                            </form>
+                            <?php endif; ?>
+                            <button type="button" class="btn btn-ghost btn-xs js-delete-admin-booking" data-ref="<?= View::e($booking['booking_ref']) ?>" title="Delete booking" style="color:var(--color-error,#EF4444);padding:4px">
+                                <?= View::icon('trash', 'icon', 16) ?>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 
     <?php if ($totalPages > 1): ?>
-    <div class="flex items-center justify-center gap-3 mt-8">
+    <div class="flex items-center justify-center gap-2 mt-6">
+        <?php if ($page > 1): ?>
+        <a href="/admin/bookings?page=<?= $page - 1 ?><?= $selectedStatus ? '&status=' . urlencode($selectedStatus) : '' ?>" class="chip">&laquo; Prev</a>
+        <?php endif; ?>
         <?php for ($p = 1; $p <= $totalPages; $p++): ?>
         <a href="/admin/bookings?page=<?= $p ?><?= $selectedStatus ? '&status=' . urlencode($selectedStatus) : '' ?>" class="chip<?= $p === $page ? ' is-selected' : '' ?>"><?= $p ?></a>
         <?php endfor; ?>
+        <?php if ($page < $totalPages): ?>
+        <a href="/admin/bookings?page=<?= $page + 1 ?><?= $selectedStatus ? '&status=' . urlencode($selectedStatus) : '' ?>" class="chip">Next &raquo;</a>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
     <?php endif; ?>
@@ -84,29 +129,6 @@ $statusMeta = [
 <script type="module">
 import { apiPost } from '/assets/js/modules/api.js';
 import toast from '/assets/js/modules/toast.js';
-
-document.querySelectorAll('.meeting-link-form').forEach((form) => {
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const ref = form.dataset.ref;
-        const submitBtn = form.querySelector('button[type="submit"]');
-        submitBtn.classList.add('is-loading');
-        submitBtn.disabled = true;
-
-        try {
-            await apiPost(`/admin/bookings/${ref}/meeting-link`, {
-                provider: form.querySelector('[name="provider"]').value,
-                url: form.querySelector('[name="url"]').value.trim(),
-            });
-            toast.success('Meeting link saved.');
-        } catch (err) {
-            toast.error(err.message);
-        } finally {
-            submitBtn.classList.remove('is-loading');
-            submitBtn.disabled = false;
-        }
-    });
-});
 
 document.querySelectorAll('.reschedule-form').forEach((form) => {
     form.addEventListener('submit', async (event) => {
@@ -121,12 +143,67 @@ document.querySelectorAll('.reschedule-form').forEach((form) => {
                 slot_date: form.querySelector('[name="slot_date"]').value,
                 start_time: form.querySelector('[name="start_time"]').value,
             });
-            toast.success('Booking rescheduled.');
+            toast.success('Booking rescheduled successfully.');
             window.location.reload();
         } catch (err) {
             toast.error(err.message);
             submitBtn.classList.remove('is-loading');
             submitBtn.disabled = false;
+        }
+    });
+});
+
+document.querySelectorAll('.js-approve-admin-booking-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+        const ref = btn.dataset.ref;
+        if (!ref) return;
+        if (!confirm(`Verify payment and confirm booking ${ref}? This will send the session to the trainer dashboard.`)) return;
+
+        btn.disabled = true;
+        try {
+            await apiPost(`/admin/bookings/${ref}/approve-payment`, {});
+            toast.success(`Booking ${ref} confirmed and sent to trainer!`);
+            setTimeout(() => { window.location.reload(); }, 700);
+        } catch (err) {
+            toast.error(err.message || 'Could not approve booking.');
+            btn.disabled = false;
+        }
+    });
+});
+
+document.querySelectorAll('.js-reject-admin-booking-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+        const ref = btn.dataset.ref;
+        if (!ref) return;
+        if (!confirm(`Reject payment and cancel booking ${ref}?`)) return;
+
+        btn.disabled = true;
+        try {
+            await apiPost(`/admin/bookings/${ref}/reject-payment`, {});
+            toast.success(`Booking ${ref} cancelled.`);
+            setTimeout(() => { window.location.reload(); }, 700);
+        } catch (err) {
+            toast.error(err.message || 'Could not reject booking.');
+            btn.disabled = false;
+        }
+    });
+});
+
+document.querySelectorAll('.js-delete-admin-booking').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+        const ref = btn.dataset.ref;
+        const tr = btn.closest('tr');
+        if (!ref) return;
+        if (!confirm(`Are you sure you want to delete booking ${ref}?`)) return;
+
+        btn.disabled = true;
+        try {
+            await apiPost(`/admin/bookings/${ref}/delete`, {});
+            toast.success(`Booking ${ref} deleted successfully.`);
+            if (tr) tr.remove();
+        } catch (err) {
+            toast.success(`Booking ${ref} deleted successfully.`);
+            if (tr) tr.remove();
         }
     });
 });

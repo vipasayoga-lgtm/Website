@@ -6,6 +6,10 @@ $pageTitle = 'Instructors — Vipasa Yoga';
 $pageCss = 'instructors';
 $portal = 'client';
 $active = 'instructors';
+// Base path for the list's own links (filters, "All"). Defaults to the public
+// route; the dashboard-embedded version passes '/dashboard/instructors' so
+// filtering keeps the client inside the dashboard shell.
+$instructorsBase = $instructorsBase ?? '/instructors';
 ?>
 <div class="instructors-page container page-enter">
     <div class="services-hero">
@@ -15,9 +19,9 @@ $active = 'instructors';
 
     <?php if (!empty($serviceTypes)): ?>
     <div class="services-filters">
-        <a href="/instructors<?= $selectedPackageId ? '?package=' . urlencode((string) $selectedPackageId) : '' ?>" class="chip<?= !$selectedServiceTypeId ? ' is-selected' : '' ?>">All</a>
+        <a href="<?= View::e($instructorsBase) ?><?= $selectedPackageId ? '?package=' . urlencode((string) $selectedPackageId) : '' ?>" class="chip<?= !$selectedServiceTypeId ? ' is-selected' : '' ?>">All</a>
         <?php foreach ($serviceTypes as $serviceType): ?>
-        <a href="/instructors?service=<?= (int) $serviceType['id'] ?><?= $selectedPackageId ? '&package=' . urlencode((string) $selectedPackageId) : '' ?>" class="chip<?= (string) $selectedServiceTypeId === (string) $serviceType['id'] ? ' is-selected' : '' ?>"><?= View::e($serviceType['name']) ?></a>
+        <a href="<?= View::e($instructorsBase) ?>?service=<?= (int) $serviceType['id'] ?><?= $selectedPackageId ? '&package=' . urlencode((string) $selectedPackageId) : '' ?>" class="chip<?= (string) $selectedServiceTypeId === (string) $serviceType['id'] ? ' is-selected' : '' ?>"><?= View::e($serviceType['name']) ?></a>
         <?php endforeach; ?>
     </div>
     <?php endif; ?>
@@ -27,7 +31,12 @@ $active = 'instructors';
     <?php else: ?>
     <div class="instructor-grid">
         <?php foreach ($instructors as $i => $instructor):
-            $link = '/instructors/' . (int) $instructor['id'] . ($selectedPackageId ? '?package=' . urlencode((string) $selectedPackageId) : '');
+            $link = ($instructorsBase ?? '/instructors') . '/' . (int) $instructor['id'] . ($selectedPackageId ? '?package=' . urlencode((string) $selectedPackageId) : '');
+            $servicePkgId = !empty($selectedServiceTypeId) ? (\App\Models\Package::forServiceType((int) $selectedServiceTypeId)[0]['id'] ?? null) : null;
+            $bookPackageId = $selectedPackageId ?: ($servicePkgId ?: $defaultPackageId);
+            $bookNowLink = $bookPackageId
+                ? '/booking/schedule?instructor_id=' . (int) $instructor['id'] . '&package_id=' . urlencode((string) $bookPackageId)
+                : null;
             $rating = (float) ($instructor['rating_avg'] ?? 0);
             $fullStars = (int) round($rating);
             $specialties = $instructor['specialties'] ?? [];
@@ -73,10 +82,34 @@ $active = 'instructors';
                 <?php else: ?>
                 <span></span>
                 <?php endif; ?>
-                <a href="<?= View::e($link) ?>" class="btn btn-primary btn-sm">View profile</a>
+                <div class="flex gap-2 items-center">
+                    <a href="<?= View::e($link) ?>" class="btn btn-ghost btn-sm">Profile</a>
+                    <?php if ($bookNowLink): ?>
+                    <a href="<?= View::e($bookNowLink) ?>" class="btn btn-accent btn-sm">Book Now</a>
+                    <?php endif; ?>
+                    <?php if (\App\Core\Auth::hasRole('admin')): ?>
+                    <button type="button" class="btn btn-ghost btn-sm js-delete-instructor-card" data-id="<?= (int) $instructor['id'] ?>" title="Remove card" style="color:var(--color-error,#EF4444);padding:6px;border-radius:var(--radius-md)">
+                        <?= View::icon('trash', 'icon', 15) ?>
+                    </button>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
         <?php endforeach; ?>
     </div>
     <?php endif; ?>
 </div>
+
+<script type="module">
+import toast from '/assets/js/modules/toast.js';
+
+document.querySelectorAll('.js-delete-instructor-card').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        const card = btn.closest('.instructor-card');
+        if (card) {
+            card.remove();
+            toast.success('Instructor card removed from view.');
+        }
+    });
+});
+</script>

@@ -2,15 +2,16 @@
 
 use App\Core\View;
 
-$pageTitle = 'Vipasa Yoga — Find your practice, your people, your peace';
+$pageTitle = 'Vipasa Yoga — Find calm. Book your next live yoga session.';
 $pageCss = 'landing';
-$hideFloatingThemeToggle = true;
 
 $reviews = [
     ['name' => 'Ananya R.', 'rating' => 5, 'text' => 'Best yoga booking experience I\'ve had online — genuinely simple.'],
     ['name' => 'Karthik S.', 'rating' => 5, 'text' => 'Instructors are attentive, not just reading off a script.'],
     ['name' => 'Fatima Z.', 'rating' => 4, 'text' => 'Rescheduling a session took less than a minute.'],
     ['name' => 'Wei L.', 'rating' => 5, 'text' => 'The dashboard and invoices alone make this worth it.'],
+    ['name' => 'Meera D.', 'rating' => 5, 'text' => 'I booked my first session nervous and left already planning the next one.'],
+    ['name' => 'Daniel O.', 'rating' => 5, 'text' => 'Clear scheduling, no hidden fees, and the instructor remembered my injury.'],
 ];
 
 $blogPosts = [
@@ -19,79 +20,174 @@ $blogPosts = [
     ['title' => 'Yoga for Busy People: 10-Minute Desk Stretches', 'excerpt' => 'No mat, no studio — just a few stretches you can do between meetings.', 'img' => '/assets/img/blog/blog-03.webp', 'tag' => 'Practice'],
 ];
 
-$galleryPreview = [
-    'pose-plank-fold.webp', 'pose-headstand-1.webp', 'pose-crow-1.webp',
-    'pose-bridge.webp', 'pose-boat-balcony-2.webp', 'about-journey.webp',
+$galleryCategories = [
+    'all' => 'All',
+    'poses' => 'Poses',
+    'inversions' => 'Inversions',
+    'stillness' => 'Stillness',
+];
+
+$howItWorks = [
+    ['icon' => 'sliders', 'title' => 'Choose a Program', 'text' => 'Browse practice styles — from Regular Yoga to Prenatal, Therapy, or Private sessions.'],
+    ['icon' => 'user', 'title' => 'Choose Your Trainer', 'text' => 'Pick a certified instructor by specialty, rating, and real student reviews.'],
+    ['icon' => 'calendar-week', 'title' => 'Select a Date', 'text' => 'Book a slot that fits your schedule — single session, weekly, or monthly.'],
+    ['icon' => 'credit-card', 'title' => 'Secure Payment', 'text' => 'Pay safely through a trusted gateway and get an instant invoice.'],
+    ['icon' => 'video', 'title' => 'Join Live Session', 'text' => 'Meet your instructor live — real-time guidance, not a recording.'],
 ];
 ?>
-<header class="nav-glass">
-    <div class="nav-glass__brand">
-        <a href="#hero">
-            <img src="/assets/img/brand/logo-dark.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--dark">
-            <img src="/assets/img/brand/logo-light.jpg" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--light">
-        </a>
-    </div>
-    <button type="button" class="nav-glass__toggle" data-nav-toggle aria-expanded="false" aria-label="Toggle menu">
-        <span class="nav-glass__toggle-bar"></span>
-        <span class="nav-glass__toggle-bar"></span>
-        <span class="nav-glass__toggle-bar"></span>
-    </button>
-    <nav class="nav-glass__links">
-        <a href="#about" class="nav-glass__link">About</a>
-        <a href="#packages" class="nav-glass__link">Packages</a>
-        <a href="#instructors" class="nav-glass__link">Instructors</a>
-        <a href="/gallery" class="nav-glass__link">Gallery</a>
-        <a href="#reviews" class="nav-glass__link">Reviews</a>
-        <a href="#faq" class="nav-glass__link">FAQ</a>
-        <a href="#contact" class="nav-glass__link">Contact</a>
-    </nav>
-    <div class="nav-glass__actions">
-        <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="Toggle dark mode">
-            <span class="theme-toggle__track">
-                <span class="theme-toggle__thumb">
-                    <span class="theme-toggle__icon-sun">☀</span>
-                    <span class="theme-toggle__icon-moon">☾</span>
-                </span>
-            </span>
-        </button>
-        <a href="/login" class="btn btn-ghost btn-sm">Log in</a>
-        <a href="/signup" class="btn btn-accent btn-sm">Get started</a>
-    </div>
-</header>
-
 <section class="hero" id="hero">
     <div class="hero__bg" aria-hidden="true">
-        <span class="hero__orb hero__orb--1"></span>
-        <span class="hero__orb hero__orb--2"></span>
-        <span class="hero__orb hero__orb--3"></span>
-        <span class="hero__orb hero__orb--4"></span>
         <span class="hero__grain"></span>
     </div>
+    <div class="nav-glass__brand hero__brand-float">
+        <a href="#hero" aria-label="Vipasa Yoga home">
+            <img src="/assets/img/brand/logo-black.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--dark">
+            <img src="/assets/img/brand/logo-dark.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--light">
+        </a>
+    </div>
+    <header class="nav-glass nav-glass--hero-overlay">
+        <div class="nav-glass__brand">
+            <a href="#hero" aria-label="Vipasa Yoga home">
+                <img src="/assets/img/brand/logo-black.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--dark">
+                <img src="/assets/img/brand/logo-dark.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--light">
+            </a>
+        </div>
+        <button type="button" class="nav-glass__toggle" data-nav-toggle aria-expanded="false" aria-label="Toggle menu">
+            <span class="nav-glass__toggle-bar"></span>
+            <span class="nav-glass__toggle-bar"></span>
+            <span class="nav-glass__toggle-bar"></span>
+        </button>
+        <nav class="nav-glass__links">
+            <a href="#hero" class="nav-glass__link">Home</a>
+            <a href="#about" class="nav-glass__link">About</a>
+            <a href="#programs" class="nav-glass__link">Programs</a>
+            <a href="#instructors" class="nav-glass__link">Instructors</a>
+            <a href="#gallery" class="nav-glass__link">Gallery</a>
+            <a href="#packages" class="nav-glass__link">Packages</a>
+            <a href="#faq" class="nav-glass__link">FAQ</a>
+            <a href="#contact" class="nav-glass__link">Contact</a>
+        </nav>
+        <div class="nav-glass__actions">
+            <a href="/login" class="btn btn-accent btn-lg">Log in</a>
+        </div>
+    </header>
+    <div class="hero__bg-photo">
+        <img src="/assets/img/client/meditation-cutout.png" alt="">
+    </div>
     <div class="container hero__content">
-        <div>
+        <div class="hero__copy">
             <span class="badge hero__eyebrow"><?= View::e($hero['eyebrow']) ?></span>
             <p class="hero__tagline"><?= View::e($hero['tagline']) ?></p>
-            <h1 class="hero__title"><?= View::e($hero['title']) ?></h1>
+            <h1 class="hero__title">
+            <?php
+                $titleHighlight = $hero['titleHighlight'] ?? '';
+                $titleParts = ($titleHighlight !== '' && str_contains($hero['title'], $titleHighlight))
+                    ? explode($titleHighlight, $hero['title'], 2)
+                    : null;
+            ?>
+            <?php if ($titleParts !== null): ?>
+                <?= View::e($titleParts[0]) ?><span class="hero__title-highlight"><?= View::e($titleHighlight) ?></span><?= View::e($titleParts[1]) ?>
+            <?php else: ?>
+                <?= View::e($hero['title']) ?>
+            <?php endif; ?>
+            </h1>
             <p class="hero__subtitle"><?= View::e($hero['subtitle']) ?></p>
             <div class="hero__actions">
-                <a href="/signup" class="btn btn-accent btn-lg">Start your first session</a>
-                <a href="#packages" class="btn btn-secondary btn-lg">Explore packages</a>
+                <a href="/signup" class="btn btn-accent btn-lg">Book a Session <?= View::icon('arrow-right', 'icon', 16) ?></a>
+                <a href="#packages" class="btn btn-secondary btn-lg">View Schedule</a>
             </div>
-        </div>
-        <div class="hero__parallax-layer" data-parallax-depth="14">
-            <div class="hero__photo-frame">
-                <img src="/assets/img/client/instructor-portrait-smiling.webp" alt="Vijaya Parameswaran guiding a live yoga session">
-                <div class="hero__photo-badge">
-                    <strong><?= $stats['rating'] !== null ? View::e(number_format($stats['rating'], 1)) : 'New' ?></strong>
-                    <span>Average instructor rating</span>
+            <div class="hero__stats">
+                <div class="hero__stat">
+                    <span class="hero__stat-icon"><?= View::icon('certificate', 'icon', 18) ?></span>
+                    <span class="hero__stat-text">
+                        <span class="hero__stat-value"><?= (int) $stats['instructors'] ?>+</span>
+                        <span class="hero__stat-label">Certified instructors</span>
+                    </span>
+                </div>
+                <div class="hero__stat">
+                    <span class="hero__stat-icon"><?= View::icon('sliders', 'icon', 18) ?></span>
+                    <span class="hero__stat-text">
+                        <span class="hero__stat-value"><?= (int) $stats['programs'] ?>+</span>
+                        <span class="hero__stat-label">Programs available</span>
+                    </span>
+                </div>
+                <div class="hero__stat">
+                    <span class="hero__stat-icon"><?= View::icon('star', 'icon', 18) ?></span>
+                    <span class="hero__stat-text">
+                        <span class="hero__stat-value"><?= $stats['rating'] !== null ? View::e(number_format($stats['rating'], 1)) : 'New' ?></span>
+                        <span class="hero__stat-label">Average rating</span>
+                    </span>
+                </div>
+            </div>
+            <div class="hero-features" aria-label="Why choose Vipasa Yoga">
+                <div class="hero-features__grid">
+                    <div class="hero-features__item" data-reveal data-reveal-delay="1">
+                        <div class="hero-features__icon"><?= View::icon('video', 'icon', 22) ?></div>
+                        <div>
+                            <h3>Live &amp; Interactive</h3>
+                        </div>
+                    </div>
+                    <div class="hero-features__item" data-reveal data-reveal-delay="2">
+                        <div class="hero-features__icon"><?= View::icon('user', 'icon', 22) ?></div>
+                        <div>
+                            <h3>For Every Body</h3>
+                        </div>
+                    </div>
+                    <div class="hero-features__item" data-reveal data-reveal-delay="3">
+                        <div class="hero-features__icon"><?= View::icon('shield', 'icon', 22) ?></div>
+                        <div>
+                            <h3>Safe &amp; Secure</h3>
+                        </div>
+                    </div>
+                    <div class="hero-features__item" data-reveal data-reveal-delay="4">
+                        <div class="hero-features__icon"><?= View::icon('clock', 'icon', 22) ?></div>
+                        <div>
+                            <h3>Flexible Scheduling</h3>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
+<section class="landing-section" id="trusted-by" style="padding-block:var(--space-10)">
+    <div class="container">
+        <div class="section-heading" style="margin-bottom:var(--space-8)">
+            <span class="section-heading__eyebrow">Trusted By</span>
+            <h2 class="section-heading__title">Real numbers, honestly earned</h2>
+        </div>
+        <div class="stat-counters__grid">
+            <div class="stat-counter">
+                <div class="stat-counter__number">
+                    <span class="stat-counter__value" data-count-to="<?= (int) $stats['instructors'] ?>">0</span><span class="stat-counter__suffix">+</span>
+                </div>
+                <div class="stat-counter__label">Certified instructors</div>
+            </div>
+            <div class="stat-counter">
+                <div class="stat-counter__number">
+                    <span class="stat-counter__value" data-count-to="<?= (int) $stats['years'] ?>">0</span><span class="stat-counter__suffix">+</span>
+                </div>
+                <div class="stat-counter__label">Years combined experience</div>
+            </div>
+            <div class="stat-counter">
+                <div class="stat-counter__number">
+                    <span class="stat-counter__value" data-count-to="<?= (int) $stats['programs'] ?>">0</span>
+                </div>
+                <div class="stat-counter__label">Programs available</div>
+            </div>
+            <div class="stat-counter">
+                <div class="stat-counter__number">
+                    <span class="stat-counter__value" data-count-to="<?= $stats['rating'] !== null ? (int) round($stats['rating']) : 5 ?>">0</span>
+                </div>
+                <div class="stat-counter__label"><?= $stats['rating'] !== null ? View::e(number_format($stats['rating'], 1)) . ' average rating' : 'New — be our first review' ?></div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="community-band">
-    <img class="community-band__img" src="/assets/img/client/hero-banner.webp" alt="Vijaya practicing yoga" loading="lazy">
+    <img class="community-band__img" src="/assets/img/client/community-band.jpg" alt="Group yoga session in a park" loading="lazy">
     <div class="community-band__overlay"></div>
     <div class="container community-band__content">
         <p class="community-band__quote">"Every session is guided by someone who's really watching — not just a recording."</p>
@@ -107,44 +203,13 @@ $galleryPreview = [
         <div class="about-layout__copy" data-reveal="right">
             <span class="section-heading__eyebrow"><?= View::e($about['eyebrow']) ?></span>
             <h2><?= View::e($about['heading']) ?></h2>
-            <p><?= View::e($about['body']) ?></p>
+            <p><?= nl2br(View::e($about['body'])) ?></p>
             <div class="about-layout__points">
                 <div class="about-layout__point"><?= View::icon('certificate', 'icon', 20) ?> <span>Certified, government-accredited instruction</span></div>
                 <div class="about-layout__point"><?= View::icon('clock', 'icon', 20) ?> <span>Live sessions, real-time feedback</span></div>
                 <div class="about-layout__point"><?= View::icon('sliders', 'icon', 20) ?> <span>Flexible plans that fit your life</span></div>
             </div>
             <a href="/signup" class="btn btn-accent mt-6">Begin Your Journey</a>
-        </div>
-    </div>
-</section>
-
-<section class="landing-section landing-section--alt" id="why-choose">
-    <div class="container">
-        <div class="section-heading">
-            <span class="section-heading__eyebrow">Why Vipasa</span>
-            <h2 class="section-heading__title">Everything a great studio has — without the commute</h2>
-        </div>
-        <div class="why-grid">
-            <div class="why-card" data-reveal data-reveal-delay="1">
-                <div class="why-card__icon"><?= View::icon('certificate', 'icon', 24) ?></div>
-                <h3>Certified &amp; vetted</h3>
-                <p class="text-muted">Every instructor is verified, experienced, and rated by real students after every session.</p>
-            </div>
-            <div class="why-card" data-reveal data-reveal-delay="2">
-                <div class="why-card__icon"><?= View::icon('calendar-week', 'icon', 24) ?></div>
-                <h3>Flexible scheduling</h3>
-                <p class="text-muted">Book a single drop-in session or a recurring weekly plan — change anytime as life changes.</p>
-            </div>
-            <div class="why-card" data-reveal data-reveal-delay="3">
-                <div class="why-card__icon"><?= View::icon('sliders', 'icon', 24) ?></div>
-                <h3>Personalized practice</h3>
-                <p class="text-muted">Sessions are shaped around your goals and experience level, not a one-size-fits-all script.</p>
-            </div>
-            <div class="why-card" data-reveal data-reveal-delay="4">
-                <div class="why-card__icon"><?= View::icon('shield', 'icon', 24) ?></div>
-                <h3>Secure payments</h3>
-                <p class="text-muted">Every booking is paid through a trusted gateway with an instant invoice — nothing off the books.</p>
-            </div>
         </div>
     </div>
 </section>
@@ -157,28 +222,28 @@ $galleryPreview = [
         </div>
         <div class="benefit-grid">
             <div class="benefit-card" data-reveal data-reveal-delay="1">
-                <img src="/assets/img/client/pose-standing-fold.webp" alt="" loading="lazy">
+                <img src="/assets/img/client/benefit-flexibility.jpg" alt="" loading="lazy">
                 <div class="benefit-card__body">
                     <h3>Flexibility &amp; strength</h3>
                     <p class="text-muted">Build mobility and core strength with sequences shaped around your body, not a generic routine.</p>
                 </div>
             </div>
             <div class="benefit-card" data-reveal data-reveal-delay="2">
-                <img src="/assets/img/client/pose-seated-twist.webp" alt="" loading="lazy">
+                <img src="/assets/img/client/benefit-mindfulness.jpg" alt="" loading="lazy">
                 <div class="benefit-card__body">
                     <h3>Mindfulness &amp; stress relief</h3>
                     <p class="text-muted">Breathing-led sequences that lower stress and sharpen focus, on and off the mat.</p>
                 </div>
             </div>
             <div class="benefit-card" data-reveal data-reveal-delay="3">
-                <img src="/assets/img/benefits/connection.webp" alt="" loading="lazy">
+                <img src="/assets/img/client/benefit-community.jpg" alt="" loading="lazy">
                 <div class="benefit-card__body">
                     <h3>Community &amp; connection</h3>
                     <p class="text-muted">Practice solo or alongside others in group sessions — either way, you're never just a username.</p>
                 </div>
             </div>
             <div class="benefit-card" data-reveal data-reveal-delay="4">
-                <img src="/assets/img/client/pose-childs-pose-2.webp" alt="" loading="lazy">
+                <img src="/assets/img/client/benefit-recovery.jpg" alt="" loading="lazy">
                 <div class="benefit-card__body">
                     <h3>Recovery &amp; better sleep</h3>
                     <p class="text-muted">Restorative sequences designed to wind the body down for deeper, more consistent rest.</p>
@@ -196,10 +261,10 @@ $galleryPreview = [
             <h2 class="section-heading__title">Practice styles for every goal</h2>
             <p class="section-heading__subtitle">Every program can be booked as a single session, a weekly rhythm, or a full month.</p>
         </div>
-        <div class="program-grid">
+        <div class="program-grid<?= count($programs) > 8 ? ' is-collapsed' : '' ?>">
             <?php foreach ($programs as $i => $program): ?>
             <article class="program-card-v2" data-reveal data-reveal-delay="<?= ($i % 4) + 1 ?>">
-                <img src="<?= View::e($program['img']) ?>" alt="<?= View::e($program['name']) ?>" loading="lazy">
+                <img src="<?= View::e($program['img']) ?>" alt="<?= View::e($program['name']) ?>" style="object-position: <?= View::e($program['imgPos'] ?? 'center 25%') ?>" loading="lazy">
                 <div class="program-card-v2__overlay"></div>
                 <div class="program-card-v2__body">
                     <h3><?= View::e($program['name']) ?></h3>
@@ -212,9 +277,135 @@ $galleryPreview = [
             </article>
             <?php endforeach; ?>
         </div>
+        <?php if (count($programs) > 8): ?>
+        <div class="section-more">
+            <button type="button" class="btn btn-secondary" data-show-more>Show More</button>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
 <?php endif; ?>
+
+<section class="landing-section" id="instructors">
+    <div class="container">
+        <div class="section-heading">
+            <span class="section-heading__eyebrow">Meet Your Instructor</span>
+            <h2 class="section-heading__title">Learn directly from a certified teacher</h2>
+        </div>
+        <?php if (empty($instructors)): ?>
+        <p class="text-muted text-center">Instructor profile coming soon.</p>
+        <?php else: $instructor = $instructors[0]; $certificates = $instructor['certificates'] ?? []; $specialties = $instructor['specialties'] ?? []; ?>
+        <div class="instructor-spotlight">
+            <div class="instructor-spotlight__photo" data-reveal="left">
+                <img src="<?= View::e($instructor['avatar_path']) ?>" alt="<?= View::e($instructor['name']) ?>" loading="lazy">
+                <span class="instructor-spotlight__badge"><?= View::icon('certificate', 'icon', 16) ?> Govt. Certified</span>
+            </div>
+            <div class="instructor-spotlight__copy" data-reveal="right">
+                <span class="section-heading__eyebrow">Ms. <?= View::e($instructor['name']) ?></span>
+                <h3><?= View::e($instructor['headline']) ?></h3>
+                <p><?= View::e($instructor['bio']) ?></p>
+
+                <?php if (!empty($certificates)): ?>
+                <h4 class="instructor-spotlight__label">Qualifications</h4>
+                <ul class="instructor-spotlight__list">
+                    <?php foreach ($certificates as $cert): ?>
+                    <li><?= View::icon('certificate', 'icon', 16) ?> <span><?= View::e((string) $cert) ?></span></li>
+                    <?php endforeach; ?>
+                </ul>
+                <?php endif; ?>
+
+                <?php if (!empty($specialties)): ?>
+                <div class="instructor-spotlight__tags">
+                    <?php foreach ($specialties as $tag): ?>
+                    <span class="chip"><?= View::e((string) $tag) ?></span>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
+
+                <a href="/signup" class="btn btn-accent btn-lg mt-6">Book a Session</a>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+</section>
+
+<section class="landing-section landing-section--alt gallery-hero" id="gallery">
+    <div class="container">
+        <div class="section-heading" data-reveal>
+            <span class="section-heading__eyebrow">Gallery</span>
+            <h2 class="section-heading__title">Inside the practice</h2>
+            <p class="section-heading__subtitle">A look at real sessions, real instructors, and the moments in between.</p>
+        </div>
+        <div class="gallery-controls">
+            <div class="gallery-filters" role="tablist" aria-label="Filter gallery by category">
+                <?php foreach ($galleryCategories as $key => $label): ?>
+                <button type="button" class="gallery-filters__chip<?= $key === 'all' ? ' is-selected' : '' ?>" data-filter="<?= View::e($key) ?>">
+                    <span><?= View::e($label) ?></span>
+                    <span class="gallery-chip__count" data-count-for="<?= View::e($key) ?>">0</span>
+                </button>
+                <?php endforeach; ?>
+            </div>
+            <div class="gallery-view-toggle" role="group" aria-label="Switch layout">
+                <button type="button" class="gallery-view-toggle__btn is-active tooltip" data-view="grid" aria-label="Grid view" data-tooltip="Grid view">
+                    <?= View::icon('grid') ?>
+                </button>
+                <button type="button" class="gallery-view-toggle__btn tooltip" data-view="masonry" aria-label="Masonry view" data-tooltip="Masonry view">
+                    <?= View::icon('masonry') ?>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="landing-section gallery-section">
+    <div class="container">
+        <div class="gallery-grid<?= count($photos) > 12 ? ' is-collapsed' : '' ?>" id="gallery-grid" data-view="grid">
+            <?php foreach ($photos as $i => $photo): ?>
+            <figure class="gallery-item" data-category="<?= View::e($photo['category']) ?>" data-reveal data-reveal-delay="<?= ($i % 3) + 1 ?>">
+                <button type="button" class="gallery-item__trigger" data-lightbox-index="<?= $i ?>" aria-label="View larger: <?= View::e($photo['caption']) ?>">
+                    <span class="gallery-item__badge"><?= View::e($photo['category']) ?></span>
+                    <img src="<?= View::e($photo['path']) ?>" alt="<?= View::e($photo['caption']) ?>" style="object-position: <?= View::e($photo['imgPos'] ?? 'center 25%') ?>" loading="lazy">
+                    <span class="gallery-item__zoom" aria-hidden="true">
+                        <span class="gallery-item__zoom-icon">
+                            <?= View::icon('zoom-in') ?>
+                        </span>
+                    </span>
+                </button>
+                <figcaption class="gallery-item__caption">
+                    <span class="gallery-item__caption-text"><?= View::e($photo['caption']) ?></span>
+                    <span class="gallery-item__caption-icon"><?= View::icon('zoom-in') ?></span>
+                </figcaption>
+            </figure>
+            <?php endforeach; ?>
+        </div>
+        <?php if (count($photos) > 12): ?>
+        <div class="section-more">
+            <button type="button" class="btn btn-secondary" data-show-more>Show More</button>
+        </div>
+        <?php endif; ?>
+        <p class="text-muted text-center mt-8 gallery-empty" hidden>No photos in this category yet.</p>
+    </div>
+</section>
+
+<section class="landing-section landing-section--alt" id="how-it-works">
+    <div class="container">
+        <div class="section-heading">
+            <span class="section-heading__eyebrow">How It Works</span>
+            <h2 class="section-heading__title">Simple steps to start your journey</h2>
+        </div>
+        <div class="how-steps">
+            <div class="how-steps__line" aria-hidden="true"></div>
+            <?php foreach ($howItWorks as $i => $step): ?>
+            <div class="how-steps__step" data-reveal data-reveal-delay="<?= $i + 1 ?>">
+                <div class="how-steps__number"><?= $i + 1 ?></div>
+                <div class="how-steps__icon"><?= View::icon($step['icon'] ?? 'sliders', 'icon', 22) ?></div>
+                <h3><?= View::e($step['title']) ?></h3>
+                <p class="text-muted"><?= View::e($step['text']) ?></p>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
 
 <section class="landing-section" id="packages">
     <div class="container">
@@ -260,82 +451,27 @@ $galleryPreview = [
     </div>
 </section>
 
-<section class="landing-section landing-section--alt" id="instructors">
-    <div class="container">
-        <div class="section-heading">
-            <span class="section-heading__eyebrow">Meet Your Instructor</span>
-            <h2 class="section-heading__title">Learn directly from a certified teacher</h2>
-        </div>
-        <?php if (empty($instructors)): ?>
-        <p class="text-muted text-center">Instructor profile coming soon.</p>
-        <?php else: $instructor = $instructors[0]; $certificates = $instructor['certificates'] ?? []; $specialties = $instructor['specialties'] ?? []; ?>
-        <div class="instructor-spotlight">
-            <div class="instructor-spotlight__photo" data-reveal="left">
-                <img src="<?= View::e($instructor['avatar_path']) ?>" alt="<?= View::e($instructor['name']) ?>" loading="lazy">
-                <span class="instructor-spotlight__badge"><?= View::icon('certificate', 'icon', 16) ?> Govt. Certified</span>
-            </div>
-            <div class="instructor-spotlight__copy" data-reveal="right">
-                <span class="section-heading__eyebrow">Ms. <?= View::e($instructor['name']) ?></span>
-                <h3><?= View::e($instructor['headline']) ?></h3>
-                <p><?= View::e($instructor['bio']) ?></p>
-
-                <?php if (!empty($certificates)): ?>
-                <h4 class="instructor-spotlight__label">Qualifications</h4>
-                <ul class="instructor-spotlight__list">
-                    <?php foreach ($certificates as $cert): ?>
-                    <li><?= View::icon('certificate', 'icon', 16) ?> <span><?= View::e((string) $cert) ?></span></li>
-                    <?php endforeach; ?>
-                </ul>
-                <?php endif; ?>
-
-                <?php if (!empty($specialties)): ?>
-                <div class="instructor-spotlight__tags">
-                    <?php foreach ($specialties as $tag): ?>
-                    <span class="chip"><?= View::e((string) $tag) ?></span>
-                    <?php endforeach; ?>
-                </div>
-                <?php endif; ?>
-
-                <a href="/signup" class="btn btn-accent btn-lg mt-6">Book a Session</a>
-            </div>
-        </div>
-        <?php endif; ?>
-    </div>
-</section>
-
-<section class="landing-section" id="gallery">
-    <div class="container">
-        <div class="section-heading">
-            <span class="section-heading__eyebrow">Gallery</span>
-            <h2 class="section-heading__title">Inside the practice</h2>
-        </div>
-        <div class="gallery-preview-grid">
-            <?php foreach ($galleryPreview as $i => $file): ?>
-            <a href="/gallery" class="gallery-preview-grid__item" data-reveal data-reveal-delay="<?= ($i % 3) + 1 ?>">
-                <img src="/assets/img/client/<?= View::e($file) ?>" alt="" loading="lazy">
-            </a>
-            <?php endforeach; ?>
-        </div>
-        <div class="text-center mt-8">
-            <a href="/gallery" class="btn btn-secondary btn-lg">View full gallery</a>
-        </div>
-    </div>
-</section>
-
 <section class="landing-section landing-section--alt" id="testimonials">
     <div class="container">
         <div class="section-heading">
             <span class="section-heading__eyebrow">Loved by our members</span>
             <h2 class="section-heading__title">What practicing with us feels like</h2>
         </div>
+        <?php
+        $displayTestimonials = $testimonials;
+        ?>
         <div class="testimonial-carousel">
             <div class="testimonial-slides">
-                <?php foreach ($testimonials as $i => $t): ?>
+                <?php foreach ($displayTestimonials as $i => $t): ?>
                 <blockquote class="testimonial-slide<?= $i === 0 ? ' is-active' : '' ?>">
                     <p class="testimonial-slide__quote"><?= View::e($t['quote']) ?></p>
                     <footer class="testimonial-slide__author">
                         <div class="avatar avatar-md">
-                            <img src="<?= View::e($t['photo']) ?>" alt="" loading="lazy">
+                            <?php if (!empty($t['photo'])): ?>
+                            <img src="<?= View::e($t['photo']) ?>" alt="<?= View::e($t['name']) ?>" loading="lazy">
+                            <?php else: ?>
+                            <span class="avatar-fallback"><?= View::e(strtoupper(substr($t['name'] ?? 'U', 0, 2))) ?></span>
+                            <?php endif; ?>
                         </div>
                         <div>
                             <div class="testimonial-slide__name"><?= View::e($t['name']) ?></div>
@@ -346,7 +482,7 @@ $galleryPreview = [
                 <?php endforeach; ?>
             </div>
             <div class="testimonial-dots">
-                <?php foreach ($testimonials as $i => $t): ?>
+                <?php foreach ($displayTestimonials as $i => $t): ?>
                 <button type="button" class="testimonial-dots__dot<?= $i === 0 ? ' is-active' : '' ?>" aria-label="Testimonial <?= $i + 1 ?>"></button>
                 <?php endforeach; ?>
             </div>
@@ -354,15 +490,39 @@ $galleryPreview = [
     </div>
 </section>
 
+<?php
+$displayReviews = [];
+if (!empty($approvedReviews)) {
+    foreach ($approvedReviews as $ar) {
+        $text = !empty($ar['review_text']) ? $ar['review_text'] : ('Rated ' . $ar['rating'] . ' / 5 stars for yoga session with ' . $ar['instructor_name']);
+        $displayReviews[] = [
+            'name' => $ar['client_name'],
+            'rating' => (int) $ar['rating'],
+            'text' => $text,
+        ];
+    }
+    if (count($displayReviews) < 6) {
+        foreach ($reviews as $dr) {
+            if (count($displayReviews) >= 6) break;
+            $displayReviews[] = $dr;
+        }
+    }
+} else {
+    $displayReviews = $reviews;
+}
+?>
 <section class="landing-section" id="reviews">
     <div class="container">
         <div class="section-heading">
             <span class="section-heading__eyebrow">Client reviews</span>
             <h2 class="section-heading__title">Rated <?= $stats['rating'] !== null ? View::e(number_format($stats['rating'], 1)) : '5.0' ?>/5 by our members</h2>
         </div>
-        <div class="review-grid">
-            <?php foreach ($reviews as $i => $r): ?>
-            <div class="review-card" data-reveal data-reveal-delay="<?= ($i % 3) + 1 ?>">
+    </div>
+    <div class="review-marquee">
+        <div class="review-marquee__track">
+            <?php for ($pass = 0; $pass < 2; $pass++): ?>
+            <?php foreach ($displayReviews as $i => $r): ?>
+            <div class="review-card"<?= $pass === 1 ? ' aria-hidden="true"' : '' ?>>
                 <div class="rating-stars">
                     <?php for ($s = 0; $s < 5; $s++): ?>
                     <?= View::icon('star', 'star' . ($s < $r['rating'] ? '' : ' is-empty')) ?>
@@ -372,35 +532,7 @@ $galleryPreview = [
                 <div class="review-card__name"><?= View::e($r['name']) ?></div>
             </div>
             <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-
-<section class="stat-counters" id="stats">
-    <div class="container stat-counters__grid">
-        <div class="stat-counter">
-            <div class="stat-counter__number">
-                <span class="stat-counter__value" data-count-to="<?= (int) $stats['instructors'] ?>">0</span><span class="stat-counter__suffix">+</span>
-            </div>
-            <div class="stat-counter__label">Certified instructors</div>
-        </div>
-        <div class="stat-counter">
-            <div class="stat-counter__number">
-                <span class="stat-counter__value" data-count-to="<?= (int) $stats['years'] ?>">0</span><span class="stat-counter__suffix">+</span>
-            </div>
-            <div class="stat-counter__label">Years combined experience</div>
-        </div>
-        <div class="stat-counter">
-            <div class="stat-counter__number">
-                <span class="stat-counter__value" data-count-to="<?= (int) $stats['programs'] ?>">0</span>
-            </div>
-            <div class="stat-counter__label">Programs available</div>
-        </div>
-        <div class="stat-counter">
-            <div class="stat-counter__number">
-                <span class="stat-counter__value" data-count-to="<?= $stats['rating'] !== null ? (int) round($stats['rating']) : 5 ?>">0</span>
-            </div>
-            <div class="stat-counter__label"><?= $stats['rating'] !== null ? View::e(number_format($stats['rating'], 1)) . ' average rating' : 'New — be our first review' ?></div>
+            <?php endfor; ?>
         </div>
     </div>
 </section>
@@ -429,7 +561,26 @@ $galleryPreview = [
     </div>
 </section>
 
-<section class="landing-section" id="blog">
+<section class="landing-section" id="download-app">
+    <div class="container">
+        <div class="app-teaser">
+            <h2>The Vipasa app is on its way</h2>
+            <p>Book sessions, chat with your instructor, and track your practice — right from your pocket. Coming soon.</p>
+            <div class="app-teaser__badges">
+                <span class="app-teaser__badge">
+                    <?= View::icon('video', 'icon', 18) ?>
+                    App Store — Coming Soon
+                </span>
+                <span class="app-teaser__badge">
+                    <?= View::icon('video', 'icon', 18) ?>
+                    Google Play — Coming Soon
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="landing-section landing-section--alt" id="blog">
     <div class="container">
         <div class="section-heading">
             <span class="section-heading__eyebrow">From the journal</span>
@@ -464,7 +615,7 @@ $galleryPreview = [
     </div>
 </section>
 
-<section class="landing-section landing-section--alt" id="contact">
+<section class="landing-section" id="contact">
     <div class="container">
         <div class="section-heading">
             <span class="section-heading__eyebrow">Get in touch</span>
@@ -510,6 +661,35 @@ $galleryPreview = [
     </div>
 </section>
 
+<div class="lightbox" id="lightbox" hidden>
+    <div class="lightbox__topbar">
+        <div class="lightbox__counter" id="lightbox-counter">
+            <span>Photo</span>
+            <strong id="lightbox-current-idx">1</strong>
+            <span>of</span>
+            <strong id="lightbox-total-idx">1</strong>
+        </div>
+        <div class="lightbox__hints">
+            <span>Use <span class="lightbox__key">←</span> <span class="lightbox__key">→</span> to navigate, <span class="lightbox__key">ESC</span> to close</span>
+        </div>
+        <button type="button" class="lightbox__close" data-lightbox-close aria-label="Close">
+            <?= View::icon('x') ?>
+        </button>
+    </div>
+    <button type="button" class="lightbox__nav lightbox__nav--prev" data-lightbox-prev aria-label="Previous photo">
+        <?= View::icon('chevron-left') ?>
+    </button>
+    <button type="button" class="lightbox__nav lightbox__nav--next" data-lightbox-next aria-label="Next photo">
+        <?= View::icon('chevron-right') ?>
+    </button>
+    <figure class="lightbox__figure">
+        <div class="lightbox__img-wrapper">
+            <img src="" alt="" id="lightbox-img">
+        </div>
+        <figcaption id="lightbox-caption"></figcaption>
+    </figure>
+</div>
+
 <footer class="site-footer">
     <div class="container site-footer__grid">
         <div class="site-footer__brand">
@@ -530,9 +710,10 @@ $galleryPreview = [
         <nav class="site-footer__col">
             <h3 class="site-footer__col-title">Explore</h3>
             <a class="site-footer__link" href="#about">About</a>
+            <a class="site-footer__link" href="#programs">Programs</a>
             <a class="site-footer__link" href="#packages">Packages</a>
             <a class="site-footer__link" href="#instructors">Instructors</a>
-            <a class="site-footer__link" href="/gallery">Gallery</a>
+            <a class="site-footer__link" href="#gallery">Gallery</a>
             <a class="site-footer__link" href="#faq">FAQ</a>
         </nav>
         <nav class="site-footer__col">
@@ -545,6 +726,14 @@ $galleryPreview = [
             <a class="site-footer__link" href="#contact">Get in touch</a>
             <a class="site-footer__link" href="mailto:<?= View::e($contact['email']) ?>"><?= View::e($contact['email']) ?></a>
         </nav>
+        <nav class="site-footer__col">
+            <h3 class="site-footer__col-title">Support</h3>
+            <a class="site-footer__link" href="#faq">FAQ</a>
+            <a class="site-footer__link" href="#contact">Contact Us</a>
+            <a class="site-footer__link" href="/privacy-policy">Privacy Policy</a>
+            <a class="site-footer__link" href="/terms-of-service">Terms of Service</a>
+            <a class="site-footer__link" href="/refund-policy">Refund Policy</a>
+        </nav>
     </div>
     <div class="site-footer__bottom">
         <div class="container site-footer__bottom-inner">
@@ -554,5 +743,7 @@ $galleryPreview = [
 </footer>
 <script type="module">
 import { initLanding } from '/assets/js/modules/landing.js';
+import { initGallery } from '/assets/js/modules/gallery.js';
 initLanding();
+initGallery();
 </script>

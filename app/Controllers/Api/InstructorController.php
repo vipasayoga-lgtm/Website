@@ -19,11 +19,27 @@ final class InstructorController extends Controller
     public function index(Request $request): void
     {
         $packageId = $request->query('package');
-        $instructors = Instructor::searchActive($packageId ? ['package_id' => (int) $packageId] : []);
+        $serviceTypeId = $request->query('service');
 
+        $filters = [];
         if ($packageId) {
+            $filters['package_id'] = (int) $packageId;
+        }
+        if ($serviceTypeId) {
+            $filters['service_type_id'] = (int) $serviceTypeId;
+        }
+
+        $instructors = Instructor::searchActive($filters);
+
+        $calcPackageId = $packageId;
+        if (!$calcPackageId && $serviceTypeId) {
+            $pkg = Package::forServiceType((int) $serviceTypeId)[0] ?? null;
+            $calcPackageId = $pkg['id'] ?? null;
+        }
+
+        if ($calcPackageId) {
             foreach ($instructors as &$instructor) {
-                $instructor['effective_price'] = InstructorService::effectivePrice($instructor['id'], (int) $packageId);
+                $instructor['effective_price'] = InstructorService::effectivePrice($instructor['id'], (int) $calcPackageId);
             }
             unset($instructor);
         }

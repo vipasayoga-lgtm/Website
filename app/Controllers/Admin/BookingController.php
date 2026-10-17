@@ -17,7 +17,7 @@ use App\Models\User;
 
 final class BookingController extends Controller
 {
-    private const PER_PAGE = 20;
+    private const PER_PAGE = 10;
 
     public function index(Request $request): void
     {
@@ -65,23 +65,7 @@ final class BookingController extends Controller
 
     public function saveMeetingLink(Request $request, string $ref): void
     {
-        $booking = Booking::findByRef($ref);
-
-        if (!$booking) {
-            $this->fail('Booking not found.', 404);
-        }
-
-        $provider = (string) $request->input('provider', '');
-        $url = (string) $request->input('url', '');
-
-        if (!in_array($provider, ['google_meet', 'zoom'], true) || !filter_var($url, FILTER_VALIDATE_URL)) {
-            $this->fail('Please provide a valid provider and a valid URL.', 422);
-        }
-
-        MeetingLink::upsertForBooking((int) $booking['id'], $provider, $url, Auth::id());
-        ActivityLog::log(Auth::id(), 'meeting_link_attached', 'booking', (int) $booking['id'], ['provider' => $provider]);
-
-        $this->success(null, 'Meeting link saved.');
+        $this->fail('Meeting links must be attached and sent directly by the assigned trainer from their trainer dashboard.', 403);
     }
 
     public function reschedule(Request $request, string $ref): void
@@ -144,6 +128,106 @@ final class BookingController extends Controller
         $this->sendRescheduleEmail($booking, $newSlot);
 
         $this->success(null, 'Booking rescheduled.');
+    }
+
+    public function delete(Request $request, string $ref): void
+    {
+        $booking = Booking::findByRef($ref);
+
+        if (!$booking) {
+            $this->fail('Booking not found.', 404);
+        }
+
+        $db = Database::connection();
+        $db->prepare('DELETE FROM bookings WHERE booking_ref = :ref')->execute(['ref' => $ref]);
+
+        ActivityLog::log(Auth::id(), 'booking_deleted', 'booking', (int) $booking['id'], ['booking_ref' => $ref]);
+
+        $this->success(null, 'Booking deleted successfully.');
+    }
+
+    public function approvePayment(Request $request, string $ref): void
+    {
+        $booking = Booking::findByRef($ref);
+        if (!$booking) {
+            $this->fail('Booking not found.', 404);
+        }
+
+        $payment = \App\Models\Payment::forBooking((int) $booking['id']);
+        if ($payment) {
+            \App\Models\Payment::markSuccessById((int) $payment['id']);
+        } else {
+            \App\Models\Payment::insert([
+                'booking_id' => $booking['id'],
+                'gateway' => 'upi',
+                'amount' => $booking['total_amount'],
+                'currency' => $booking['currency'],
+                'status' => 'success',
+            ]);
+        }
+
+        Booking::update($booking['id'], ['status' => 'confirmed']);
+
+        ActivityLog::log(Auth::id(), 'payment_approved', 'booking', (int) $booking['id'], [
+            'booking_ref' => $ref,
+        ]);
+
+        $instructor = Instructor::findWithName((int) $booking['instructor_id']);
+        $package = Package::find((int) $booking['package_id']);
+        $dateLabel = date('d M Y', strtotime($booking['slot_date']));
+        $timeLabel = date('g:i A', strtotime($booking['start_time']));
+
+        Notification::create(
+            (int) $booking['client_id'],
+            'booking',
+            'Booking confirmed — ' . $booking['booking_ref'],
+            'Your payment has been verified by admin. Your session for ' . ($package['name'] ?? 'Session') . ' with ' . ($instructor['name'] ?? 'Instructor') . ' on ' . $dateLabel . ' at ' . $timeLabel . ' is confirmed!'
+        );
+
+        if (!empty($instructor['user_id'])) {
+            Notification::create(
+                (int) $instructor['user_id'],
+                'booking',
+                'New booking confirmed — ' . $booking['booking_ref'],
+                'A new session was booked for ' . $dateLabel . ' at ' . $timeLabel . '. Please attach the meeting link for your student.'
+            );
+        }
+
+        Mailer::sendPaymentInvoiceEmail($booking, $payment['gateway_txn_id'] ?? ('#' . $booking['id']));
+
+        $this->success(null, 'Payment approved and booking confirmed. Sent to trainer schedule.');
+    }
+
+    public function rejectPayment(Request $request, string $ref): void
+    {
+        $booking = Booking::findByRef($ref);
+        if (!$booking) {
+            $this->fail('Booking not found.', 404);
+        }
+
+        $payment = \App\Models\Payment::forBooking((int) $booking['id']);
+        if ($payment) {
+            \App\Models\Payment::markFailedById((int) $payment['id']);
+        }
+
+        Booking::update($booking['id'], ['status' => 'cancelled']);
+
+        if (!empty($booking['slot_id'])) {
+            BookingSlot::release((int) $booking['slot_id']);
+        }
+
+        ActivityLog::log(Auth::id(), 'payment_rejected', 'booking', (int) $booking['id'], [
+            'booking_ref' => $ref,
+        ]);
+
+        Notification::create(
+            (int) $booking['client_id'],
+            'booking',
+            'Payment verification failed — ' . $booking['booking_ref'],
+            'Your payment verification for booking ' . $booking['booking_ref'] . ' was rejected by admin. Please contact support.'
+        );
+
+        $this->success(null, 'Payment rejected and booking cancelled.');
     }
 
     private function sendRescheduleEmail(array $booking, array $newSlot): void

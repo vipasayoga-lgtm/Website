@@ -4,6 +4,7 @@ namespace App\Controllers\Trainer;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Core\Database;
 use App\Core\Mailer;
 use App\Core\Request;
 use App\Core\View;
@@ -11,7 +12,9 @@ use App\Models\ActivityLog;
 use App\Models\Booking;
 use App\Models\BookingRescheduleRequest;
 use App\Models\BookingSlot;
+use App\Models\ClientProfile;
 use App\Models\Instructor;
+use App\Models\MeetingLink;
 use App\Models\Notification;
 use App\Models\Package;
 use App\Models\User;
@@ -23,12 +26,19 @@ final class BookingController extends Controller
         $instructor = Instructor::findByUserId(Auth::id());
         $instructorId = (int) $instructor['id'];
 
+        $db = Database::connection();
+        $db->prepare("UPDATE bookings SET status = 'confirmed' WHERE instructor_id = :iid AND status = 'awaiting_trainer_approval'")->execute(['iid' => $instructorId]);
+
         $bookings = Booking::where(['instructor_id' => $instructorId], 'slot_date DESC, start_time DESC');
 
         foreach ($bookings as &$booking) {
             $client = User::find((int) $booking['client_id']);
             $booking['client_name'] = $client['name'] ?? 'Client';
+            $booking['client_email'] = $client['email'] ?? '';
+            $booking['client_phone'] = $client['phone'] ?? '';
+            $booking['client_profile'] = ClientProfile::findByUserId((int) $booking['client_id']);
             $booking['package'] = Package::find($booking['package_id']);
+            $booking['meeting_link'] = MeetingLink::forBooking((int) $booking['id']);
         }
         unset($booking);
 
@@ -80,6 +90,29 @@ final class BookingController extends Controller
         $this->sendRejectedEmail($booking);
 
         $this->success(null, 'Booking rejected. The client has been notified.');
+    }
+
+    public function delete(Request $request, string $ref): void
+    {
+        if (!Auth::hasRole('admin')) {
+            $this->fail('Only administrators can delete bookings.', 403);
+        }
+
+        $instructor = Instructor::findByUserId(Auth::id());
+        $booking = Booking::findByRef($ref);
+
+        if (!$booking || (int) $booking['instructor_id'] !== (int) $instructor['id']) {
+            $this->fail('Booking not found.', 404);
+        }
+
+        if ($booking['slot_id']) {
+            BookingSlot::release((int) $booking['slot_id']);
+        }
+
+        Booking::delete((int) $booking['id']);
+        ActivityLog::log(Auth::id(), 'booking_deleted', 'booking', (int) $booking['id'], ['booking_ref' => $ref]);
+
+        $this->success(null, 'Booking deleted.');
     }
 
     public function approveReschedule(Request $request, int $id): void

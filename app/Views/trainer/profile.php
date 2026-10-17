@@ -9,105 +9,168 @@ $active = 'profile';
 $specialties = $instructor['specialties'] ?? [];
 $certificates = $instructor['certificates'] ?? [];
 ?>
-<div class="container" style="padding-block:var(--space-8) var(--space-16)">
+<div class="container" style="padding-block:var(--space-4) var(--space-8)">
 
-    <div class="trainer-hero">
-        <div>
-            <h1 class="trainer-hero__title">My Profile</h1>
-            <p class="trainer-hero__subtitle">This is what clients see when booking with you.</p>
+    <div class="trainer-hero-card mb-6">
+        <div class="trainer-hero-card__main">
+            <div class="trainer-hero-card__avatar">
+                <?php if (!empty($instructor['avatar_path'])): ?>
+                    <img src="<?= View::e($instructor['avatar_path']) ?>" alt="">
+                <?php else: ?>
+                    <span class="trainer-hero-card__avatar-fallback"><?= View::e(strtoupper(substr($user['name'] ?? 'T', 0, 2))) ?></span>
+                <?php endif; ?>
+            </div>
+            <div>
+                <h1 class="trainer-hero-card__title">My Public Profile</h1>
+                <p class="trainer-hero-card__subtitle">Update your profile details, specialties, biography, photo gallery, and certificates.</p>
+            </div>
         </div>
     </div>
 
-    <div class="card mb-8" style="padding:var(--space-6)">
-        <div class="flex items-center gap-4 mb-6 flex-wrap">
-            <img src="<?= View::e($instructor['avatar_path'] ?: '/assets/img/avatar-placeholder.svg') ?>" alt="" style="width:80px;height:80px;border-radius:50%;object-fit:cover">
+    <!-- Main Profile Card -->
+    <div class="card card-glass mb-6" style="padding:18px;border-radius:var(--radius-xl)">
+        
+        <!-- Avatar Photo Banner -->
+        <div class="trainer-profile-avatar-box">
+            <img src="<?= View::e($instructor['avatar_path'] ?: '/assets/img/avatar-placeholder.svg') ?>" alt="" class="trainer-profile-avatar-img">
             <div>
-                <label class="btn btn-secondary btn-sm" style="cursor:pointer">
-                    Change photo
+                <h4 style="margin:0 0 2px;font-size:0.875rem;font-weight:700;color:var(--text-primary)"><?= View::e($user['name'] ?? 'Trainer Profile') ?></h4>
+                <p style="margin:0 0 6px;font-size:11px;color:var(--text-muted)">JPG, PNG or WEBP. Max size 2MB.</p>
+                <label class="btn btn-secondary btn-sm" style="cursor:pointer;font-size:11px;padding:3px 9px">
+                    <?= View::icon('image', 'icon', 13) ?>
+                    <span>Change Photo</span>
                     <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/webp" style="display:none">
                 </label>
             </div>
         </div>
 
         <form id="profile-form">
-            <div class="form-group">
-                <input type="text" name="name" class="form-group__control" placeholder=" " required maxlength="150" value="<?= View::e($user['name'] ?? '') ?>">
-                <label class="form-group__label">Name</label>
-            </div>
-            <div class="form-group">
-                <input type="text" name="phone" class="form-group__control" placeholder=" " maxlength="20" value="<?= View::e($user['phone'] ?? '') ?>">
-                <label class="form-group__label">Phone</label>
-            </div>
-            <div class="form-group">
-                <input type="text" name="headline" class="form-group__control" placeholder=" " maxlength="200" value="<?= View::e($instructor['headline'] ?? '') ?>">
-                <label class="form-group__label">Headline</label>
-            </div>
-            <div class="form-group">
-                <textarea name="bio" class="form-group__control" placeholder=" " rows="4"><?= View::e($instructor['bio'] ?? '') ?></textarea>
-                <label class="form-group__label">Biography</label>
-            </div>
-            <div class="flex gap-3 flex-wrap mb-4">
-                <div class="form-group" style="flex:1;min-width:140px;margin:0">
-                    <input type="number" name="experience_years" class="form-group__control" placeholder=" " min="0" value="<?= (int) ($instructor['experience_years'] ?? 0) ?>">
-                    <label class="form-group__label">Experience (years)</label>
+            <div class="flex gap-3 flex-wrap">
+                <div class="trainer-form-field" style="flex:1;min-width:200px">
+                    <label class="trainer-form-label" for="profile-name">Full Name</label>
+                    <input type="text" id="profile-name" name="name" class="trainer-form-input" required maxlength="150" value="<?= View::e($user['name'] ?? '') ?>">
                 </div>
-                <div class="form-group" style="flex:1;min-width:160px;margin:0">
-                    <input type="text" name="timezone" class="form-group__control" placeholder=" " required value="<?= View::e($instructor['timezone'] ?? 'UTC') ?>">
-                    <label class="form-group__label">Timezone</label>
+                <div class="trainer-form-field" style="flex:1;min-width:200px">
+                    <label class="trainer-form-label" for="profile-phone">Phone Number</label>
+                    <input type="text" id="profile-phone" name="phone" class="trainer-form-input" maxlength="20" value="<?= View::e($user['phone'] ?? '') ?>">
                 </div>
             </div>
-            <div class="form-group">
-                <input type="text" name="specialties" class="form-group__control" placeholder=" " value="<?= View::e(implode(', ', $specialties ?: [])) ?>">
-                <label class="form-group__label">Specialties (comma-separated)</label>
+
+            <div class="trainer-form-field">
+                <label class="trainer-form-label" for="profile-headline">Professional Headline</label>
+                <input type="text" id="profile-headline" name="headline" class="trainer-form-input" maxlength="200" value="<?= View::e($instructor['headline'] ?? '') ?>" placeholder="e.g. Senior Hatha & Vinyasa Yoga Specialist">
             </div>
-            <div class="form-group">
-                <input type="text" name="certificates" class="form-group__control" placeholder=" " value="<?= View::e(implode(', ', $certificates ?: [])) ?>">
-                <label class="form-group__label">Certificates (comma-separated)</label>
+
+            <div class="trainer-form-field">
+                <label class="trainer-form-label" for="profile-bio">Biography</label>
+                <textarea id="profile-bio" name="bio" class="trainer-form-textarea" rows="3" placeholder="Share your teaching philosophy and experience..."><?= View::e($instructor['bio'] ?? '') ?></textarea>
             </div>
-            <div class="form-group__error" id="profile-form-error"></div>
-            <button type="submit" class="btn btn-primary">Save Profile</button>
+
+            <div class="flex gap-3 flex-wrap">
+                <div class="trainer-form-field" style="flex:1;min-width:140px">
+                    <label class="trainer-form-label" for="profile-exp">Experience (Years)</label>
+                    <input type="number" id="profile-exp" name="experience_years" class="trainer-form-input" min="0" value="<?= (int) ($instructor['experience_years'] ?? 0) ?>">
+                </div>
+                <div class="trainer-form-field" style="flex:1;min-width:160px">
+                    <label class="trainer-form-label" for="profile-tz">Timezone</label>
+                    <input type="text" id="profile-tz" name="timezone" class="trainer-form-input" required value="<?= View::e($instructor['timezone'] ?? 'Asia/Kolkata') ?>">
+                </div>
+            </div>
+
+            <div class="trainer-form-field">
+                <label class="trainer-form-label" for="profile-specialties">Specialties (Comma Separated)</label>
+                <input type="text" id="profile-specialties" name="specialties" class="trainer-form-input" value="<?= View::e(implode(', ', $specialties ?: [])) ?>" placeholder="Hatha Yoga, Vinyasa Flow, Pranayama, Meditation">
+            </div>
+
+            <div class="trainer-form-field">
+                <label class="trainer-form-label" for="profile-certificates">Certificates (Comma Separated)</label>
+                <input type="text" id="profile-certificates" name="certificates" class="trainer-form-input" value="<?= View::e(implode(', ', $certificates ?: [])) ?>" placeholder="RYT-500 Certified, Ashtanga Master">
+            </div>
+
+            <div id="profile-form-error" style="font-size:11px;color:var(--color-error);margin-bottom:8px"></div>
+            
+            <button type="submit" class="btn btn-primary btn-sm flex items-center gap-1">
+                <?= View::icon('check', 'icon', 14) ?>
+                <span>Save Profile Changes</span>
+            </button>
         </form>
     </div>
 
-    <h2 class="trainer-section-title">My Gallery</h2>
-    <div class="card" style="padding:var(--space-6)">
-        <div class="trainer-gallery mb-4" id="trainer-gallery">
-            <?php foreach ($gallery as $image): ?>
-            <div class="trainer-gallery__item" data-id="<?= (int) $image['id'] ?>">
-                <img src="<?= View::e($image['file_path']) ?>" alt="">
-                <button type="button" class="btn btn-ghost btn-sm trainer-gallery__remove delete-gallery-btn" data-id="<?= (int) $image['id'] ?>">&times;</button>
+    <!-- Gallery Section -->
+    <div class="trainer-section-block">
+        <div class="trainer-section-header">
+            <div class="flex items-center gap-2">
+                <?= View::icon('image', 'trainer-section-header__icon', 18) ?>
+                <h2 class="trainer-section-header__title">My Photo Gallery</h2>
             </div>
-            <?php endforeach; ?>
+            <span class="trainer-count-pill"><?= count($gallery) ?></span>
         </div>
-        <label class="btn btn-secondary" style="cursor:pointer">
-            + Add Photo
-            <input type="file" id="gallery-input" accept="image/jpeg,image/png,image/webp" style="display:none">
-        </label>
+        <div class="card card-glass mb-6" style="padding:14px;border-radius:var(--radius-xl)">
+            <?php if (empty($gallery)): ?>
+                <p class="text-muted mb-3" style="font-size:0.75rem">No gallery photos uploaded yet.</p>
+            <?php else: ?>
+                <div class="trainer-gallery mb-3" id="trainer-gallery">
+                    <?php foreach ($gallery as $image): ?>
+                    <div class="trainer-gallery__item" data-id="<?= (int) $image['id'] ?>">
+                        <img src="<?= View::e($image['file_path']) ?>" alt="">
+                        <?php if (\App\Core\Auth::hasRole('admin')): ?>
+                        <button type="button" class="btn btn-ghost btn-sm trainer-gallery__remove delete-gallery-btn" data-id="<?= (int) $image['id'] ?>" title="Remove photo">&times;</button>
+                        <?php endif; ?>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <label class="btn btn-secondary btn-sm" style="cursor:pointer;font-size:11px;padding:3px 9px">
+                <?= View::icon('plus', 'icon', 13) ?>
+                <span>Add Gallery Photo</span>
+                <input type="file" id="gallery-input" accept="image/jpeg,image/png,image/webp" style="display:none">
+            </label>
+        </div>
     </div>
 
-    <h2 class="trainer-section-title">Certificate Files</h2>
-    <div class="card" style="padding:var(--space-6)">
-        <?php if (empty($certificateFiles)): ?>
-        <p class="text-muted mb-4">No certificate files uploaded yet.</p>
-        <?php else: ?>
-        <div class="flex flex-col gap-2 mb-4" id="certificate-files-list">
-            <?php foreach ($certificateFiles as $file): ?>
-            <div class="flex items-center justify-between" style="padding:var(--space-2) 0;border-bottom:1px solid var(--border-subtle)" data-id="<?= (int) $file['id'] ?>">
-                <a href="<?= View::e($file['file_path']) ?>" target="_blank" rel="noopener"><?= View::e($file['title']) ?></a>
-                <button type="button" class="btn btn-ghost btn-sm delete-certificate-btn" data-id="<?= (int) $file['id'] ?>">Remove</button>
+    <!-- Certificates Section -->
+    <div class="trainer-section-block">
+        <div class="trainer-section-header">
+            <div class="flex items-center gap-2">
+                <?= View::icon('certificate', 'trainer-section-header__icon', 18) ?>
+                <h2 class="trainer-section-header__title">Certificate Documents</h2>
             </div>
-            <?php endforeach; ?>
+            <span class="trainer-count-pill"><?= count($certificateFiles) ?></span>
         </div>
-        <?php endif; ?>
-
-        <form id="certificate-form" class="flex gap-3 flex-wrap items-end">
-            <div class="form-group" style="margin:0;flex:1;min-width:200px">
-                <input type="text" name="title" class="form-group__control" placeholder=" " maxlength="200">
-                <label class="form-group__label">Title (optional)</label>
+        <div class="card card-glass" style="padding:14px;border-radius:var(--radius-xl)">
+            <?php if (empty($certificateFiles)): ?>
+            <p class="text-muted mb-3" style="font-size:0.75rem">No certificate documents uploaded yet.</p>
+            <?php else: ?>
+            <div class="flex flex-col gap-2 mb-3" id="certificate-files-list">
+                <?php foreach ($certificateFiles as $file): ?>
+                <div class="flex items-center justify-between" style="padding:5px 0;border-bottom:1px solid var(--border-subtle);font-size:0.78rem" data-id="<?= (int) $file['id'] ?>">
+                    <div class="flex items-center gap-2">
+                        <?= View::icon('file-text', 'icon', 14) ?>
+                        <a href="<?= View::e($file['file_path']) ?>" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:600"><?= View::e($file['title']) ?></a>
+                    </div>
+                    <?php if (\App\Core\Auth::hasRole('admin')): ?>
+                    <button type="button" class="btn btn-ghost btn-sm delete-certificate-btn" data-id="<?= (int) $file['id'] ?>" style="font-size:10.5px;padding:2px 6px">Remove</button>
+                    <?php endif; ?>
+                </div>
+                <?php endforeach; ?>
             </div>
-            <input type="file" name="file" accept="image/jpeg,image/png,image/webp,application/pdf" required>
-            <button type="submit" class="btn btn-secondary">Upload</button>
-        </form>
+            <?php endif; ?>
+
+            <form id="certificate-form" class="flex gap-2 flex-wrap items-end mt-2">
+                <div class="trainer-form-field" style="margin:0;flex:1;min-width:180px">
+                    <label class="trainer-form-label" for="cert-title">Document Title</label>
+                    <input type="text" id="cert-title" name="title" class="trainer-form-input" placeholder="e.g. 500-hr Master Certification" maxlength="200">
+                </div>
+                <div style="margin:0">
+                    <label class="trainer-form-label">File</label>
+                    <input type="file" name="file" accept="image/jpeg,image/png,image/webp,application/pdf" required style="font-size:0.75rem">
+                </div>
+                <button type="submit" class="btn btn-secondary btn-sm flex items-center gap-1">
+                    <?= View::icon('download', 'icon', 13) ?>
+                    <span>Upload Document</span>
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 <script type="module">
@@ -133,7 +196,7 @@ document.getElementById('profile-form').addEventListener('submit', async (event)
 
     try {
         await apiPut('/trainer/profile', payload);
-        toast.success('Profile saved.');
+        toast.success('Profile saved successfully.');
     } catch (err) {
         errorBox.textContent = err.message;
         toast.error(err.message);

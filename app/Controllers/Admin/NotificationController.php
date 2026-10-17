@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Core\Database;
 use App\Core\Request;
 use App\Models\ActivityLog;
 use App\Models\Notification;
@@ -60,5 +61,13 @@ final class NotificationController extends Controller
         ]);
 
         $this->success(['id' => $id], 'Notification sent.');
+    }
+
+    public function delete(Request $request, int $id): void
+    {
+        Notification::delete($id);
+        ActivityLog::log(Auth::id(), 'notification_deleted', 'notification', $id);
+
+        $this->success(null, 'Notification deleted successfully.');
     }
 }

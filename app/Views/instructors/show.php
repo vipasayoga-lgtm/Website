@@ -26,6 +26,13 @@ $accentSoftPalette = ['var(--color-primary-soft)', 'var(--color-accent-soft)', '
 $accentIndex = (int) $instructor['id'] % 3;
 ?>
 <div class="instructors-page container page-enter">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/" class="breadcrumb__link">Home</a>
+        <span class="breadcrumb__sep"><?= View::icon('chevron-right', 'icon', 14) ?></span>
+        <a href="<?= View::e($instructorsBase ?? '/instructors') ?>" class="breadcrumb__link">Instructors</a>
+        <span class="breadcrumb__sep"><?= View::icon('chevron-right', 'icon', 14) ?></span>
+        <span class="breadcrumb__current"><?= View::e($displayName) ?></span>
+    </nav>
     <div class="instructor-profile__header">
         <div class="instructor-profile__avatar">
             <?php if (!empty($instructor['avatar_path'])): ?>
@@ -227,7 +234,7 @@ bookBtn.addEventListener('click', async (event) => {
         }
 
         const grid = document.createElement('div');
-        grid.className = 'grid grid-cols-2 gap-4';
+        grid.className = 'grid grid-cols-2 gap-3';
         allPackages.forEach((pkg) => {
             const pkgCard = document.createElement('a');
             pkgCard.className = 'package-card';

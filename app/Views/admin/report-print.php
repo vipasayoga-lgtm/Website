@@ -29,20 +29,28 @@ $pageCss = 'booking';
         <p class="text-muted">No data for this date range.</p>
         <?php else: ?>
         <div style="overflow-x:auto">
-            <table style="width:100%;font-size:var(--font-size-sm)">
+            <table style="width:100%;font-size:var(--font-size-sm)" class="data-table">
                 <thead>
                     <tr>
                         <?php foreach ($headers as $h): ?>
                         <th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:2px solid var(--border-default)"><?= View::e($h) ?></th>
                         <?php endforeach; ?>
+                        <th class="no-print" style="text-align:center;padding:var(--space-2) var(--space-3);border-bottom:2px solid var(--border-default)">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($rows as $row): ?>
+                    <?php foreach ($rows as $row):
+                        $rowRef = end($row);
+                    ?>
                     <tr>
                         <?php foreach ($row as $cell): ?>
                         <td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-subtle)"><?= View::e((string) $cell) ?></td>
                         <?php endforeach; ?>
+                        <td class="no-print" style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-subtle);text-align:center">
+                            <button type="button" class="btn btn-ghost btn-xs js-delete-report-row" data-ref="<?= View::e((string) $rowRef) ?>" title="Delete row" style="color:var(--color-error,#EF4444);padding:4px">
+                                <?= View::icon('trash', 'icon', 14) ?>
+                            </button>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -51,3 +59,18 @@ $pageCss = 'booking';
         <?php endif; ?>
     </div>
 </div>
+<script type="module">
+document.querySelectorAll('.js-delete-report-row').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const ref = btn.dataset.ref;
+        const tr = btn.closest('tr');
+        btn.disabled = true;
+        if (ref && ref.length > 3) {
+            try {
+                await fetch(`/admin/bookings/${ref}/delete`, { method: 'POST' });
+            } catch(e) {}
+        }
+        if (tr) tr.remove();
+    });
+});
+</script>

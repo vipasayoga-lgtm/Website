@@ -50,6 +50,47 @@ final class Payment extends Model
         return $rows[0] ?? null;
     }
 
+    public static function createOrUpdateManualUpi(int $bookingId, string $utrNumber, float $amount, string $currency, ?string $screenshotPath = null, array $extra = []): int
+    {
+        $existing = self::forBooking($bookingId);
+
+        $data = [
+            'booking_id' => $bookingId,
+            'gateway' => 'upi',
+            'gateway_txn_id' => $utrNumber,
+            'method' => 'UPI QR',
+            'amount' => $amount,
+            'currency' => $currency,
+            'status' => 'pending',
+            'raw_response' => !empty($extra) ? json_encode($extra) : null,
+        ];
+
+        if ($screenshotPath !== null) {
+            $data['screenshot_path'] = $screenshotPath;
+        }
+
+        if ($existing && $existing['status'] === 'pending') {
+            self::update($existing['id'], $data);
+            return (int) $existing['id'];
+        }
+
+        return self::insert($data);
+    }
+
+    public static function markSuccessById(int $paymentId, ?string $paymentIdOrUtr = null): void
+    {
+        $data = ['status' => 'success'];
+        if ($paymentIdOrUtr !== null && $paymentIdOrUtr !== '') {
+            $data['gateway_txn_id'] = $paymentIdOrUtr;
+        }
+        self::update($paymentId, $data);
+    }
+
+    public static function markFailedById(int $paymentId): void
+    {
+        self::update($paymentId, ['status' => 'failed']);
+    }
+
     public static function forClient(int $clientId): array
     {
         $stmt = static::db()->prepare(

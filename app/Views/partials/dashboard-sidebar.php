@@ -14,12 +14,11 @@ $navByPortal = [
         'instructors' => ['/admin/instructors', 'Trainers', 'users'],
         'customers' => ['/admin/customers', 'Clients', 'user'],
         'payments' => ['/admin/payments', 'Payments', 'credit-card'],
+        'reviews' => ['/admin/reviews', 'Student Reviews', 'star'],
         'reports' => ['/admin/reports', 'Reports', 'file-text'],
-        'video-sessions' => ['/admin/video-sessions', 'Video Classes', 'image'],
         'content' => ['/admin/content', 'Website Content', 'file-text'],
         'gallery' => ['/admin/gallery', 'Gallery', 'image'],
         'notifications' => ['/admin/notifications', 'Notifications', 'bell'],
-        'activity' => ['/admin/activity', 'Activity', 'clock'],
         'settings' => ['/admin/settings', 'Settings', 'settings'],
     ],
     'trainer' => [
@@ -34,8 +33,8 @@ $navByPortal = [
     ],
     'client' => [
         'dashboard' => ['/dashboard', 'Dashboard', 'home'],
-        'services' => ['/services', 'Book a Session', 'calendar-week'],
-        'instructors' => ['/instructors', 'Instructors', 'users'],
+        'services' => ['/dashboard/book', 'Book a Session', 'calendar-week'],
+        'instructors' => ['/dashboard/instructors', 'Instructors', 'users'],
         'bookings' => ['/dashboard/bookings', 'My Bookings', 'calendar-month'],
         'favorites' => ['/dashboard/favorites', 'Favorites', 'heart'],
         'payments' => ['/dashboard/payments', 'Payments', 'credit-card'],
@@ -53,10 +52,9 @@ $brandLabel = match ($portal) {
 };
 ?>
 <aside class="dash-sidebar" data-dash-sidebar>
-    <div class="dash-sidebar__brand">
-        <img src="/assets/img/brand/logo-dark.png" alt="<?= View::e($brandLabel) ?>" class="dash-sidebar__brand-logo brand-logo--dark">
-        <img src="/assets/img/brand/logo-light.jpg" alt="<?= View::e($brandLabel) ?>" class="dash-sidebar__brand-logo brand-logo--light">
-    </div>
+    <a href="<?= $portal === 'admin' ? '/admin' : ($portal === 'trainer' ? '/trainer/dashboard' : '/dashboard') ?>" class="dash-sidebar__brand" aria-label="<?= View::e($brandLabel) ?>">
+        <img src="/assets/img/brand/logo-symbol-light.png" alt="<?= View::e($brandLabel) ?>" class="dash-sidebar__brand-logo">
+    </a>
     <nav class="dash-sidebar__nav">
         <?php foreach ($navLinks as $key => [$href, $label, $iconName]): ?>
         <a href="<?= View::e($href) ?>" class="dash-sidebar__link<?= $active === $key ? ' is-active' : '' ?>" aria-label="<?= View::e($label) ?>" data-tooltip="<?= View::e($label) ?>">

@@ -1,10 +1,20 @@
 <?php
 
-$pageTitle = 'Page not found';
-$pageCss = null;
+use App\Core\View;
+
+$pageTitle = 'Page not found — Vipasa Yoga';
+$pageCss = 'errors';
 ?>
-<div class="container" style="min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:var(--space-4);">
-    <h1>404</h1>
-    <p class="text-muted">We couldn't find the page you were looking for.</p>
-    <a href="/services" class="btn btn-primary">Back to services</a>
+<div class="error-page">
+    <div class="error-page__glow" aria-hidden="true"></div>
+    <div class="error-page__content">
+        <div class="error-page__icon"><?= View::icon('search', 'icon', 28) ?></div>
+        <div class="error-page__code">404</div>
+        <h1 class="error-page__title">Page not found</h1>
+        <p class="error-page__message">The page you're looking for doesn't exist or may have moved.</p>
+        <div class="error-page__actions">
+            <a href="/" class="btn btn-accent btn-lg">Back to Home</a>
+            <a href="/services" class="btn btn-secondary btn-lg">Browse Services</a>
+        </div>
+    </div>
 </div>
