@@ -292,40 +292,30 @@ $howItWorks = [
             <span class="section-heading__eyebrow">Meet Your Instructor</span>
             <h2 class="section-heading__title">Learn directly from a certified teacher</h2>
         </div>
-        <?php if (empty($instructors)): ?>
-        <p class="text-muted text-center">Instructor profile coming soon.</p>
-        <?php else: $instructor = $instructors[0]; $certificates = $instructor['certificates'] ?? []; $specialties = $instructor['specialties'] ?? []; ?>
         <div class="instructor-spotlight">
             <div class="instructor-spotlight__photo" data-reveal="left">
-                <img src="<?= View::e($instructor['avatar_path']) ?>" alt="<?= View::e($instructor['name']) ?>" loading="lazy">
+                <img src="/assets/img/client/instructor-vijaya.webp" alt="Ms. Vijaya Parameswaran" loading="lazy">
                 <span class="instructor-spotlight__badge"><?= View::icon('certificate', 'icon', 16) ?> Govt. Certified</span>
             </div>
             <div class="instructor-spotlight__copy" data-reveal="right">
-                <span class="section-heading__eyebrow">Ms. <?= View::e($instructor['name']) ?></span>
-                <h3><?= View::e($instructor['headline']) ?></h3>
-                <p><?= View::e($instructor['bio']) ?></p>
+                <span class="section-heading__eyebrow">Ms. Vijaya Parameswaran</span>
+                <h3>Certified Yoga Teacher &amp; Evaluator</h3>
+                <p>Vijaya is a certified Yoga Teacher and Evaluator, accredited by the Yoga Certification Board under the Certification Scheme for Yoga Professionals, Ministry of AYUSH, Government of India. Her practice blends steady, breath-led sequencing with real attention to how each student is actually doing that day.</p>
 
-                <?php if (!empty($certificates)): ?>
                 <h4 class="instructor-spotlight__label">Qualifications</h4>
                 <ul class="instructor-spotlight__list">
-                    <?php foreach ($certificates as $cert): ?>
-                    <li><?= View::icon('certificate', 'icon', 16) ?> <span><?= View::e((string) $cert) ?></span></li>
-                    <?php endforeach; ?>
+                    <li><?= View::icon('certificate', 'icon', 16) ?> <span>Yoga Teacher &amp; Evaluator — Yoga Certification Board (Ministry of AYUSH, Govt. of India)</span></li>
                 </ul>
-                <?php endif; ?>
 
-                <?php if (!empty($specialties)): ?>
                 <div class="instructor-spotlight__tags">
-                    <?php foreach ($specialties as $tag): ?>
-                    <span class="chip"><?= View::e((string) $tag) ?></span>
-                    <?php endforeach; ?>
+                    <span class="chip">Hatha Yoga</span>
+                    <span class="chip">Vinyasa Flow</span>
+                    <span class="chip">Restorative Yoga</span>
                 </div>
-                <?php endif; ?>
 
                 <a href="/signup" class="btn btn-accent btn-lg mt-6">Book a Session</a>
             </div>
         </div>
-        <?php endif; ?>
     </div>
 </section>
 

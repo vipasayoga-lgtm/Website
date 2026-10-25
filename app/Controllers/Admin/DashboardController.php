@@ -51,22 +51,106 @@ final class DashboardController extends Controller
             ]
         );
 
+        $packageShare = $db->query(
+            "SELECT p.name AS label, COUNT(b.id) AS count, COALESCE(SUM(b.total_amount), 0) AS revenue 
+             FROM packages p 
+             LEFT JOIN bookings b ON b.package_id = p.id 
+             GROUP BY p.id, p.name 
+             HAVING count > 0 
+             ORDER BY count DESC"
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+        $gatewayShare = $db->query(
+            "SELECT 
+                CASE 
+                    WHEN gateway = 'upi' THEN 'UPI / QR'
+                    WHEN gateway = 'razorpay' THEN 'Razorpay'
+                    ELSE 'Studio Direct'
+                END AS label,
+                COUNT(*) AS count, 
+                COALESCE(SUM(amount), 0) AS total 
+             FROM payments 
+             GROUP BY label 
+             ORDER BY count DESC"
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+        $statusShare = $db->query(
+            "SELECT 
+                CASE 
+                    WHEN status = 'completed' THEN 'Completed'
+                    WHEN status = 'confirmed' THEN 'Confirmed'
+                    WHEN status = 'pending_payment' THEN 'Pending Payment'
+                    WHEN status = 'cancelled' THEN 'Cancelled'
+                    ELSE status 
+                END AS label,
+                COUNT(*) AS count,
+                COALESCE(SUM(total_amount), 0) AS total
+             FROM bookings 
+             GROUP BY status 
+             ORDER BY count DESC"
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+        $timeOfDayShare = $db->query(
+            "SELECT 
+                CASE 
+                    WHEN HOUR(start_time) < 12 THEN 'Morning (6am-12pm)'
+                    WHEN HOUR(start_time) < 17 THEN 'Afternoon (12pm-5pm)'
+                    ELSE 'Evening (5pm-9pm)'
+                END AS label,
+                COUNT(*) AS count 
+             FROM bookings 
+             GROUP BY label 
+             ORDER BY count DESC"
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalRevReal = (float) $db->query("SELECT COALESCE(SUM(total_amount),0) r FROM bookings WHERE status IN ('confirmed','completed')")->fetch()['r'];
+        $totalCompleted = (int) $db->query("SELECT COUNT(*) c FROM bookings WHERE status = 'completed'")->fetch()['c'];
+        $totalConfirmed = (int) $db->query("SELECT COUNT(*) c FROM bookings WHERE status = 'confirmed'")->fetch()['c'];
+        $totalPending = (int) $db->query("SELECT COUNT(*) c FROM bookings WHERE status = 'pending_payment'")->fetch()['c'];
+        $totalCancelled = (int) $db->query("SELECT COUNT(*) c FROM bookings WHERE status = 'cancelled'")->fetch()['c'];
+        $totalAllBookings = (int) $db->query("SELECT COUNT(*) c FROM bookings")->fetch()['c'];
+        $completionRate = ($totalCompleted + $totalConfirmed + $totalCancelled > 0) ? round(($totalCompleted / ($totalCompleted + $totalConfirmed + $totalCancelled)) * 100, 1) : 0;
+        $avgSessionValue = ($totalCompleted + $totalConfirmed > 0) ? round($totalRevReal / ($totalCompleted + $totalConfirmed), 2) : 0;
+
+        $analyticsSummary = [
+            'totalRevenue' => $totalRevReal,
+            'allRevenue' => (float) $db->query("SELECT COALESCE(SUM(total_amount),0) r FROM bookings")->fetch()['r'],
+            'totalBookings' => $totalAllBookings,
+            'completed' => $totalCompleted,
+            'confirmed' => $totalConfirmed,
+            'pending' => $totalPending,
+            'cancelled' => $totalCancelled,
+            'completionRate' => $completionRate,
+            'avgSessionValue' => $avgSessionValue,
+            'totalClients' => $totalClients,
+        ];
+
         $seriesData = [
             'daily' => [
                 'revenue' => $this->dailyRealSeries($db, "SELECT DATE(created_at) d, COALESCE(SUM(total_amount),0) v FROM bookings WHERE status IN ('awaiting_trainer_approval','confirmed','completed') AND created_at >= :since GROUP BY DATE(created_at)", 30),
                 'bookings' => $this->dailyRealSeries($db, "SELECT DATE(created_at) d, COUNT(*) v FROM bookings WHERE created_at >= :since GROUP BY DATE(created_at)", 30),
                 'userGrowth' => $this->dailyRealSeries($db, "SELECT DATE(created_at) d, COUNT(*) v FROM users WHERE role = 'client' AND status != 'test' AND created_at >= :since GROUP BY DATE(created_at)", 30),
             ],
+            'daily90' => [
+                'revenue' => $this->dailyRealSeries($db, "SELECT DATE(created_at) d, COALESCE(SUM(total_amount),0) v FROM bookings WHERE status IN ('awaiting_trainer_approval','confirmed','completed') AND created_at >= :since GROUP BY DATE(created_at)", 90),
+                'bookings' => $this->dailyRealSeries($db, "SELECT DATE(created_at) d, COUNT(*) v FROM bookings WHERE created_at >= :since GROUP BY DATE(created_at)", 90),
+                'userGrowth' => $this->dailyRealSeries($db, "SELECT DATE(created_at) d, COUNT(*) v FROM users WHERE role = 'client' AND status != 'test' AND created_at >= :since GROUP BY DATE(created_at)", 90),
+            ],
             'monthly' => [
-                'revenue' => $this->monthlyRealSeries($db, "SELECT DATE_FORMAT(created_at, '%Y-%m') AS ym, DATE_FORMAT(created_at, '%b %Y') AS label, COALESCE(SUM(total_amount),0) AS v FROM bookings WHERE status IN ('awaiting_trainer_approval','confirmed','completed') GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b %Y') ORDER BY ym ASC"),
-                'bookings' => $this->monthlyRealSeries($db, "SELECT DATE_FORMAT(created_at, '%Y-%m') AS ym, DATE_FORMAT(created_at, '%b %Y') AS label, COUNT(*) AS v FROM bookings GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b %Y') ORDER BY ym ASC"),
-                'userGrowth' => $this->monthlyRealSeries($db, "SELECT DATE_FORMAT(created_at, '%Y-%m') AS ym, DATE_FORMAT(created_at, '%b %Y') AS label, COUNT(*) AS v FROM users WHERE role = 'client' AND status != 'test' GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b %Y') ORDER BY ym ASC"),
+                'revenue' => $this->monthlyRealSeries($db, "SELECT DATE_FORMAT(created_at, '%b %Y') AS label, COALESCE(SUM(total_amount),0) AS v FROM bookings WHERE status IN ('awaiting_trainer_approval','confirmed','completed') GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b %Y') ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC"),
+                'bookings' => $this->monthlyRealSeries($db, "SELECT DATE_FORMAT(created_at, '%b %Y') AS label, COUNT(*) AS v FROM bookings GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b %Y') ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC"),
+                'userGrowth' => $this->monthlyRealSeries($db, "SELECT DATE_FORMAT(created_at, '%b %Y') AS label, COUNT(*) AS v FROM users WHERE role = 'client' AND status != 'test' GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%b %Y') ORDER BY DATE_FORMAT(created_at, '%Y-%m') ASC"),
             ],
             'yearly' => [
                 'revenue' => $this->yearlyRealSeries($db, "SELECT YEAR(created_at) AS label, COALESCE(SUM(total_amount),0) AS v FROM bookings WHERE status IN ('awaiting_trainer_approval','confirmed','completed') GROUP BY YEAR(created_at) ORDER BY YEAR(created_at) ASC"),
                 'bookings' => $this->yearlyRealSeries($db, "SELECT YEAR(created_at) AS label, COUNT(*) AS v FROM bookings GROUP BY YEAR(created_at) ORDER BY YEAR(created_at) ASC"),
                 'userGrowth' => $this->yearlyRealSeries($db, "SELECT YEAR(created_at) AS label, COUNT(*) AS v FROM users WHERE role = 'client' AND status != 'test' GROUP BY YEAR(created_at) ORDER BY YEAR(created_at) ASC"),
             ],
+            'packageShare' => $packageShare,
+            'gatewayShare' => $gatewayShare,
+            'statusShare' => $statusShare,
+            'timeOfDayShare' => $timeOfDayShare,
+            'analyticsSummary' => $analyticsSummary,
         ];
 
         $todaysSchedule = $this->bookingList($db, "b.slot_date = CURDATE() AND b.status IN ('confirmed','completed')", 'b.start_time ASC');
@@ -81,6 +165,7 @@ final class DashboardController extends Controller
         [$avgCompletionPercent, $medicalRiskCount] = $this->profileAnalytics($db);
 
         $pendingPayments = $this->pendingPaymentsList($db);
+        $rejectedPayments = $this->rejectedPaymentsList($db);
 
         $this->view('admin/dashboard', [
             'todayCount' => $todayCount,
@@ -94,7 +179,13 @@ final class DashboardController extends Controller
             'todayRevenue' => $todayRevenue,
             'monthRevenue' => $monthRevenue,
             'seriesData' => $seriesData,
+            'analyticsSummary' => $analyticsSummary,
+            'packageShare' => $packageShare,
+            'gatewayShare' => $gatewayShare,
+            'statusShare' => $statusShare,
+            'timeOfDayShare' => $timeOfDayShare,
             'pendingPayments' => $pendingPayments,
+            'rejectedPayments' => $rejectedPayments,
             'todaysSchedule' => $todaysSchedule,
             'upcoming' => $upcoming,
             'cancelled' => $cancelled,
@@ -120,6 +211,25 @@ final class DashboardController extends Controller
                 INNER JOIN users iu ON iu.id = i.user_id
                 WHERE pay.status = 'pending' OR b.status = 'pending_payment'
                 ORDER BY pay.created_at DESC";
+        return $db->query($sql)->fetchAll();
+    }
+
+    private function rejectedPaymentsList(\PDO $db): array
+    {
+        $sql = "SELECT pay.id AS payment_id, pay.amount, pay.currency, pay.gateway, pay.gateway_txn_id, 
+                       pay.screenshot_path, pay.status AS payment_status, pay.created_at AS payment_created_at,
+                       b.id AS booking_id, b.booking_ref, b.status AS booking_status, b.slot_date, b.start_time, b.end_time,
+                       u.id AS client_id, u.name AS client_name, u.email AS client_email, u.phone AS client_phone,
+                       p.name AS package_name,
+                       iu.name AS instructor_name
+                FROM payments pay
+                INNER JOIN bookings b ON b.id = pay.booking_id
+                INNER JOIN users u ON u.id = b.client_id
+                INNER JOIN packages p ON p.id = b.package_id
+                INNER JOIN instructors i ON i.id = b.instructor_id
+                INNER JOIN users iu ON iu.id = i.user_id
+                WHERE pay.status = 'failed' OR (b.status = 'cancelled' AND pay.status != 'success')
+                ORDER BY pay.id DESC";
         return $db->query($sql)->fetchAll();
     }
 
@@ -187,17 +297,19 @@ final class DashboardController extends Controller
     private function monthlyRealSeries(PDO $db, string $sql): array
     {
         $stmt = $db->query($sql);
-        $labels = [];
-        $values = [];
-
+        $dbData = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $labels[] = (string) $row['label'];
-            $values[] = (float) $row['v'];
+            $dbData[$row['label']] = (float) $row['v'];
         }
 
-        if (empty($labels)) {
-            $labels = [date('M Y')];
-            $values = [0];
+        $labels = [];
+        $values = [];
+        $currentYear = date('Y');
+        for ($m = 1; $m <= 12; $m++) {
+            $time = mktime(0, 0, 0, $m, 1, (int)$currentYear);
+            $lbl = date('M Y', $time);
+            $labels[] = $lbl;
+            $values[] = (float) ($dbData[$lbl] ?? 0);
         }
 
         return ['labels' => $labels, 'values' => $values];

@@ -40,7 +40,14 @@ final class PageController extends Controller
     private function renderLandingPage(): void
     {
         $instructors = Instructor::searchActive();
-        usort($instructors, static fn ($a, $b) => (float) $b['rating_avg'] <=> (float) $a['rating_avg']);
+        usort($instructors, static function ($a, $b) {
+            $isLeadA = stripos($a['name'] ?? '', 'Vijaya') !== false ? 1 : 0;
+            $isLeadB = stripos($b['name'] ?? '', 'Vijaya') !== false ? 1 : 0;
+            if ($isLeadA !== $isLeadB) {
+                return $isLeadB <=> $isLeadA;
+            }
+            return (float) $b['rating_avg'] <=> (float) $a['rating_avg'];
+        });
 
         $db = Database::connection();
         $instructorCount = (int) $db->query("SELECT COUNT(*) c FROM instructors WHERE status = 'active'")->fetch()['c'];

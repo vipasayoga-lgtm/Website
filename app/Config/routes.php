@@ -51,6 +51,7 @@ return static function (Router $router): void {
 
     $router->get('/admin', 'Admin\\DashboardController@index', ['auth', 'role:admin']);
     $router->get('/admin/bookings', 'Admin\\BookingController@index', ['auth', 'role:admin']);
+    $router->get('/admin/bookings/export-excel', 'Admin\\BookingController@exportExcel', ['auth', 'role:admin']);
     $router->post('/admin/bookings/{ref}/meeting-link', 'Admin\\BookingController@saveMeetingLink', ['auth', 'role:admin', 'csrf']);
     $router->post('/admin/bookings/{ref}/approve-payment', 'Admin\\BookingController@approvePayment', ['auth', 'role:admin', 'csrf']);
     $router->post('/admin/bookings/{ref}/reject-payment', 'Admin\\BookingController@rejectPayment', ['auth', 'role:admin', 'csrf']);
@@ -75,11 +76,13 @@ return static function (Router $router): void {
     // Must precede /admin/customers/{id} — {id} compiles to ([^/]+) and would
     // otherwise swallow "export" and look it up as customer #0.
     $router->get('/admin/customers/export', 'Admin\\CustomerController@export', ['auth', 'role:admin']);
+    $router->get('/admin/customers/export-excel', 'Admin\\CustomerController@exportExcel', ['auth', 'role:admin']);
     $router->get('/admin/customers/{id}', 'Admin\\CustomerController@show', ['auth', 'role:admin']);
     $router->get('/admin/customers/{id}/health-record', 'Admin\\CustomerController@healthRecord', ['auth', 'role:admin']);
     $router->post('/admin/customers/{id}/delete', 'Admin\\CustomerController@delete', ['auth', 'role:admin', 'csrf']);
 
     $router->get('/admin/payments', 'Admin\PaymentController@index', ['auth', 'role:admin']);
+    $router->post('/admin/payments/delete-all-rejected', 'Admin\PaymentController@deleteAllRejected', ['auth', 'role:admin', 'csrf']);
     $router->post('/admin/payments/{id}/approve', 'Admin\PaymentController@approve', ['auth', 'role:admin', 'csrf']);
     $router->post('/admin/payments/{id}/reject', 'Admin\PaymentController@reject', ['auth', 'role:admin', 'csrf']);
     $router->post('/admin/payments/{id}/delete', 'Admin\PaymentController@delete', ['auth', 'role:admin', 'csrf']);

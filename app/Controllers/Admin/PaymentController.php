@@ -136,9 +136,35 @@ final class PaymentController extends Controller
         $this->success(null, 'Payment rejected and booking cancelled.');
     }
 
+    public function deleteAllRejected(Request $request): void
+    {
+        $db = Database::connection();
+        $stmt = $db->query("SELECT screenshot_path FROM payments WHERE status = 'failed'");
+        $rows = $stmt->fetchAll();
+        foreach ($rows as $row) {
+            if (!empty($row['screenshot_path'])) {
+                $filePath = dirname(__DIR__, 2) . '/public' . $row['screenshot_path'];
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+        }
+        $db->exec("DELETE FROM payments WHERE status = 'failed'");
+        $this->success(null, 'All rejected payment records have been deleted.');
+    }
+
     public function delete(Request $request, string $id): void
     {
         $db = Database::connection();
+        $stmt = $db->prepare('SELECT screenshot_path FROM payments WHERE id = :id');
+        $stmt->execute(['id' => (int) $id]);
+        $payment = $stmt->fetch();
+        if ($payment && !empty($payment['screenshot_path'])) {
+            $filePath = dirname(__DIR__, 2) . '/public' . $payment['screenshot_path'];
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+        }
         $db->prepare('DELETE FROM payments WHERE id = :id')->execute(['id' => (int) $id]);
         $this->success(null, 'Payment record deleted.');
     }

@@ -103,10 +103,10 @@ $gatewayLabels = [
                     <td><span class="chip" style="font-size:0.75rem"><?= View::e($gatewayLabels[$payment['gateway']] ?? ucfirst($payment['gateway'])) ?></span></td>
                     <td>
                         <?php if (!empty($payment['screenshot_path'])): ?>
-                        <a href="<?= View::e($payment['screenshot_path']) ?>" target="_blank" rel="noopener" class="btn btn-ghost btn-xs flex items-center gap-1" style="color:var(--color-primary);font-size:0.75rem;padding:3px 6px">
+                        <button type="button" class="btn btn-ghost btn-xs flex items-center gap-1 js-view-proof-modal-btn" data-img="<?= View::e($payment['screenshot_path']) ?>" data-ref="<?= View::e($payment['booking_ref']) ?>" data-client="<?= View::e($payment['client_name'] ?? '') ?>" data-amount="<?= View::e(($payment['currency'] ?? 'INR') . ' ' . number_format((float)$payment['amount'], 2)) ?>" style="color:var(--color-primary);font-size:0.75rem;padding:3px 6px;cursor:pointer">
                             <?= View::icon('image', 'icon', 13) ?>
                             <span>View Proof</span>
-                        </a>
+                        </button>
                         <?php else: ?>
                         <span class="text-muted" style="font-size:0.75rem">No image</span>
                         <?php endif; ?>
@@ -150,6 +150,8 @@ $gatewayLabels = [
     </div>
     <?php endif; ?>
 </div>
+
+<?= View::partial('partials/payment-proof-modal') ?>
 
 <script type="module">
 import { apiPost } from '/assets/js/modules/api.js';
@@ -222,9 +224,6 @@ document.querySelectorAll('.js-approve-admin-payment-btn').forEach((btn) => {
         const id = btn.dataset.id;
         const ref = btn.dataset.ref;
         if (!id) return;
-        if (!confirm(`Verify and approve payment for booking ${ref}? This will confirm the booking and send it to the trainer dashboard.`)) {
-            return;
-        }
 
         btn.disabled = true;
         btn.classList.add('is-loading');
@@ -249,9 +248,6 @@ document.querySelectorAll('.js-reject-admin-payment-btn').forEach((btn) => {
         const id = btn.dataset.id;
         const ref = btn.dataset.ref;
         if (!id) return;
-        if (!confirm(`Reject payment for booking ${ref}? This will cancel the booking and release the trainer slot.`)) {
-            return;
-        }
 
         btn.disabled = true;
         btn.classList.add('is-loading');

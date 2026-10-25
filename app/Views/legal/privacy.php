@@ -293,7 +293,7 @@ $contactLoc = $contact['location'] ?? 'Live online sessions, worldwide';
             <div class="legal-side-widget">
                 <div class="legal-side-widget__title">Certified Instructors</div>
                 <div class="legal-avatar-stack">
-                    <img src="/assets/img/instructors/ananya.jpg" alt="Instructor Ananya" class="legal-avatar-img">
+                    <img src="/assets/img/client/instructor-vijaya.webp" alt="Instructor Vijaya" class="legal-avatar-img">
                     <img src="/assets/img/instructors/rahul.jpg" alt="Instructor Rahul" class="legal-avatar-img">
                     <img src="/assets/img/instructors/sarah.jpg" alt="Instructor Sarah" class="legal-avatar-img">
                 </div>
