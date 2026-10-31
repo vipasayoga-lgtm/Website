@@ -28,14 +28,21 @@ $navLinks = match ($user['role'] ?? null) {
         '/admin' => 'Admin',
     ],
     default => $user ? [
+        '/' => 'Home',
         '/services' => 'Services',
         '/instructors' => 'Instructors',
         '/dashboard' => 'Dashboard',
         '/dashboard/bookings' => 'My Bookings',
         '/onboarding/profile' => 'Profile',
     ] : [
-        '/services' => 'Services',
+        '/' => 'Home',
+        '/#about' => 'About',
+        '/#programs' => 'Programs',
         '/instructors' => 'Instructors',
+        '/#gallery' => 'Gallery',
+        '/services' => 'Packages',
+        '/#faq' => 'FAQ',
+        '/#contact' => 'Contact',
     ],
 };
 
@@ -49,11 +56,15 @@ if ($currentPath === '') {
 }
 $activeNavHref = null;
 foreach (array_keys($navLinks) as $href) {
-    if ($currentPath !== $href && !str_starts_with($currentPath, $href . '/')) {
+    $pathPart = explode('#', $href)[0];
+    if ($pathPart === '/' && $currentPath !== '/') {
         continue;
     }
-    if ($activeNavHref === null || strlen($href) > strlen($activeNavHref)) {
-        $activeNavHref = $href;
+    if ($pathPart !== '' && ($currentPath === $pathPart || str_starts_with($currentPath, $pathPart . '/'))) {
+        $cleanActive = $activeNavHref !== null ? explode('#', $activeNavHref)[0] : '';
+        if ($activeNavHref === null || strlen($pathPart) > strlen($cleanActive)) {
+            $activeNavHref = $href;
+        }
     }
 }
 ?>
@@ -78,8 +89,8 @@ foreach (array_keys($navLinks) as $href) {
 <header class="nav-glass no-print">
     <div class="nav-glass__brand">
         <a href="<?= View::e($brandHref) ?>">
-            <img src="/assets/img/brand/logo-black.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--dark">
-            <img src="/assets/img/brand/logo-dark.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--light">
+            <img src="/assets/img/brand/logo-symbol-light.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--dark">
+            <img src="/assets/img/brand/logo-symbol-dark.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--light">
         </a>
     </div>
     <button type="button" class="nav-glass__toggle" data-nav-toggle aria-expanded="false" aria-label="Toggle menu">
@@ -116,6 +127,7 @@ foreach (array_keys($navLinks) as $href) {
 <main>
 <?= $content ?>
 </main>
+<?= View::partial('partials/site-footer', ['contact' => $contact ?? []]) ?>
 <script type="module" src="<?= View::e(View::asset('/assets/js/app.js')) ?>"></script>
 </body>
 </html>

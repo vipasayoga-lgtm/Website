@@ -139,6 +139,11 @@ form.addEventListener('submit', async (event) => {
             });
         }
         toast.error(err.message);
+        if (err.data?.redirect || (err.message && (err.message.toLowerCase().includes('already signed') || err.message.toLowerCase().includes('already authenticated')))) {
+            setTimeout(() => {
+                window.location.href = err.data?.redirect || '/dashboard';
+            }, 2500);
+        }
         submitBtn.classList.remove('is-loading');
         submitBtn.disabled = false;
     }

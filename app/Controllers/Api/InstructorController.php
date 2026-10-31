@@ -101,10 +101,17 @@ final class InstructorController extends Controller
             }
 
             BookingSlot::ensureGeneratedForDate($instructorId, $date, $duration);
+            $allSlots = BookingSlot::forDate($instructorId, $date);
 
             $this->success([
                 'date' => $date,
-                'slots' => BookingSlot::findAvailable($instructorId, $date),
+                'slots' => array_map(static fn (array $s): array => [
+                    'id' => (int) $s['id'],
+                    'start_time' => $s['start_time'],
+                    'end_time' => $s['end_time'],
+                    'status' => $s['status'],
+                    'is_available' => $s['status'] === 'available',
+                ], $allSlots),
             ]);
         }
 

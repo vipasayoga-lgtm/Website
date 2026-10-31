@@ -33,24 +33,6 @@ final class DashboardController extends Controller
             "SELECT COALESCE(SUM(amount), 0) r FROM payments WHERE status = 'success' AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')"
         )->fetch()['r'];
 
-        $paymentsByGateway = $this->mergeCategories(
-            $db->query("SELECT gateway AS label, COUNT(*) AS value FROM payments WHERE status = 'success' GROUP BY gateway ORDER BY value DESC")->fetchAll(),
-            [
-                ['label' => 'Razorpay', 'value' => 54],
-                ['label' => 'UPI / GPay', 'value' => 38],
-                ['label' => 'Credit Card', 'value' => 22],
-                ['label' => 'Net Banking', 'value' => 14],
-            ]
-        );
-        $paymentsByStatus = $this->mergeCategories(
-            $db->query("SELECT status AS label, COUNT(*) AS value FROM payments GROUP BY status ORDER BY value DESC")->fetchAll(),
-            [
-                ['label' => 'Success', 'value' => 118],
-                ['label' => 'Pending', 'value' => 8],
-                ['label' => 'Refunded', 'value' => 2],
-            ]
-        );
-
         $packageShare = $db->query(
             "SELECT p.name AS label, COUNT(b.id) AS count, COALESCE(SUM(b.total_amount), 0) AS revenue 
              FROM packages p 
@@ -112,6 +94,10 @@ final class DashboardController extends Controller
         $completionRate = ($totalCompleted + $totalConfirmed + $totalCancelled > 0) ? round(($totalCompleted / ($totalCompleted + $totalConfirmed + $totalCancelled)) * 100, 1) : 0;
         $avgSessionValue = ($totalCompleted + $totalConfirmed > 0) ? round($totalRevReal / ($totalCompleted + $totalConfirmed), 2) : 0;
 
+        $totalPayments = (int) $db->query("SELECT COUNT(*) c FROM payments")->fetch()['c'];
+        $successPayments = (int) $db->query("SELECT COUNT(*) c FROM payments WHERE status = 'success'")->fetch()['c'];
+        $paymentSuccessRate = ($totalPayments > 0) ? round(($successPayments / $totalPayments) * 100, 1) : 0;
+
         $analyticsSummary = [
             'totalRevenue' => $totalRevReal,
             'allRevenue' => (float) $db->query("SELECT COALESCE(SUM(total_amount),0) r FROM bookings")->fetch()['r'],
@@ -121,8 +107,11 @@ final class DashboardController extends Controller
             'pending' => $totalPending,
             'cancelled' => $totalCancelled,
             'completionRate' => $completionRate,
+            'fulfillmentRate' => $completionRate,
             'avgSessionValue' => $avgSessionValue,
             'totalClients' => $totalClients,
+            'totalPayments' => $totalPayments,
+            'paymentSuccessRate' => $paymentSuccessRate,
         ];
 
         $seriesData = [

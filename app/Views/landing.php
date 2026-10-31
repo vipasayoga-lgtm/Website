@@ -35,42 +35,37 @@ $howItWorks = [
     ['icon' => 'video', 'title' => 'Join Live Session', 'text' => 'Meet your instructor live — real-time guidance, not a recording.'],
 ];
 ?>
+<header class="nav-glass">
+    <div class="nav-glass__brand">
+        <a href="#hero" aria-label="Vipasa Yoga home">
+            <img src="/assets/img/brand/logo-symbol-light.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--dark">
+            <img src="/assets/img/brand/logo-symbol-dark.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--light">
+        </a>
+    </div>
+    <button type="button" class="nav-glass__toggle" data-nav-toggle aria-expanded="false" aria-label="Toggle menu">
+        <span class="nav-glass__toggle-bar"></span>
+        <span class="nav-glass__toggle-bar"></span>
+        <span class="nav-glass__toggle-bar"></span>
+    </button>
+    <nav class="nav-glass__links">
+        <a href="#hero" class="nav-glass__link">Home</a>
+        <a href="#about" class="nav-glass__link">About</a>
+        <a href="#programs" class="nav-glass__link">Programs</a>
+        <a href="#instructors" class="nav-glass__link">Instructors</a>
+        <a href="#gallery" class="nav-glass__link">Gallery</a>
+        <a href="#packages" class="nav-glass__link">Packages</a>
+        <a href="#faq" class="nav-glass__link">FAQ</a>
+        <a href="#contact" class="nav-glass__link">Contact</a>
+    </nav>
+    <div class="nav-glass__actions">
+        <a href="/login" class="btn btn-accent btn-lg">Log in</a>
+    </div>
+</header>
+
 <section class="hero" id="hero">
     <div class="hero__bg" aria-hidden="true">
         <span class="hero__grain"></span>
     </div>
-    <div class="nav-glass__brand hero__brand-float">
-        <a href="#hero" aria-label="Vipasa Yoga home">
-            <img src="/assets/img/brand/logo-black.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--dark">
-            <img src="/assets/img/brand/logo-dark.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--light">
-        </a>
-    </div>
-    <header class="nav-glass nav-glass--hero-overlay">
-        <div class="nav-glass__brand">
-            <a href="#hero" aria-label="Vipasa Yoga home">
-                <img src="/assets/img/brand/logo-black.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--dark">
-                <img src="/assets/img/brand/logo-dark.png" alt="Vipasa Yoga" class="nav-glass__brand-logo brand-logo--light">
-            </a>
-        </div>
-        <button type="button" class="nav-glass__toggle" data-nav-toggle aria-expanded="false" aria-label="Toggle menu">
-            <span class="nav-glass__toggle-bar"></span>
-            <span class="nav-glass__toggle-bar"></span>
-            <span class="nav-glass__toggle-bar"></span>
-        </button>
-        <nav class="nav-glass__links">
-            <a href="#hero" class="nav-glass__link">Home</a>
-            <a href="#about" class="nav-glass__link">About</a>
-            <a href="#programs" class="nav-glass__link">Programs</a>
-            <a href="#instructors" class="nav-glass__link">Instructors</a>
-            <a href="#gallery" class="nav-glass__link">Gallery</a>
-            <a href="#packages" class="nav-glass__link">Packages</a>
-            <a href="#faq" class="nav-glass__link">FAQ</a>
-            <a href="#contact" class="nav-glass__link">Contact</a>
-        </nav>
-        <div class="nav-glass__actions">
-            <a href="/login" class="btn btn-accent btn-lg">Log in</a>
-        </div>
-    </header>
     <div class="hero__bg-photo">
         <img src="/assets/img/client/meditation-cutout.png" alt="">
     </div>
@@ -100,21 +95,21 @@ $howItWorks = [
                 <div class="hero__stat">
                     <span class="hero__stat-icon"><?= View::icon('certificate', 'icon', 18) ?></span>
                     <span class="hero__stat-text">
-                        <span class="hero__stat-value"><?= (int) $stats['instructors'] ?>+</span>
+                        <span class="hero__stat-value">3+</span>
                         <span class="hero__stat-label">Certified instructors</span>
                     </span>
                 </div>
                 <div class="hero__stat">
                     <span class="hero__stat-icon"><?= View::icon('sliders', 'icon', 18) ?></span>
                     <span class="hero__stat-text">
-                        <span class="hero__stat-value"><?= (int) $stats['programs'] ?>+</span>
+                        <span class="hero__stat-value">6+</span>
                         <span class="hero__stat-label">Programs available</span>
                     </span>
                 </div>
                 <div class="hero__stat">
                     <span class="hero__stat-icon"><?= View::icon('star', 'icon', 18) ?></span>
                     <span class="hero__stat-text">
-                        <span class="hero__stat-value"><?= $stats['rating'] !== null ? View::e(number_format($stats['rating'], 1)) : 'New' ?></span>
+                        <span class="hero__stat-value">5.0</span>
                         <span class="hero__stat-label">Average rating</span>
                     </span>
                 </div>
@@ -160,27 +155,27 @@ $howItWorks = [
         <div class="stat-counters__grid">
             <div class="stat-counter">
                 <div class="stat-counter__number">
-                    <span class="stat-counter__value" data-count-to="<?= (int) $stats['instructors'] ?>">0</span><span class="stat-counter__suffix">+</span>
+                    <span class="stat-counter__value" data-count-to="3">3</span><span class="stat-counter__suffix">+</span>
                 </div>
                 <div class="stat-counter__label">Certified instructors</div>
             </div>
             <div class="stat-counter">
                 <div class="stat-counter__number">
-                    <span class="stat-counter__value" data-count-to="<?= (int) $stats['years'] ?>">0</span><span class="stat-counter__suffix">+</span>
+                    <span class="stat-counter__value" data-count-to="26">26</span><span class="stat-counter__suffix">+</span>
                 </div>
                 <div class="stat-counter__label">Years combined experience</div>
             </div>
             <div class="stat-counter">
                 <div class="stat-counter__number">
-                    <span class="stat-counter__value" data-count-to="<?= (int) $stats['programs'] ?>">0</span>
+                    <span class="stat-counter__value" data-count-to="6">6</span><span class="stat-counter__suffix">+</span>
                 </div>
                 <div class="stat-counter__label">Programs available</div>
             </div>
             <div class="stat-counter">
                 <div class="stat-counter__number">
-                    <span class="stat-counter__value" data-count-to="<?= $stats['rating'] !== null ? (int) round($stats['rating']) : 5 ?>">0</span>
+                    <span class="stat-counter__value" data-count-to="5" data-decimals="1">5.0</span>
                 </div>
-                <div class="stat-counter__label"><?= $stats['rating'] !== null ? View::e(number_format($stats['rating'], 1)) . ' average rating' : 'New — be our first review' ?></div>
+                <div class="stat-counter__label">Average rating</div>
             </div>
         </div>
     </div>
@@ -222,28 +217,28 @@ $howItWorks = [
         </div>
         <div class="benefit-grid">
             <div class="benefit-card" data-reveal data-reveal-delay="1">
-                <img src="/assets/img/client/benefit-flexibility.jpg" alt="" loading="lazy">
+                <img src="/assets/img/client/benefit-flexibility.webp" alt="Flexibility and strength yoga asana" loading="lazy">
                 <div class="benefit-card__body">
                     <h3>Flexibility &amp; strength</h3>
                     <p class="text-muted">Build mobility and core strength with sequences shaped around your body, not a generic routine.</p>
                 </div>
             </div>
             <div class="benefit-card" data-reveal data-reveal-delay="2">
-                <img src="/assets/img/client/benefit-mindfulness.jpg" alt="" loading="lazy">
+                <img src="/assets/img/client/benefit-mindfulness.webp" alt="Mindfulness and stress relief pranayama" loading="lazy">
                 <div class="benefit-card__body">
                     <h3>Mindfulness &amp; stress relief</h3>
                     <p class="text-muted">Breathing-led sequences that lower stress and sharpen focus, on and off the mat.</p>
                 </div>
             </div>
             <div class="benefit-card" data-reveal data-reveal-delay="3">
-                <img src="/assets/img/client/benefit-community.jpg" alt="" loading="lazy">
+                <img src="/assets/img/client/benefit-community.webp" alt="Vipasa community yoga session" loading="lazy">
                 <div class="benefit-card__body">
                     <h3>Community &amp; connection</h3>
                     <p class="text-muted">Practice solo or alongside others in group sessions — either way, you're never just a username.</p>
                 </div>
             </div>
             <div class="benefit-card" data-reveal data-reveal-delay="4">
-                <img src="/assets/img/client/benefit-recovery.jpg" alt="" loading="lazy">
+                <img src="/assets/img/client/benefit-recovery.webp" alt="Restorative yoga practice for sleep and recovery" loading="lazy">
                 <div class="benefit-card__body">
                     <h3>Recovery &amp; better sleep</h3>
                     <p class="text-muted">Restorative sequences designed to wind the body down for deeper, more consistent rest.</p>
@@ -673,64 +668,14 @@ if (!empty($approvedReviews)) {
         <?= View::icon('chevron-right') ?>
     </button>
     <figure class="lightbox__figure">
-        <div class="lightbox__img-wrapper">
-            <img src="" alt="" id="lightbox-img">
+        <div class="lightbox__img-wrapper image-shield">
+            <img src="" alt="" id="lightbox-img" draggable="false" oncontextmenu="return false;">
         </div>
         <figcaption id="lightbox-caption"></figcaption>
     </figure>
 </div>
 
-<footer class="site-footer">
-    <div class="container site-footer__grid">
-        <div class="site-footer__brand">
-            <div class="site-footer__logo">Vipasa Yoga</div>
-            <p class="site-footer__tagline">Live yoga sessions with certified instructors, booked in minutes.</p>
-            <div class="site-footer__social">
-                <a class="site-footer__social-link" href="#" aria-label="Instagram">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
-                </a>
-                <a class="site-footer__social-link" href="#" aria-label="Facebook">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                </a>
-                <a class="site-footer__social-link" href="#" aria-label="YouTube">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="4"/><polygon points="10 9 15 12 10 15" fill="currentColor" stroke="none"/></svg>
-                </a>
-            </div>
-        </div>
-        <nav class="site-footer__col">
-            <h3 class="site-footer__col-title">Explore</h3>
-            <a class="site-footer__link" href="#about">About</a>
-            <a class="site-footer__link" href="#programs">Programs</a>
-            <a class="site-footer__link" href="#packages">Packages</a>
-            <a class="site-footer__link" href="#instructors">Instructors</a>
-            <a class="site-footer__link" href="#gallery">Gallery</a>
-            <a class="site-footer__link" href="#faq">FAQ</a>
-        </nav>
-        <nav class="site-footer__col">
-            <h3 class="site-footer__col-title">Account</h3>
-            <a class="site-footer__link" href="/login">Log in</a>
-            <a class="site-footer__link" href="/signup">Sign up</a>
-        </nav>
-        <nav class="site-footer__col">
-            <h3 class="site-footer__col-title">Contact</h3>
-            <a class="site-footer__link" href="#contact">Get in touch</a>
-            <a class="site-footer__link" href="mailto:<?= View::e($contact['email']) ?>"><?= View::e($contact['email']) ?></a>
-        </nav>
-        <nav class="site-footer__col">
-            <h3 class="site-footer__col-title">Support</h3>
-            <a class="site-footer__link" href="#faq">FAQ</a>
-            <a class="site-footer__link" href="#contact">Contact Us</a>
-            <a class="site-footer__link" href="/privacy-policy">Privacy Policy</a>
-            <a class="site-footer__link" href="/terms-of-service">Terms of Service</a>
-            <a class="site-footer__link" href="/refund-policy">Refund Policy</a>
-        </nav>
-    </div>
-    <div class="site-footer__bottom">
-        <div class="container site-footer__bottom-inner">
-            <p class="site-footer__copyright">&copy; <?= date('Y') ?> Vipasa Yoga. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
+<?= View::partial('partials/site-footer', ['contact' => $contact ?? []]) ?>
 <script type="module">
 import { initLanding } from '/assets/js/modules/landing.js';
 import { initGallery } from '/assets/js/modules/gallery.js';

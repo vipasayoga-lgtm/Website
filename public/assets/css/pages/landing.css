@@ -25,52 +25,32 @@
 
 .section-heading__eyebrow {
   display: inline-block;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
+  font-size: 0.85rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--color-accent);
   margin-bottom: var(--space-3);
 }
 
 .section-heading__title {
   margin-bottom: var(--space-3);
+  font-size: clamp(2.1rem, 3.4vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.22;
+  color: var(--color-primary);
 }
 
 .section-heading__subtitle {
-  color: var(--text-muted);
-  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.65;
+  max-width: 620px;
+  margin-inline: auto;
 }
 
 @media (max-width: 639px) {
   .landing-section { padding-block: var(--space-14); }
-}
-
-/* =========================================================================
-   Nav — landing-only scrolled state (the mobile hamburger toggle + dropdown
-   CSS lives in components.css since every page's shared .nav-glass needs it,
-   not just this one — see that file for the markup contract).
-   JS (landing.js) toggles this class on scroll.
-   ========================================================================= */
-.nav-glass--scrolled {
-  padding-block: var(--space-2);
-  background-color: var(--surface-glass-strong);
-  box-shadow: var(--shadow-lg);
-}
-
-/* Keeps the pill on screen after the hero has scrolled past, so the saffron
-   current-section underline is actually visible while reading the page.
-   .nav-glass--hero-overlay is absolute-within-.hero, so this only swaps the
-   positioning mechanism — size, radius and glass treatment stay as they are,
-   and since the nav was never in flow there's no layout shift when it pins.
-   (.hero sets overflow:hidden but no transform/filter, so it isn't the
-   containing block for a fixed child and cannot clip this.)
-   JS (landing.js) toggles this class at the same scroll threshold as
-   .nav-glass--scrolled above. */
-.nav-glass--hero-overlay.nav-glass--stuck {
-  position: fixed;
-  top: 12px;
-  z-index: var(--z-nav);
 }
 
 /* Anchor landings sit below the pinned nav instead of underneath it. */
@@ -104,15 +84,24 @@
 .hero {
   position: relative;
   overflow: hidden;
-  min-height: 82vh;
+  min-height: 85vh;
   display: flex;
-  align-items: center;
-  padding-top: 140px;
-  padding-bottom: 120px;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 135px;
+  padding-bottom: 90px;
   /* One continuous background for the whole hero — the floating nav
      overlay sits on top of this via its own translucent glass panel
      (var(--surface-glass-strong) + blur), not a second background of its own. */
   background: linear-gradient(180deg, var(--surface-bg) 0%, var(--surface-bg-alt) 25%, var(--vipasa-blue-50) 55%, var(--surface-bg-alt) 100%);
+}
+
+@media (max-width: 639px) {
+  .hero {
+    padding-top: 100px;
+    padding-bottom: var(--space-8);
+    min-height: auto;
+  }
 }
 
 :root[data-theme="dark"] .hero { background: linear-gradient(180deg, #071524 0%, #081827 25%, #091d2d 55%, #081827 100%); }
@@ -146,142 +135,13 @@
   75% { transform: translate(-1%, -1%); }
 }
 
-/* Nav-inside-hero overlay — only on the landing page, where the nav floats
-   on top of the hero's own background instead of sitting in normal document
-   flow before the hero starts. Every other page uses the same base
-   .nav-glass look (that's the point — one nav bar style everywhere) but
-   stays position:sticky; this variant only swaps the positioning mechanism
-   to absolute-within-.hero, scoped by both the class and its .hero
-   ancestor so it can never leak onto services/gallery/etc. Everything
-   else (size, radius, glass background, blur) now comes from the shared
-   base .nav-glass rule in components.css. */
-.nav-glass--hero-overlay {
-  position: absolute;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
-  /* Below .hero__brand-float (z-index: 50) so the standalone logo always
-     renders above it where they overlap. */
-  z-index: 10;
-}
-
-/* The standalone brand mark (.hero__brand-float, below) floats over this
-   pill's left corner, so the left-aligned links need clearance or "Home"
-   lands on top of the logo. The amount needed is viewport-dependent: the mark
-   is pinned at a fixed left:4px and is 132px wide, while the pill is centred
-   at 88vw — so its left edge sits 6vw in, and the narrower the window the
-   further the logo reaches across it. The calc() term is that clearance —
-   (132 + 4 + a 16px gap = 152px) less the pill's own var(--space-8) padding
-   and the 6vw offset — and the var(--space-16) floor is the wider left indent
-   the links carry on big screens, where the logo stops reaching them at all.
-   The floor takes over above ~930px, so on any real desktop the group sits a
-   flat 64px in from the pill's padding edge.
-   Desktop only: below 900px the links become a dropdown panel with its own
-   padding, and the floating mark is dropped entirely below 639px. */
-@media (min-width: 900px) {
-  .nav-glass--hero-overlay .nav-glass__links {
-    padding-left: max(var(--space-16), calc(120px - 6vw));
-  }
-}
-
-@media (max-width: 899px) {
-  .nav-glass--hero-overlay .nav-glass__links {
-    flex: initial;
-    justify-content: flex-start;
-  }
-}
-
-/* Standalone brand mark, floating in the gap between the left edge of the
-   viewport and the centered pill nav — sibling of .nav-glass--hero-overlay,
-   not a child, so it never joins that flex row. */
-.hero__brand-float {
-  /* absolute, relative to .hero (position:relative) — scrolls away with the
-     hero section rather than staying pinned to the viewport. (The pill nav
-     itself no longer does: it re-pins via .nav-glass--stuck above once the
-     hero is past, so the current-section marker stays readable while
-     scrolling. This mark stays behind by design — it's a 132px lockup, far
-     too tall to ride along in a 78px pill.) Bound by .hero's overflow:hidden, so
-     left can't go negative without being clipped (see z-index comment
-     below for why that's an acceptable trade-off here). */
-  position: absolute;
-  top: 0;
-  left: 4px;
-  /* Above .nav-glass--hero-overlay (z-index: 10) and everything else in the
-     hero's local stacking context, so it never gets covered where it
-     overlaps the pill nav's rounded corner. */
-  z-index: 50;
-  height: 150px;
-  display: flex;
-  align-items: center;
-}
-
-.hero__brand-float > a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 132px;
-  height: 132px;
-}
-
-.hero__brand-float .nav-glass__brand-logo {
-  width: 132px;
-  height: 132px;
-  object-fit: contain;
-  max-width: 132px;
-  transform: none;
-}
-
-@media (max-width: 899px) {
-  .hero__brand-float {
-    left: 2px;
-    height: 126px;
-  }
-
-  .hero__brand-float > a {
-    width: 102px;
-    height: 102px;
-  }
-
-  .hero__brand-float .nav-glass__brand-logo {
-    width: 102px;
-    height: 102px;
-    max-width: 102px;
-  }
-}
-
-@media (min-width: 640px) {
-  .nav-glass--hero-overlay .nav-glass__brand {
-    display: none;
-  }
-}
-
-/* Below 639px the pill nav widens to fill nearly the whole viewport
-   (calc(100% - 32px) above), so float mark drops and in-nav logo shows. */
-@media (max-width: 639px) {
-  .hero__brand-float {
-    display: none;
-  }
-  .nav-glass--hero-overlay .nav-glass__brand {
-    display: flex;
-  }
-}
-
-/* Participates in the normal .hero__content grid flow (so it stacks correctly
-   on mobile) — the parallax mouse effect is just a transform, which doesn't
-   require absolute positioning. */
-/* Blended photo — sits between the orb backdrop (.hero__bg, z-index 0)
-   and the text (.hero__content, z-index 2). meditation-portrait.jpg is
-   the plain, un-cut photo (full room/wall/mat visible) — the blend into
-   .hero's dark gradient is done with a CSS mask-image fading the left
-   edge of the photo to transparent, so the hero background itself shows
-   through rather than a hard photo edge. */
+/* Blended photo — sits beside hero text on desktop */
 .hero__bg-photo {
   position: absolute;
   right: 0;
-  top: 6rem;
+  top: 96px;
   bottom: 0;
-  height: calc(100% - 6rem);
+  height: calc(100% - 96px);
   width: 48%;
   z-index: 1;
   pointer-events: none;
@@ -310,7 +170,7 @@
   mask-composite: intersect;
 }
 
-@media (max-width: 899px) {
+@media (max-width: 1023px) {
   .hero__bg-photo { display: none; }
 }
 
@@ -336,19 +196,20 @@
 }
 
 .hero__copy {
-  /* .hero__bg-photo is anchored to the full hero width (right:0; width:46%,
-     no inset — the borderless blend treatment, not a card), not to
-     .container — and .hero__content adds its own var(--space-16)=64px
-     padding-inline on the text side. calc() bakes in the actual offsets:
-     54vw is the photo's real left edge (100% - 46% width), then subtract
-     .hero__content's 64px padding plus a 20px safety margin. Recalculate
-     this any time .hero__bg-photo's width % changes — it's exact box-model
-     math, not a rough guess (a previous rough estimate let the headline
-     run under the photo at some viewport widths). */
   max-width: min(760px, calc(48vw - 84px));
 }
 
-@media (max-width: 899px) {
+@media (min-width: 1024px) {
+  .hero {
+    padding-top: 148px;
+    padding-bottom: 96px;
+  }
+  .hero__copy {
+    max-width: min(840px, calc(52vw - 50px));
+  }
+}
+
+@media (max-width: 1023px) {
   .hero__copy { max-width: none; }
 }
 
@@ -370,8 +231,19 @@
   backdrop-filter: blur(var(--surface-glass-blur));
 }
 
-@media (min-width: 1200px) {
-  .hero-features__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (min-width: 1280px) {
+  .hero-features__grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .hero-features__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
 }
 
 @media (max-width: 899px) {
@@ -395,9 +267,16 @@
 .hero-features__item > div {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
-  overflow: hidden;
+}
+
+.hero-features__item h3 {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .hero-features__icon {
@@ -502,6 +381,74 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+@media (max-width: 639px) {
+  .hero {
+    padding-top: 86px;
+    padding-bottom: var(--space-8);
+  }
+  .hero__content {
+    padding-inline: var(--space-4);
+  }
+  .hero__title {
+    font-size: clamp(1.85rem, 5.5vw, 2.5rem);
+    line-height: 1.2;
+    margin-bottom: var(--space-3);
+  }
+  .hero__tagline {
+    font-size: 1.15rem;
+    margin-bottom: var(--space-3);
+  }
+  .hero__subtitle {
+    font-size: 0.95rem;
+    margin-bottom: var(--space-4);
+    line-height: 1.5;
+  }
+  .hero__actions {
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+  }
+  .hero__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-4);
+    align-items: center;
+  }
+  .hero__stat {
+    gap: var(--space-2);
+  }
+  .hero__stat-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .hero__stat-icon .icon {
+    width: 15px;
+    height: 15px;
+  }
+  .hero__stat-value {
+    font-size: 1.15rem;
+  }
+  .hero__stat-label {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero__actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px !important;
+    margin-bottom: var(--space-6);
+  }
+  .hero__actions .btn {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+    padding: 0.7rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
 }
 
 .hero__stat-icon {
@@ -1239,7 +1186,53 @@
   gap: var(--space-3);
 }
 
-.newsletter-band__input { min-width: 260px; width: auto; flex: 1 1 260px; }
+.newsletter-band__input {
+  min-width: 260px;
+  width: auto;
+  flex: 1 1 260px;
+  height: 48px;
+  padding: 12px 16px !important;
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-md);
+}
+
+.newsletter-band__form .btn {
+  height: 48px;
+}
+
+@media (max-width: 639px) {
+  .newsletter-band__inner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: var(--space-5);
+  }
+  .newsletter-band__copy {
+    text-align: center;
+  }
+  .newsletter-band__form {
+    width: 100%;
+    max-width: 400px;
+    margin-inline: auto;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .newsletter-band__input {
+    flex: none !important;
+    min-width: 0;
+    width: 100%;
+    height: 48px !important;
+    max-height: 48px !important;
+    padding: 12px 16px !important;
+    text-align: center;
+  }
+  .newsletter-band__form .btn {
+    flex: none !important;
+    width: 100%;
+    height: 48px;
+    justify-content: center;
+  }
+}
 
 /* =========================================================================
    Footer
@@ -1268,101 +1261,7 @@
        </div>
      </footer>
    ========================================================================= */
-.site-footer {
-  background-color: var(--surface-bg-alt);
-  border-top: 1px solid var(--border-subtle);
-  padding-top: var(--space-16);
-}
-
-.site-footer__grid {
-  display: grid;
-  grid-template-columns: 2fr repeat(4, 1fr);
-  gap: var(--space-8);
-  padding-bottom: var(--space-12);
-}
-
-@media (max-width: 1023px) {
-  .site-footer__grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 639px) {
-  .site-footer__grid { grid-template-columns: 1fr; }
-}
-
-.site-footer__logo {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-}
-
-.site-footer__tagline {
-  color: var(--text-muted);
-  font-size: var(--font-size-sm);
-  margin-block: var(--space-3);
-  max-width: 280px;
-}
-
-.site-footer__social {
-  display: flex;
-  gap: var(--space-3);
-}
-
-.site-footer__social-link {
-  width: 2.25rem;
-  height: 2.25rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background-color: var(--surface-card);
-  border: 1px solid var(--border-default);
-  color: var(--text-secondary);
-  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
-}
-
-.site-footer__social-link svg { width: 1.1rem; height: 1.1rem; }
-
-.site-footer__social-link:hover {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-primary-contrast);
-}
-
-.site-footer__col-title {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-  margin-bottom: var(--space-4);
-}
-
-.site-footer__link {
-  display: block;
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  padding-block: var(--space-2);
-}
-
-.site-footer__link:hover { color: var(--color-primary); }
-
-.site-footer__bottom {
-  border-top: 1px solid var(--border-subtle);
-  padding-block: var(--space-5);
-}
-
-.site-footer__bottom-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
-
-.site-footer__copyright {
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-}
-
+/* Site footer styling is shared globally across all views in components.css */
 @keyframes vy-fade-in {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
@@ -1512,8 +1411,20 @@
   object-position: center 20%;
 }
 
-.benefit-card__body { padding: var(--space-5); }
-.benefit-card__body h3 { margin-bottom: var(--space-2); font-size: var(--font-size-lg); }
+.benefit-card__body {
+  padding: var(--space-6);
+}
+.benefit-card__body h3 {
+  margin-bottom: var(--space-2);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+.benefit-card__body p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
 
 /* =========================================================================
    Programs — service-type icon cards
@@ -1586,7 +1497,7 @@
 .program-card-v2__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(11, 11, 11, 0) 35%, rgba(11, 11, 11, 0.82) 100%);
+  background: linear-gradient(180deg, rgba(7, 21, 36, 0) 25%, rgba(7, 21, 36, 0.6) 60%, rgba(7, 21, 36, 0.95) 100%);
 }
 
 .program-card-v2__body {
@@ -1597,24 +1508,41 @@
 }
 
 .program-card-v2__body h3 {
-  font-size: var(--font-size-lg);
+  font-size: 1.25rem;
+  font-weight: 600;
   color: #ffffff;
   margin-bottom: var(--space-2);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .program-card-v2__description {
-  font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.925rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.92);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: var(--space-3);
-  transition: -webkit-line-clamp var(--transition-base);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.program-card-v2.is-expanded {
+  z-index: 5;
+  aspect-ratio: auto;
+  min-height: 380px;
+}
+
+.program-card-v2.is-expanded .program-card-v2__overlay {
+  background: linear-gradient(180deg, rgba(7, 21, 36, 0.25) 0%, rgba(7, 21, 36, 0.85) 30%, rgba(7, 21, 36, 0.98) 100%);
 }
 
 .program-card-v2.is-expanded .program-card-v2__description {
+  display: block;
   -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+  overflow: visible;
+  max-height: none;
 }
 
 .program-card-v2__actions {
@@ -2145,6 +2073,122 @@
 .gallery-item:hover .gallery-item__caption-icon {
   opacity: 1;
   color: var(--saffron-500);
+}
+
+/* Phone / Mobile View: Caption integrated directly inside the image bottom (like Program Cards) */
+@media (max-width: 767px) {
+  .gallery-item {
+    position: relative;
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    background-color: var(--surface-bg-alt);
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 4px 20px -4px rgba(15, 51, 73, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  :root[data-theme="dark"] .gallery-item {
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+  }
+
+  .gallery-item:active {
+    transform: scale(0.985);
+  }
+
+  .gallery-item__trigger {
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    margin: 0;
+  }
+
+  .gallery-item:hover .gallery-item__trigger {
+    transform: none;
+    box-shadow: none;
+    border-color: transparent;
+  }
+
+  .gallery-item__trigger img {
+    object-fit: cover;
+  }
+
+  .gallery-item__zoom {
+    display: none;
+  }
+
+  .gallery-item__caption {
+    position: absolute;
+    inset: auto 0 0 0;
+    margin-top: 0;
+    padding: 2.75rem var(--space-3) var(--space-3);
+    background: linear-gradient(180deg, rgba(7, 26, 36, 0) 0%, rgba(7, 26, 36, 0.6) 35%, rgba(7, 26, 36, 0.94) 100%);
+    color: #ffffff;
+    z-index: 4;
+    pointer-events: none;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .gallery-item__caption-text {
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    flex: 1;
+  }
+
+  .gallery-item__caption-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.65rem;
+    height: 1.65rem;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    color: #ffffff;
+    opacity: 0.95;
+    flex-shrink: 0;
+    margin-bottom: 1px;
+  }
+
+  .gallery-item__caption-icon svg {
+    width: 13px;
+    height: 13px;
+  }
+}
+
+@media (max-width: 479px) {
+  .gallery-item__caption {
+    padding: 3.5rem var(--space-4) var(--space-3-5, 0.875rem);
+  }
+
+  .gallery-item__caption-text {
+    font-size: 0.95rem;
+    line-height: 1.3;
+  }
+
+  .gallery-item__caption-icon {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+
+  .gallery-item__caption-icon svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 /* Ultra-Luxurious Lightbox */

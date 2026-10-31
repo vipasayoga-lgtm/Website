@@ -587,6 +587,18 @@
     display: none;
   }
 
+  .dash-topbar__panel--notifications {
+    position: fixed !important;
+    top: 60px !important;
+    right: 12px !important;
+    left: auto !important;
+    width: 360px !important;
+    max-width: calc(100vw - 24px) !important;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+    z-index: 1200;
+  }
+
   .dash-shell__content {
     padding: var(--space-4) var(--space-3) var(--space-10);
   }

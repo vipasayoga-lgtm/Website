@@ -82,16 +82,16 @@ final class PageContent extends Model
     public static function defaultPrograms(): array
     {
         return [
-            ['name' => 'Regular Yoga', 'img' => '/assets/img/client/pose-plank-fold.webp', 'description' => 'A well-rounded practice combining strength, flexibility and breath — the foundation for everything else.'],
-            ['name' => 'Yoga Therapy', 'img' => '/assets/img/client/pose-childs-pose-extended.webp', 'description' => 'Gentle, therapeutic sequences shaped around specific injuries, conditions, or recovery goals.'],
-            ['name' => 'Preconception Yoga', 'img' => '/assets/img/programs/preconception-yoga.webp', 'description' => 'Calming, fertility-supportive practice for those preparing for the journey ahead.'],
-            ['name' => 'Prenatal Yoga', 'img' => '/assets/img/programs/prenatal-yoga.webp', 'description' => 'Safe, trimester-aware sequences that keep you strong and comfortable through pregnancy.'],
-            ['name' => 'Postnatal Yoga', 'img' => '/assets/img/programs/postnatal-yoga.webp', 'description' => 'Gentle, recovery-focused practice to rebuild strength and ease back into movement after birth.'],
-            ['name' => "Women's Wellness", 'img' => '/assets/img/client/philosophy-flow.webp', 'description' => "Practice tailored to the rhythms of a woman's body — hormonal balance, energy, and stress relief."],
+            ['name' => 'Regular Yoga', 'img' => '/assets/img/client/pose-side-stretch.webp', 'description' => 'A well-rounded practice combining strength, flexibility and breath — the foundation for everything else.'],
+            ['name' => "Women's Wellness", 'img' => '/assets/img/client/about-journey.webp', 'description' => "Practice tailored to the rhythms of a woman's body — hormonal balance, energy, and stress relief."],
             ['name' => 'Mat Pilates', 'img' => '/assets/img/client/pose-boat-balcony.webp', 'description' => 'Core-focused, controlled movement on the mat — building real strength with no special equipment.'],
+            ['name' => 'Private Session', 'img' => '/assets/img/client/philosophy-meditation.webp', 'description' => 'One-on-one attention, fully tailored to your goals, pace, and comfort level.'],
             ['name' => 'Face Yoga', 'img' => '/assets/img/programs/face-yoga.webp', 'description' => 'Gentle facial exercises and massage techniques to relax tension and support natural radiance.'],
+            ['name' => 'Prenatal Yoga', 'img' => '/assets/img/programs/prenatal-yoga.webp', 'description' => 'Safe, trimester-aware sequences that keep you strong and comfortable through pregnancy.'],
+            ['name' => 'Preconception Yoga', 'img' => '/assets/img/programs/preconception-yoga.webp', 'description' => 'Calming, fertility-supportive practice for those preparing for the journey ahead.'],
             ['name' => 'Kids Yoga', 'img' => '/assets/img/programs/kids-yoga.webp', 'description' => 'Playful, imaginative sessions that introduce children to movement, focus, and calm.'],
-            ['name' => 'Private Session', 'img' => '/assets/img/client/pose-dramatic-stretch.webp', 'description' => 'One-on-one attention, fully tailored to your goals, pace, and comfort level.'],
+            ['name' => 'Postnatal Yoga', 'img' => '/assets/img/programs/postnatal-yoga.webp', 'description' => 'Gentle, recovery-focused practice to rebuild strength and ease back into movement after birth.'],
+            ['name' => 'Yoga Therapy', 'img' => '/assets/img/programs/yoga-therapy.webp', 'description' => 'Gentle, therapeutic sequences shaped around specific injuries, conditions, or recovery goals.'],
         ];
     }
 

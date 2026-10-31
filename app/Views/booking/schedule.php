@@ -160,17 +160,28 @@ async function loadMonthAvailability() {
 function renderSlots(slots) {
     slotGrid.innerHTML = '';
     if (!slots.length) {
-        slotGrid.innerHTML = '<p class="text-muted">No available times on this date.</p>';
+        slotGrid.innerHTML = '<p class="text-muted">No scheduled times on this date.</p>';
         return;
     }
     slots.forEach((slot) => {
         const chip = document.createElement('button');
         chip.type = 'button';
-        chip.className = 'time-slot';
+        const isAvailable = (slot.is_available === true || slot.status === 'available');
         const start = slot.start_time.slice(0, 5);
         const end = slot.end_time.slice(0, 5);
-        chip.innerHTML = `<span>${start}</span><span class="time-slot__meta">${end}</span>`;
-        chip.addEventListener('click', () => selectSlot(slot, chip));
+
+        if (isAvailable) {
+            chip.className = 'time-slot';
+            chip.innerHTML = `<span>${start}</span><span class="time-slot__meta">${end}</span>`;
+            chip.addEventListener('click', () => selectSlot(slot, chip));
+        } else {
+            chip.className = 'time-slot is-unavailable';
+            chip.disabled = true;
+            chip.setAttribute('aria-disabled', 'true');
+            chip.title = 'This time slot is already booked and not available.';
+            chip.innerHTML = `<span>${start}</span><span class="time-slot__meta time-slot__meta--booked">Not available</span>`;
+        }
+
         slotGrid.appendChild(chip);
     });
 }

@@ -4,6 +4,8 @@ use App\Core\View;
 
 $pageTitle = 'Pre-Training Health & Safety Intake — Vipasa Yoga';
 $pageCss = 'onboarding';
+
+$targetBookingUrl = ($redirectTo && $redirectTo !== '/dashboard') ? $redirectTo : '/instructors';
 ?>
 <div class="get-started-page">
     <div class="onboarding-panel get-started-card" id="assessment-card">
@@ -16,7 +18,7 @@ $pageCss = 'onboarding';
 
         <div id="assessment-wizard">
             <div class="assessment-meta">
-                <span class="assessment-meta__step" id="step-label" aria-live="polite">Step 1</span>
+                <span class="assessment-meta__step" id="step-label" aria-live="polite">Step 1 of 5</span>
                 <span class="assessment-meta__time"><?= View::icon('clock', 'icon', 13) ?> Takes 3&ndash;5 minutes</span>
                 <button type="button" class="assessment-meta__save" id="save-later-btn">Save &amp; Continue Later</button>
             </div>
@@ -31,46 +33,93 @@ $pageCss = 'onboarding';
             <div id="step-container"></div>
 
             <div class="onboarding-nav">
-                <button type="button" class="btn btn-ghost" id="back-btn" style="visibility:hidden">Back</button>
-                <button type="button" class="btn btn-primary btn-lg" id="continue-btn" disabled>Continue</button>
+                <button type="button" class="btn btn-secondary" id="back-btn" style="visibility:hidden">
+                    <?= View::icon('arrow-left', 'icon', 15) ?> Back
+                </button>
+                <button type="button" class="btn btn-primary btn-lg" id="continue-btn" disabled>
+                    Continue <?= View::icon('arrow-right', 'icon', 15) ?>
+                </button>
             </div>
         </div>
 
         <div class="assessment-done" id="assessment-done" hidden>
             <span class="assessment-done__icon"><?= View::icon('check', 'icon', 28) ?></span>
-            <h2 class="assessment-done__title">Pre-Training Health Details Saved</h2>
-            <p class="assessment-done__text">Thank you! Your health and safety information has been securely shared with your instructor.</p>
+            <h2 class="assessment-done__title">Health &amp; Safety Intake Completed</h2>
+            <p class="assessment-done__text">Thank you! Your health and safety information has been securely recorded and shared with your instructor.</p>
             <div class="assessment-done__stats" style="grid-template-columns:repeat(2,minmax(0,1fr))">
                 <div class="assessment-done__stat">
-                    <span class="assessment-done__stat-label">Progress</span>
-                    <span class="assessment-done__stat-value">100%</span>
+                    <span class="assessment-done__stat-label">Status</span>
+                    <span class="assessment-done__stat-value" style="color:var(--color-success)">Ready to Book</span>
                 </div>
                 <div class="assessment-done__stat">
-                    <span class="assessment-done__stat-label">Practice Focus</span>
+                    <span class="assessment-done__stat-label">Profile Category</span>
                     <span class="assessment-done__stat-value" id="done-level">&mdash;</span>
                 </div>
             </div>
-            <div class="onboarding-nav" style="justify-content:center">
-                <a href="<?= View::e($redirectTo) ?>" class="btn btn-primary btn-lg"><?= $redirectTo === '/dashboard' ? 'Continue to Dashboard' : 'Continue' ?> <?= View::icon('arrow-right', 'icon', 16) ?></a>
+            <div class="onboarding-nav" style="justify-content:center;gap:12px;flex-wrap:wrap">
+                <a href="<?= View::e($targetBookingUrl) ?>" class="btn btn-primary btn-lg" id="book-class-cta">
+                    Book a Yoga Class Now <?= View::icon('arrow-right', 'icon', 16) ?>
+                </a>
+                <button type="button" class="btn btn-secondary" id="re-edit-btn">Review &amp; Edit Answers</button>
+                <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
             </div>
             <p class="assessment-done__note">Your health and safety details will be reviewed by your instructor prior to your first yoga session.</p>
         </div>
     </div>
 </div>
+
 <script type="module">
 import { apiPost } from '/assets/js/modules/api.js';
 import toast from '/assets/js/modules/toast.js';
 
-const category = <?= json_encode($category) ?> || 'adult';
+const initialCategory = <?= json_encode($category) ?> || null;
 const existing = <?= json_encode($profile['health_assessment'] ?? null) ?> || {};
+const bookingRedirectUrl = <?= json_encode($targetBookingUrl) ?>;
 
-const state = {
-    medicalHistory: existing.medicalHistory || { conditions: [], otherConditionNotes: '' },
-    healthScreening: existing.healthScreening || {},
-    painAssessment: existing.painAssessment || { areas: [] },
-    doctorRestrictions: existing.doctorRestrictions || { hasRestriction: null, restrictionTypes: [], notes: '' },
-    categorySafety: existing.categorySafety || {},
-};
+const CATEGORIES = [
+    {
+        key: 'adult',
+        title: 'Adult (Men & Women)',
+        badge: 'General Wellness & Strength',
+        icon: '🧘',
+        desc: 'For working adults balancing daily routine, desk hours, flexibility, posture, and stress relief.',
+    },
+    {
+        key: 'child',
+        title: 'Child / Kids Yoga',
+        badge: 'Ages 5–12 • Guardian Accompanied',
+        icon: '🧒',
+        desc: 'For young learners with parent/guardian guidance, school sports & healthy posture.',
+    },
+    {
+        key: 'teenager',
+        title: 'Teenager (Student)',
+        badge: 'Ages 13–19 • School & Sports',
+        icon: '🎒',
+        desc: 'For students managing study posture, desk sitting, sports activities, and exam stress.',
+    },
+    {
+        key: 'pregnant_woman',
+        title: 'Prenatal (Expecting Mother)',
+        badge: 'Trimester-Safe • Doctor Approved',
+        icon: '🤰',
+        desc: 'Gentle, safe pregnancy yoga adapted for each trimester to support maternal comfort and birth prep.',
+    },
+    {
+        key: 'postpartum_mother',
+        title: 'Postnatal (New Mother Recovery)',
+        badge: 'Core & Pelvic Floor Recovery',
+        icon: '🤱',
+        desc: 'Safe postpartum rehabilitation focusing on pelvic floor strengthening, gentle core, and energy renewal.',
+    },
+    {
+        key: 'senior_citizen',
+        title: 'Senior Citizen (Grandparent / Elderly)',
+        badge: 'Gentle & Chair-Assisted Yoga',
+        icon: '🧓',
+        desc: 'Gentle movement, chair support, joint mobility, balance exercises, and safe floor transitions.',
+    },
+];
 
 const CATEGORY_CONDITIONS = {
     child: ['Asthma', 'Allergies', 'Scoliosis / Posture Issue', 'Growth Pains', 'Epilepsy', 'ADHD / Hyperactivity', 'Type 1 Diabetes', 'Recent Surgery', 'Other'],
@@ -125,19 +174,6 @@ const CATEGORY_SCREENING = {
         { key: 'advisedNotToExercise', question: 'Has your doctor flagged any delay in exercise clearance?', followUp: 'What did your doctor advise?' },
     ],
 };
-
-const activeConditions = CATEGORY_CONDITIONS[category] || CATEGORY_CONDITIONS.adult;
-const activeScreening = CATEGORY_SCREENING[category] || CATEGORY_SCREENING.adult;
-
-const PAIN_AREAS = ['Neck', 'Shoulder', 'Upper Back', 'Lower Back', 'Hip', 'Knee', 'Wrist', 'Elbow', 'Ankle', 'Foot'];
-const SEVERITY_SCALE = Array.from({ length: 10 }, (_, i) => ({ value: String(i + 1), label: String(i + 1) }));
-const TREATMENTS = ['None', 'Physiotherapy', 'Medication', 'Injections', 'Surgery', 'Other'];
-
-const MEDICATION_TYPES = ['Blood Pressure', 'Thyroid', 'Diabetes / Insulin', 'Painkillers', 'Anxiety / Depression', 'Vitamins / Supplements', 'Cholesterol', 'Other'];
-const RESTRICTION_TYPES = ['No heavy lifting', 'No inversions / headstands', 'Low-impact / gentle only', 'Avoid back bends / twists', 'Avoid high heart rate', 'Other'];
-
-const LEGACY_AREA_LABELS = { back: 'Back' };
-const LEGACY_SEVERITY = { mild: '3', moderate: '6', severe: '9' };
 
 const CATEGORY_QUESTIONS = {
     child: {
@@ -225,8 +261,26 @@ const CATEGORY_QUESTIONS = {
     },
 };
 
+const PAIN_AREAS = ['Neck', 'Shoulder', 'Upper Back', 'Lower Back', 'Hip', 'Knee', 'Wrist', 'Elbow', 'Ankle', 'Foot'];
+const SEVERITY_SCALE = Array.from({ length: 10 }, (_, i) => ({ value: String(i + 1), label: String(i + 1) }));
+const TREATMENTS = ['None', 'Physiotherapy', 'Medication', 'Injections', 'Surgery', 'Other'];
+const MEDICATION_TYPES = ['Blood Pressure', 'Thyroid', 'Diabetes / Insulin', 'Painkillers', 'Anxiety / Depression', 'Vitamins / Supplements', 'Cholesterol', 'Other'];
+const RESTRICTION_TYPES = ['No heavy lifting', 'No inversions / headstands', 'Low-impact / gentle only', 'Avoid back bends / twists', 'Avoid high heart rate', 'Other'];
+const LEGACY_AREA_LABELS = { back: 'Back' };
+const LEGACY_SEVERITY = { mild: '3', moderate: '6', severe: '9' };
+
+// Initial state setup
+const state = {
+    category: initialCategory || existing.categorySelection?.category || existing.category || null,
+    categorySafety: existing.categorySafety || {},
+    medicalHistory: existing.medicalHistory || { conditions: [], otherConditionNotes: '', details: {} },
+    healthScreening: existing.healthScreening || {},
+    painAssessment: existing.painAssessment || { areas: [], details: {} },
+    doctorRestrictions: existing.doctorRestrictions || { hasRestriction: null, restrictionTypes: [], notes: '' },
+};
+
 function slug(label) {
-    return label.toLowerCase().replace(/\s+/g, '_');
+    return String(label || '').toLowerCase().replace(/\s+/g, '_');
 }
 
 function esc(value) {
@@ -235,6 +289,18 @@ function esc(value) {
 
 function areaLabel(area) {
     return PAIN_AREAS.find((p) => slug(p) === area) || LEGACY_AREA_LABELS[area] || area;
+}
+
+function getCategoryObj(key) {
+    return CATEGORIES.find((c) => c.key === key) || CATEGORIES[0];
+}
+
+function getActiveConditions() {
+    return CATEGORY_CONDITIONS[state.category] || CATEGORY_CONDITIONS.adult;
+}
+
+function getActiveScreening() {
+    return CATEGORY_SCREENING[state.category] || CATEGORY_SCREENING.adult;
 }
 
 function chipGroup(name, options, selected, exclusiveValue) {
@@ -285,6 +351,16 @@ function radioYesNo(name, current) {
     </div>`;
 }
 
+function wireYesNo(container, name, onChange) {
+    container.querySelectorAll(`[data-yn="${name}"]`).forEach((el) => {
+        el.addEventListener('click', () => {
+            container.querySelectorAll(`[data-yn="${name}"]`).forEach((c) => c.classList.remove('is-selected'));
+            el.classList.add('is-selected');
+            onChange(el.dataset.value === 'yes');
+        });
+    });
+}
+
 function categoryFieldMarkup(field, value, detailsValue) {
     let markup = '';
 
@@ -315,27 +391,73 @@ function categoryFieldMarkup(field, value, detailsValue) {
     return markup;
 }
 
-function wireYesNo(container, name, onChange) {
-    container.querySelectorAll(`[data-yn="${name}"]`).forEach((el) => {
-        el.addEventListener('click', () => {
-            container.querySelectorAll(`[data-yn="${name}"]`).forEach((c) => c.classList.remove('is-selected'));
-            el.classList.add('is-selected');
-            onChange(el.dataset.value === 'yes');
-        });
-    });
-}
-
+// 5 WIZARD STEPS
 const STEPS = [
+    // Step 1: Category Selection
+    {
+        key: 'categorySelection',
+        title: 'Participant Category',
+        render(container) {
+            container.innerHTML = `
+                <h2 class="profile-section__title" style="margin-bottom:var(--space-2);font-size:1.15rem">Who is this yoga practice for?</h2>
+                <p class="text-muted" style="margin:0 0 var(--space-4)">Please select who will be participating in the sessions. All health, safety, and routine questions will adapt specifically to this profile.</p>
+                <div class="category-picker-grid">
+                    ${CATEGORIES.map((cat) => {
+                        const isSelected = state.category === cat.key;
+                        return `<div class="category-card${isSelected ? ' is-selected' : ''}" data-category-choice="${cat.key}">
+                            <div class="category-card__check">&#10003;</div>
+                            <div class="category-card__header">
+                                <span class="category-card__icon">${cat.icon}</span>
+                                <div>
+                                    <div class="category-card__title">${cat.title}</div>
+                                </div>
+                            </div>
+                            <span class="category-card__badge">${cat.badge}</span>
+                            <p class="category-card__desc">${cat.desc}</p>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `;
+
+            container.querySelectorAll('[data-category-choice]').forEach((card) => {
+                card.addEventListener('click', () => {
+                    const picked = card.dataset.categoryChoice;
+                    state.category = picked;
+                    container.querySelectorAll('[data-category-choice]').forEach((c) => c.classList.remove('is-selected'));
+                    card.classList.add('is-selected');
+                    updateContinueEnabled();
+                });
+            });
+        },
+        isComplete() {
+            return !!state.category;
+        },
+        save(next) {
+            return {
+                step: 'categorySelection',
+                data: { category: state.category },
+                category: state.category,
+                nextStep: next,
+            };
+        },
+    },
+
+    // Step 2: Category-Specific Lifestyle & Routine
     {
         key: 'categorySafety',
-        isVisible: () => !!CATEGORY_QUESTIONS[category],
+        title: 'Lifestyle & Routine',
         render(container) {
-            const spec = CATEGORY_QUESTIONS[category] || CATEGORY_QUESTIONS.adult;
+            const currentCat = state.category || 'adult';
+            const spec = CATEGORY_QUESTIONS[currentCat] || CATEGORY_QUESTIONS.adult;
+            const catObj = getCategoryObj(currentCat);
             const d = state.categorySafety;
 
             container.innerHTML = `
-                <h2 class="profile-section__title" style="margin-bottom:var(--space-2)">${spec.title} (${category.replace('_', ' ').toUpperCase()})</h2>
-                <p class="text-muted" style="margin:0 0 var(--space-4)">These questions apply specifically to your profile category, so your instructor can plan safely.</p>
+                <div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-1)">
+                    <span style="font-size:1.4rem">${catObj.icon}</span>
+                    <h2 class="profile-section__title" style="font-size:1.15rem">${spec.title} (${catObj.title.toUpperCase()})</h2>
+                </div>
+                <p class="text-muted" style="margin:0 0 var(--space-4)">These questions apply specifically to your selected profile category so your instructor can prepare safely.</p>
                 ${spec.fields.map((f) => `<div class="screening-row mb-4" style="padding:var(--space-3);border:1px solid var(--border-subtle);border-radius:var(--radius-md)">
                     <span class="screening-row__question" style="font-weight:600">${f.label}</span>
                     ${categoryFieldMarkup(f, d[f.key], f.writeInKey ? d[f.writeInKey] : '')}
@@ -377,175 +499,144 @@ const STEPS = [
             });
         },
         isComplete() {
-            const spec = CATEGORY_QUESTIONS[category] || CATEGORY_QUESTIONS.adult;
+            const currentCat = state.category || 'adult';
+            const spec = CATEGORY_QUESTIONS[currentCat] || CATEGORY_QUESTIONS.adult;
             const d = state.categorySafety;
             return spec.fields.every((f) => d[f.key] !== undefined && d[f.key] !== null && d[f.key] !== '');
         },
         save(next) {
-            return { step: 'categorySafety', data: state.categorySafety, nextStep: next };
+            return {
+                step: 'categorySafety',
+                data: state.categorySafety,
+                category: state.category,
+                nextStep: next,
+            };
         },
     },
+
+    // Step 3: Medical Conditions & Health Screening
     {
         key: 'medicalHistory',
-        isVisible: () => true,
+        title: 'Medical History & Screening',
         render(container) {
+            const activeConditions = getActiveConditions();
+            const activeScreening = getActiveScreening();
             const hasOther = state.medicalHistory.conditions.includes('other');
+            const catObj = getCategoryObj(state.category);
+
             container.innerHTML = `
-                <h2 class="profile-section__title" style="margin-bottom:var(--space-2)">Medical Conditions (${category.replace('_', ' ').toUpperCase()})</h2>
-                <p class="text-muted" style="margin:0 0 var(--space-5)">Select anything that applies — or "None of these" if it doesn't.</p>
-                <div class="option-grid">${chipGroup('conditions', activeConditions, state.medicalHistory.conditions, null)}${chipGroup('conditions', ['None of these'], state.medicalHistory.conditions, 'none_of_these')}</div>
-                <div id="other-condition-box" style="margin-top:var(--space-3);${hasOther ? '' : 'display:none'}">
-                    <label style="font-weight:600;font-size:0.85rem;color:var(--color-primary)">Please specify your other medical condition:</label>
+                <h2 class="profile-section__title" style="margin-bottom:var(--space-2);font-size:1.15rem">Medical Conditions &amp; Screening (${catObj.title})</h2>
+                <p class="text-muted" style="margin:0 0 var(--space-4)">Select any conditions that apply — or "None of these" if none apply.</p>
+                
+                <label style="font-weight:600;font-size:0.88rem;display:block;margin-bottom:var(--space-2)">1. Known Medical Conditions</label>
+                <div class="option-grid mb-3">
+                    ${chipGroup('conditions', activeConditions, state.medicalHistory.conditions, null)}
+                    ${chipGroup('conditions', ['None of these'], state.medicalHistory.conditions, 'none_of_these')}
+                </div>
+                
+                <div id="other-condition-box" style="margin-bottom:var(--space-4);padding:var(--space-3);background:var(--surface-sunken);border-radius:var(--radius-md);${hasOther ? '' : 'display:none'}">
+                    <label style="font-weight:600;font-size:0.82rem;color:var(--color-primary);display:block;margin-bottom:4px">Please specify other medical condition:</label>
                     <input type="text" id="other-condition-input" placeholder="Type your condition here..." value="${esc(state.medicalHistory.otherConditionNotes || '')}">
                 </div>
+
+                <div id="condition-followups-container"></div>
+
+                <div style="margin-top:var(--space-5);padding-top:var(--space-4);border-top:1px solid var(--border-subtle)">
+                    <label style="font-weight:600;font-size:0.88rem;display:block;margin-bottom:var(--space-1)">2. General Health Screening</label>
+                    <p class="text-muted" style="margin:0 0 var(--space-3);font-size:0.78rem">Answer each question — selecting "Yes" opens quick follow-up details.</p>
+                    
+                    ${activeScreening.map((q) => {
+                        const answer = state.healthScreening[q.key];
+                        const selectedPresets = state.healthScreening[q.key + 'Presets'] || [];
+                        return `<div class="screening-row mb-3" style="padding:var(--space-3);border:1px solid var(--border-subtle);border-radius:var(--radius-md)">
+                            <span class="screening-row__question" style="font-weight:600">${q.question}</span>
+                            ${radioYesNo(q.key, answer ?? null)}
+                            <div class="screening-row__followup" data-followup="${q.key}"${answer === true ? '' : ' hidden'} style="margin-top:var(--space-3)">
+                                ${q.presets ? `<label style="font-weight:600;font-size:0.8rem">Select relevant type / area:</label>
+                                <div class="option-grid mb-2" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">${chipGroup(q.key + 'Presets', q.presets, selectedPresets, null)}</div>` : ''}
+                                <label for="note-${q.key}" style="font-weight:600;font-size:0.8rem;color:var(--color-primary)">${q.followUp}</label>
+                                <textarea id="note-${q.key}" data-note="${q.key}" placeholder="Type details here...">${esc(state.healthScreening[q.key + 'Notes'])}</textarea>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
             `;
+
+            function renderConditionFollowups() {
+                const followupsEl = container.querySelector('#condition-followups-container');
+                const selected = state.medicalHistory.conditions.filter((c) => c !== 'none_of_these');
+                state.medicalHistory.details = state.medicalHistory.details || {};
+
+                if (selected.length === 0) {
+                    followupsEl.innerHTML = '';
+                    return;
+                }
+
+                followupsEl.innerHTML = `
+                    <div style="margin-block:var(--space-3);padding:var(--space-3);background:var(--surface-sunken);border-radius:var(--radius-md)">
+                        <span style="font-weight:600;font-size:0.84rem;color:var(--color-primary);display:block;margin-bottom:var(--space-2)">Details for selected conditions:</span>
+                        ${selected.map((c) => {
+                            const label = activeConditions.find((m) => slug(m) === c) || c;
+                            const d = state.medicalHistory.details[c] || {};
+                            const medTypes = d.medicationTypes || [];
+                            const resTypes = d.restrictionTypes || [];
+
+                            return `<div class="card mb-3" style="padding:var(--space-3);border:1px solid var(--border-subtle);border-radius:var(--radius-md)">
+                                <div style="font-weight:600;font-size:0.9rem;color:var(--color-primary);margin-bottom:var(--space-2)">${esc(label)}</div>
+                                
+                                <label style="font-size:0.8rem;font-weight:600">Since when?</label>
+                                <select data-detail="${c}:since" style="margin-bottom:var(--space-2)">
+                                    <option value="">Select duration</option>
+                                    <option value="lt_1y" ${d.since === 'lt_1y' ? 'selected' : ''}>Less than 1 year</option>
+                                    <option value="1_5y" ${d.since === '1_5y' ? 'selected' : ''}>1–5 years</option>
+                                    <option value="5y_plus" ${d.since === '5y_plus' ? 'selected' : ''}>5+ years</option>
+                                </select>
+
+                                <label style="font-size:0.8rem;font-weight:600">Currently taking medication?</label>
+                                ${radioYesNo(`${c}:medication`, d.medication ?? null)}
+                                <div id="med-followup-${c}" style="margin-top:var(--space-2);padding:var(--space-2);background:var(--surface-card);border-radius:var(--radius-sm);${d.medication ? '' : 'display:none'}">
+                                    <label style="font-size:0.75rem;font-weight:600">Medication type / details:</label>
+                                    <div class="option-grid mb-1" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">${chipGroup(`${c}:medicationTypes`, MEDICATION_TYPES, medTypes, null)}</div>
+                                    <input type="text" data-detail="${c}:medicationNotes" placeholder="Type tablet name or dose..." value="${esc(d.medicationNotes)}">
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                `;
+
+                selected.forEach((c) => {
+                    const d = state.medicalHistory.details[c] = state.medicalHistory.details[c] || {};
+                    followupsEl.querySelector(`[data-detail="${c}:since"]`)?.addEventListener('change', (e) => {
+                        d.since = e.target.value;
+                        updateContinueEnabled();
+                    });
+                    wireYesNo(followupsEl, `${c}:medication`, (v) => {
+                        d.medication = v;
+                        const box = followupsEl.querySelector(`#med-followup-${c}`);
+                        if (box) box.style.display = v ? '' : 'none';
+                        updateContinueEnabled();
+                    });
+                    wireChipGroup(followupsEl, `${c}:medicationTypes`, (values) => {
+                        d.medicationTypes = values;
+                        updateContinueEnabled();
+                    });
+                    followupsEl.querySelector(`[data-detail="${c}:medicationNotes"]`)?.addEventListener('input', (e) => {
+                        d.medicationNotes = e.target.value;
+                    });
+                });
+            }
+
             wireChipGroup(container, 'conditions', (values) => {
                 state.medicalHistory.conditions = values;
                 const box = container.querySelector('#other-condition-box');
                 if (box) box.style.display = values.includes('other') ? '' : 'none';
+                renderConditionFollowups();
                 updateContinueEnabled();
             });
 
             container.querySelector('#other-condition-input')?.addEventListener('input', (e) => {
                 state.medicalHistory.otherConditionNotes = e.target.value;
             });
-        },
-        isComplete: () => state.medicalHistory.conditions.length > 0,
-        save(next) {
-            return { step: 'medicalHistory', data: state.medicalHistory, nextStep: next };
-        },
-    },
-    {
-        key: 'medicalHistoryDetails',
-        isVisible: () => state.medicalHistory.conditions.some((c) => c !== 'none_of_these'),
-        render(container) {
-            const conditions = state.medicalHistory.conditions.filter((c) => c !== 'none_of_these');
-            state.medicalHistory.details = state.medicalHistory.details || {};
-
-            container.innerHTML = `
-                <h2 class="profile-section__title mb-3">A bit more detail</h2>
-                ${conditions.map((c) => {
-                    const label = activeConditions.find((m) => slug(m) === c) || c;
-                    const d = state.medicalHistory.details[c] || {};
-                    const medTypes = d.medicationTypes || [];
-                    const resTypes = d.restrictionTypes || [];
-
-                    return `<div class="card mb-4" style="padding:var(--space-4);border-radius:var(--radius-lg)">
-                        <div style="font-weight:var(--font-weight-semibold);font-size:1rem;color:var(--color-primary);margin-bottom:var(--space-3)">${esc(label)}</div>
-                        
-                        <label style="font-weight:600">Since when?</label>
-                        <select data-detail="${c}:since" style="margin-bottom:var(--space-3)">
-                            <option value="">Select duration</option>
-                            <option value="lt_1y" ${d.since === 'lt_1y' ? 'selected' : ''}>Less than 1 year</option>
-                            <option value="1_5y" ${d.since === '1_5y' ? 'selected' : ''}>1-5 years</option>
-                            <option value="5y_plus" ${d.since === '5y_plus' ? 'selected' : ''}>5+ years</option>
-                        </select>
-
-                        <label style="font-weight:600">Currently on medication?</label>
-                        ${radioYesNo(`${c}:medication`, d.medication ?? null)}
-                        <div id="med-followup-${c}" style="margin-top:var(--space-3);padding:var(--space-3);background:var(--surface-sunken);border-radius:var(--radius-md);${d.medication ? '' : 'display:none'}">
-                            <label style="font-weight:600;font-size:0.85rem;color:var(--text-primary)">What medication / tablets are you taking?</label>
-                            <div class="option-grid mb-2" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">${chipGroup(`${c}:medicationTypes`, MEDICATION_TYPES, medTypes, null)}</div>
-                            <label style="font-size:0.78rem">Type tablet name / specify details:</label>
-                            <input type="text" data-detail="${c}:medicationNotes" placeholder="Type medication details..." value="${esc(d.medicationNotes)}">
-                        </div>
-
-                        <label style="margin-top:var(--space-3);font-weight:600">Doctor-restricted from physical activity?</label>
-                        ${radioYesNo(`${c}:doctorRestriction`, d.doctorRestriction ?? null)}
-                        <div id="res-followup-${c}" style="margin-top:var(--space-3);padding:var(--space-3);background:var(--surface-sunken);border-radius:var(--radius-md);${d.doctorRestriction ? '' : 'display:none'}">
-                            <label style="font-weight:600;font-size:0.85rem;color:var(--text-primary)">What specific restrictions were advised?</label>
-                            <div class="option-grid mb-2" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">${chipGroup(`${c}:restrictionTypes`, RESTRICTION_TYPES, resTypes, null)}</div>
-                            <label style="font-size:0.78rem">Type doctor instructions / restriction details:</label>
-                            <input type="text" data-detail="${c}:restrictionNotes" placeholder="Type doctor instructions..." value="${esc(d.restrictionNotes)}">
-                        </div>
-
-                        <label style="margin-top:var(--space-3);font-weight:600">Notes (optional)</label>
-                        <textarea data-detail="${c}:notes" placeholder="Anything else your instructor should know">${esc(d.notes)}</textarea>
-                    </div>`;
-                }).join('')}
-            `;
-
-            conditions.forEach((c) => {
-                state.medicalHistory.details[c] = state.medicalHistory.details[c] || {};
-                const d = state.medicalHistory.details[c];
-
-                container.querySelector(`[data-detail="${c}:since"]`).addEventListener('change', (e) => {
-                    d.since = e.target.value;
-                    updateContinueEnabled();
-                });
-
-                container.querySelector(`[data-detail="${c}:notes"]`).addEventListener('input', (e) => {
-                    d.notes = e.target.value;
-                });
-
-                wireYesNo(container, `${c}:medication`, (v) => {
-                    d.medication = v;
-                    const box = container.querySelector(`#med-followup-${c}`);
-                    if (box) box.style.display = v ? '' : 'none';
-                    updateContinueEnabled();
-                });
-
-                wireChipGroup(container, `${c}:medicationTypes`, (values) => {
-                    d.medicationTypes = values;
-                    updateContinueEnabled();
-                });
-
-                container.querySelector(`[data-detail="${c}:medicationNotes"]`)?.addEventListener('input', (e) => {
-                    d.medicationNotes = e.target.value;
-                });
-
-                wireYesNo(container, `${c}:doctorRestriction`, (v) => {
-                    d.doctorRestriction = v;
-                    const box = container.querySelector(`#res-followup-${c}`);
-                    if (box) box.style.display = v ? '' : 'none';
-                    updateContinueEnabled();
-                });
-
-                wireChipGroup(container, `${c}:restrictionTypes`, (values) => {
-                    d.restrictionTypes = values;
-                    updateContinueEnabled();
-                });
-
-                container.querySelector(`[data-detail="${c}:restrictionNotes"]`)?.addEventListener('input', (e) => {
-                    d.restrictionNotes = e.target.value;
-                });
-            });
-        },
-        isComplete() {
-            const conditions = state.medicalHistory.conditions.filter((c) => c !== 'none_of_these');
-            const details = state.medicalHistory.details || {};
-            return conditions.every((c) => {
-                const d = details[c];
-                if (!d || !d.since || d.medication === undefined || d.doctorRestriction === undefined) return false;
-                return true;
-            });
-        },
-        save(next) {
-            return { step: 'medicalHistory', data: state.medicalHistory, nextStep: next };
-        },
-    },
-    {
-        key: 'healthScreening',
-        isVisible: () => true,
-        render(container) {
-            container.innerHTML = `
-                <h2 class="profile-section__title" style="margin-bottom:var(--space-2)">Health Screening (${category.replace('_', ' ').toUpperCase()})</h2>
-                <p class="text-muted" style="margin:0 0 var(--space-4)">Answer every question — a "Yes" opens related options &amp; details.</p>
-                ${activeScreening.map((q) => {
-                    const answer = state.healthScreening[q.key];
-                    const selectedPresets = state.healthScreening[q.key + 'Presets'] || [];
-                    return `<div class="screening-row mb-4" style="padding:var(--space-3);border:1px solid var(--border-subtle);border-radius:var(--radius-md)">
-                        <span class="screening-row__question" style="font-weight:600">${q.question}</span>
-                        ${radioYesNo(q.key, answer ?? null)}
-                        <div class="screening-row__followup" data-followup="${q.key}"${answer === true ? '' : ' hidden'} style="margin-top:var(--space-3)">
-                            ${q.presets ? `<label style="font-weight:600;font-size:0.82rem">Select relevant type / area:</label>
-                            <div class="option-grid mb-2" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">${chipGroup(q.key + 'Presets', q.presets, selectedPresets, null)}</div>` : ''}
-                            <label for="note-${q.key}" style="font-weight:600;font-size:0.82rem;color:var(--color-primary)">${q.followUp}</label>
-                            <textarea id="note-${q.key}" data-note="${q.key}" placeholder="Type your answer / custom details here...">${esc(state.healthScreening[q.key + 'Notes'])}</textarea>
-                        </div>
-                    </div>`;
-                }).join('')}
-            `;
 
             activeScreening.forEach((q) => {
                 wireYesNo(container, q.key, (v) => {
@@ -561,156 +652,351 @@ const STEPS = [
                     });
                 }
 
-                container.querySelector(`[data-note="${q.key}"]`).addEventListener('input', (e) => {
+                container.querySelector(`[data-note="${q.key}"]`)?.addEventListener('input', (e) => {
                     state.healthScreening[q.key + 'Notes'] = e.target.value;
                 });
             });
-        },
-        isComplete: () => activeScreening.every((q) => typeof state.healthScreening[q.key] === 'boolean'),
-        save(next) {
-            return { step: 'healthScreening', data: state.healthScreening, nextStep: next };
-        },
-    },
-    {
-        key: 'painAssessment',
-        isVisible: () => true,
-        render(container) {
-            container.innerHTML = `
-                <h2 class="profile-section__title" style="margin-bottom:var(--space-2)">Pain Assessment</h2>
-                <p class="text-muted" style="margin:0 0 var(--space-5)">Where do you currently experience pain or discomfort, if anywhere?</p>
-                <div class="option-grid">${chipGroup('areas', PAIN_AREAS, state.painAssessment.areas, null)}${chipGroup('areas', ['No pain'], state.painAssessment.areas, 'no_pain')}</div>
-            `;
-            wireChipGroup(container, 'areas', (values) => {
-                state.painAssessment.areas = values;
-                updateContinueEnabled();
-            });
-        },
-        isComplete: () => state.painAssessment.areas.length > 0,
-        save(next) {
-            return { step: 'painAssessment', data: state.painAssessment, nextStep: next };
-        },
-    },
-    {
-        key: 'painAssessmentDetails',
-        isVisible: () => state.painAssessment.areas.some((a) => a !== 'no_pain'),
-        render(container) {
-            const areas = state.painAssessment.areas.filter((a) => a !== 'no_pain');
-            state.painAssessment.details = state.painAssessment.details || {};
 
-            container.innerHTML = `
-                <h2 class="profile-section__title mb-3">Tell us about the pain</h2>
-                ${areas.map((a) => {
-                    const d = state.painAssessment.details[a] || {};
-                    const severity = LEGACY_SEVERITY[d.severity] || d.severity;
-                    return `<div class="card mb-4" style="padding:var(--space-4)">
-                        <div style="font-weight:var(--font-weight-semibold);margin-bottom:var(--space-3)">${esc(areaLabel(a))}</div>
-                        <label>Pain severity</label>
-                        <div class="severity-scale">${radioGroup(`${a}:severity`, SEVERITY_SCALE, severity)}</div>
-                        <div class="severity-scale__hint"><span>1 — barely noticeable</span><span>10 — worst imaginable</span></div>
-                        <label style="margin-top:var(--space-3)">Side</label>
-                        <div class="option-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:var(--space-3)">${radioGroup(`${a}:side`, ['Left', 'Right', 'Both'], d.side)}</div>
-                        <label>Is it continuous or occasional?</label>
-                        <div class="option-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:var(--space-3)">${radioGroup(`${a}:pattern`, ['Continuous', 'Occasional'], d.pattern)}</div>
-                        <label>Pain while walking?</label>
-                        ${radioYesNo(`${a}:walkingPain`, d.walkingPain ?? null)}
-                        <label style="margin-top:var(--space-3)">Diagnosed by a doctor?</label>
-                        ${radioYesNo(`${a}:doctorDiagnosis`, d.doctorDiagnosis ?? null)}
-                        <label style="margin-top:var(--space-3)">Treatment received so far</label>
-                        <div class="option-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">${radioGroup(`${a}:treatment`, TREATMENTS, d.treatment)}</div>
-                    </div>`;
-                }).join('')}
-            `;
-
-            areas.forEach((a) => {
-                const d = state.painAssessment.details[a] = state.painAssessment.details[a] || {};
-                if (LEGACY_SEVERITY[d.severity]) d.severity = LEGACY_SEVERITY[d.severity];
-                wireChipGroup(container, `${a}:severity`, (values) => { d.severity = values[0] || null; updateContinueEnabled(); });
-                wireChipGroup(container, `${a}:side`, (values) => { d.side = values[0] || null; updateContinueEnabled(); });
-                wireChipGroup(container, `${a}:pattern`, (values) => { d.pattern = values[0] || null; updateContinueEnabled(); });
-                wireChipGroup(container, `${a}:treatment`, (values) => { d.treatment = values[0] || null; });
-                wireYesNo(container, `${a}:walkingPain`, (v) => { d.walkingPain = v; updateContinueEnabled(); });
-                wireYesNo(container, `${a}:doctorDiagnosis`, (v) => { d.doctorDiagnosis = v; });
-            });
+            renderConditionFollowups();
         },
         isComplete() {
-            const areas = state.painAssessment.areas.filter((a) => a !== 'no_pain');
-            const details = state.painAssessment.details || {};
-            return areas.every((a) => {
-                const d = details[a];
-                return d && d.severity && d.side && d.pattern && d.walkingPain !== undefined;
+            const hasConditions = state.medicalHistory.conditions.length > 0;
+            const nonNoneConditions = state.medicalHistory.conditions.filter((c) => c !== 'none_of_these');
+            const detailsValid = nonNoneConditions.every((c) => {
+                const d = state.medicalHistory.details?.[c];
+                return d && d.since && d.medication !== undefined;
             });
+            const activeScreening = getActiveScreening();
+            const screeningDone = activeScreening.every((q) => typeof state.healthScreening[q.key] === 'boolean');
+            return hasConditions && detailsValid && screeningDone;
         },
         save(next) {
-            return { step: 'painAssessment', data: state.painAssessment, nextStep: next };
+            return {
+                step: 'medicalHistory',
+                data: state.medicalHistory,
+                category: state.category,
+                nextStep: next,
+            };
         },
     },
+
+    // Step 4: Pain Assessment & Doctor Restrictions
     {
-        key: 'doctorRestrictions',
-        isVisible: () => true,
+        key: 'painAssessment',
+        title: 'Pain & Doctor Restrictions',
         render(container) {
-            const d = state.doctorRestrictions;
-            const resTypes = d.restrictionTypes || [];
             container.innerHTML = `
-                <h2 class="profile-section__title mb-3">Doctor Restrictions</h2>
-                <label style="font-weight:600">Do you have any doctor-specified restrictions on physical activity?</label>
-                ${radioYesNo('hasRestriction', d.hasRestriction)}
-                <div id="restriction-notes" style="margin-top:var(--space-3);${d.hasRestriction ? '' : 'display:none'}">
-                    <label style="font-weight:600;font-size:0.85rem">What specific restrictions were advised?</label>
-                    <div class="option-grid mb-2" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">${chipGroup('doctorRestrictionTypes', RESTRICTION_TYPES, resTypes, null)}</div>
-                    <label style="font-weight:600;font-size:0.82rem;color:var(--color-primary)">Type doctor instructions / restriction notes:</label>
-                    <textarea data-field="restrictionNotes" placeholder="Type your doctor's specific restrictions here...">${esc(d.notes)}</textarea>
+                <h2 class="profile-section__title" style="margin-bottom:var(--space-2);font-size:1.15rem">Pain Assessment &amp; Restrictions</h2>
+                <p class="text-muted" style="margin:0 0 var(--space-4)">Where do you currently experience discomfort, joint stiffness, or physical pain?</p>
+                
+                <label style="font-weight:600;font-size:0.88rem;display:block;margin-bottom:var(--space-2)">1. Pain or Discomfort Areas</label>
+                <div class="option-grid mb-3">
+                    ${chipGroup('areas', PAIN_AREAS, state.painAssessment.areas, null)}
+                    ${chipGroup('areas', ['No pain'], state.painAssessment.areas, 'no_pain')}
+                </div>
+
+                <div id="pain-details-container"></div>
+
+                <div style="margin-top:var(--space-5);padding-top:var(--space-4);border-top:1px solid var(--border-subtle)">
+                    <label style="font-weight:600;font-size:0.88rem;display:block;margin-bottom:var(--space-2)">2. Doctor-Specified Physical Restrictions</label>
+                    <p class="text-muted" style="margin:0 0 var(--space-3);font-size:0.78rem">Do you have any medical advice to avoid certain postures, weights, or movements?</p>
+                    ${radioYesNo('hasRestriction', state.doctorRestrictions.hasRestriction)}
+                    
+                    <div id="restriction-notes" style="margin-top:var(--space-3);${state.doctorRestrictions.hasRestriction ? '' : 'display:none'}">
+                        <label style="font-weight:600;font-size:0.82rem;display:block;margin-bottom:4px">What specific restrictions were advised?</label>
+                        <div class="option-grid mb-2" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+                            ${chipGroup('doctorRestrictionTypes', RESTRICTION_TYPES, state.doctorRestrictions.restrictionTypes || [], null)}
+                        </div>
+                        <label style="font-weight:600;font-size:0.8rem;color:var(--color-primary);display:block;margin-bottom:4px">Doctor instructions / notes:</label>
+                        <textarea data-field="restrictionNotes" placeholder="Type doctor's instructions or restrictions...">${esc(state.doctorRestrictions.notes)}</textarea>
+                    </div>
                 </div>
             `;
+
+            function renderPainDetails() {
+                const detailsContainer = container.querySelector('#pain-details-container');
+                const areas = state.painAssessment.areas.filter((a) => a !== 'no_pain');
+                state.painAssessment.details = state.painAssessment.details || {};
+
+                if (areas.length === 0) {
+                    detailsContainer.innerHTML = '';
+                    return;
+                }
+
+                detailsContainer.innerHTML = `
+                    <div style="margin-block:var(--space-3);padding:var(--space-3);background:var(--surface-sunken);border-radius:var(--radius-md)">
+                        <span style="font-weight:600;font-size:0.84rem;color:var(--color-primary);display:block;margin-bottom:var(--space-2)">Details for selected pain areas:</span>
+                        ${areas.map((a) => {
+                            const d = state.painAssessment.details[a] || {};
+                            const severity = LEGACY_SEVERITY[d.severity] || d.severity;
+                            return `<div class="card mb-3" style="padding:var(--space-3);border:1px solid var(--border-subtle);border-radius:var(--radius-md)">
+                                <div style="font-weight:600;font-size:0.9rem;margin-bottom:var(--space-2)">${esc(areaLabel(a))}</div>
+                                
+                                <label style="font-size:0.78rem;font-weight:600">Pain severity (1–10)</label>
+                                <div class="severity-scale" style="margin-bottom:4px">${radioGroup(`${a}:severity`, SEVERITY_SCALE, severity)}</div>
+                                <div class="severity-scale__hint" style="margin-bottom:var(--space-2)"><span>1 — mild</span><span>10 — severe</span></div>
+
+                                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:var(--space-2)">
+                                    <div>
+                                        <label style="font-size:0.78rem;font-weight:600">Side</label>
+                                        <div class="option-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">${radioGroup(`${a}:side`, ['Left', 'Right', 'Both'], d.side)}</div>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:0.78rem;font-weight:600">Pattern</label>
+                                        <div class="option-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))">${radioGroup(`${a}:pattern`, ['Continuous', 'Occasional'], d.pattern)}</div>
+                                    </div>
+                                </div>
+
+                                <label style="font-size:0.78rem;font-weight:600">Discomfort while walking?</label>
+                                ${radioYesNo(`${a}:walkingPain`, d.walkingPain ?? null)}
+                            </div>`;
+                        }).join('')}
+                    </div>
+                `;
+
+                areas.forEach((a) => {
+                    const d = state.painAssessment.details[a] = state.painAssessment.details[a] || {};
+                    wireChipGroup(detailsContainer, `${a}:severity`, (values) => { d.severity = values[0] || null; updateContinueEnabled(); });
+                    wireChipGroup(detailsContainer, `${a}:side`, (values) => { d.side = values[0] || null; updateContinueEnabled(); });
+                    wireChipGroup(detailsContainer, `${a}:pattern`, (values) => { d.pattern = values[0] || null; updateContinueEnabled(); });
+                    wireYesNo(detailsContainer, `${a}:walkingPain`, (v) => { d.walkingPain = v; updateContinueEnabled(); });
+                });
+            }
+
+            wireChipGroup(container, 'areas', (values) => {
+                state.painAssessment.areas = values;
+                renderPainDetails();
+                updateContinueEnabled();
+            });
+
             wireYesNo(container, 'hasRestriction', (v) => {
                 state.doctorRestrictions.hasRestriction = v;
                 container.querySelector('#restriction-notes').style.display = v ? '' : 'none';
                 updateContinueEnabled();
             });
+
             wireChipGroup(container, 'doctorRestrictionTypes', (values) => {
                 state.doctorRestrictions.restrictionTypes = values;
                 updateContinueEnabled();
             });
-            container.querySelector('[data-field="restrictionNotes"]').addEventListener('input', (e) => {
+
+            container.querySelector('[data-field="restrictionNotes"]')?.addEventListener('input', (e) => {
                 state.doctorRestrictions.notes = e.target.value;
             });
+
+            renderPainDetails();
         },
-        isComplete: () => state.doctorRestrictions.hasRestriction !== null,
+        isComplete() {
+            const hasAreas = state.painAssessment.areas.length > 0;
+            const areas = state.painAssessment.areas.filter((a) => a !== 'no_pain');
+            const detailsValid = areas.every((a) => {
+                const d = state.painAssessment.details?.[a];
+                return d && d.severity && d.side && d.pattern && d.walkingPain !== undefined;
+            });
+            const restrictionsDone = state.doctorRestrictions.hasRestriction !== null;
+            return hasAreas && detailsValid && restrictionsDone;
+        },
         save(next) {
-            return { step: 'doctorRestrictions', data: state.doctorRestrictions, nextStep: next };
+            return {
+                step: 'painAssessment',
+                data: state.painAssessment,
+                category: state.category,
+                nextStep: next,
+            };
+        },
+    },
+
+    // Step 5: Review & Confirmation
+    {
+        key: 'reviewConfirmation',
+        title: 'Review & Confirmation',
+        render(container) {
+            const catObj = getCategoryObj(state.category);
+            const spec = CATEGORY_QUESTIONS[state.category] || CATEGORY_QUESTIONS.adult;
+            const catAnswers = state.categorySafety;
+
+            // Medical Conditions summary
+            const conditionsList = state.medicalHistory.conditions.length > 0
+                ? (state.medicalHistory.conditions.includes('none_of_these') ? 'None reported' : state.medicalHistory.conditions.map((c) => {
+                    const l = getActiveConditions().find((m) => slug(m) === c) || c;
+                    return c === 'other' && state.medicalHistory.otherConditionNotes ? `Other (${state.medicalHistory.otherConditionNotes})` : l;
+                }).join(', '))
+                : 'Not specified';
+
+            // Screening summary
+            const activeScreening = getActiveScreening();
+            const screeningSummary = activeScreening.map((q) => {
+                const ans = state.healthScreening[q.key];
+                const note = state.healthScreening[q.key + 'Notes'];
+                return {
+                    label: q.question,
+                    value: ans === true ? `Yes${note ? ` (${note})` : ''}` : (ans === false ? 'No' : '—'),
+                };
+            });
+
+            // Pain areas summary
+            const painAreasList = state.painAssessment.areas.includes('no_pain') || state.painAssessment.areas.length === 0
+                ? 'No pain or discomfort reported'
+                : state.painAssessment.areas.map((a) => {
+                    const d = state.painAssessment.details?.[a] || {};
+                    return `${areaLabel(a)}${d.severity ? ` (Severity ${d.severity}/10)` : ''}`;
+                }).join(', ');
+
+            // Doctor restrictions summary
+            const restrictionsSummary = state.doctorRestrictions.hasRestriction === true
+                ? (state.doctorRestrictions.notes || (state.doctorRestrictions.restrictionTypes?.join(', ') || 'Yes (Restricted)'))
+                : (state.doctorRestrictions.hasRestriction === false ? 'No restrictions' : '—');
+
+            container.innerHTML = `
+                <h2 class="profile-section__title" style="margin-bottom:var(--space-2);font-size:1.15rem">Review &amp; Confirm Your Details</h2>
+                <p class="text-muted" style="margin:0 0 var(--space-4)">Please review your answers below. If you need to make any changes, click "Edit" on that section. Once confirmed, you can book your yoga class.</p>
+                
+                <div class="review-summary">
+                    <!-- Section 1: Profile Category -->
+                    <div class="review-section-card">
+                        <div class="review-section-card__head">
+                            <div class="review-section-card__title">
+                                <span style="font-size:1.2rem">${catObj.icon}</span>
+                                <span>Profile Category: <strong>${catObj.title}</strong></span>
+                            </div>
+                            <button type="button" class="review-edit-btn" data-jump-step="0">Edit Category</button>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span class="review-badge">${catObj.badge}</span>
+                            <span style="font-size:0.78rem;color:var(--text-muted)">${catObj.desc}</span>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Lifestyle & Practice Routine -->
+                    <div class="review-section-card">
+                        <div class="review-section-card__head">
+                            <div class="review-section-card__title">
+                                <span>${spec.title}</span>
+                            </div>
+                            <button type="button" class="review-edit-btn" data-jump-step="1">Edit Routine</button>
+                        </div>
+                        <div class="review-list">
+                            ${spec.fields.map((f) => {
+                                let val = catAnswers[f.key];
+                                if (val === true) val = 'Yes';
+                                else if (val === false) val = 'No';
+                                else if (val === null || val === undefined || val === '') val = '—';
+                                if (f.writeInKey && catAnswers[f.writeInKey]) {
+                                    val += ` (${catAnswers[f.writeInKey]})`;
+                                }
+                                return `<div class="review-item">
+                                    <span class="review-item__label">${f.label}</span>
+                                    <span class="review-item__value">${esc(val)}</span>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Medical Conditions & Screening -->
+                    <div class="review-section-card">
+                        <div class="review-section-card__head">
+                            <div class="review-section-card__title">
+                                <span>Medical History &amp; Health Screening</span>
+                            </div>
+                            <button type="button" class="review-edit-btn" data-jump-step="2">Edit Medical</button>
+                        </div>
+                        <div class="review-list">
+                            <div class="review-item" style="grid-column:1/-1">
+                                <span class="review-item__label">Reported Medical Conditions</span>
+                                <span class="review-item__value"><strong>${esc(conditionsList)}</strong></span>
+                            </div>
+                            ${screeningSummary.map((s) => `<div class="review-item">
+                                <span class="review-item__label">${s.label}</span>
+                                <span class="review-item__value">${esc(s.value)}</span>
+                            </div>`).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Pain & Physical Restrictions -->
+                    <div class="review-section-card">
+                        <div class="review-section-card__head">
+                            <div class="review-section-card__title">
+                                <span>Pain Assessment &amp; Restrictions</span>
+                            </div>
+                            <button type="button" class="review-edit-btn" data-jump-step="3">Edit Pain/Restrictions</button>
+                        </div>
+                        <div class="review-list">
+                            <div class="review-item">
+                                <span class="review-item__label">Pain or Discomfort Areas</span>
+                                <span class="review-item__value"><strong>${esc(painAreasList)}</strong></span>
+                            </div>
+                            <div class="review-item">
+                                <span class="review-item__label">Doctor Physical Restrictions</span>
+                                <span class="review-item__value">${esc(restrictionsSummary)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background:var(--color-primary-soft);border:1px solid var(--color-primary);border-radius:var(--radius-md);padding:var(--space-3);margin-top:var(--space-4);text-align:center">
+                    <p style="margin:0;font-size:0.82rem;color:var(--text-primary);font-weight:500">
+                        &#10004; All details verified? Click <strong>Confirm &amp; Book Yoga Class</strong> below to finish intake and schedule your session.
+                    </p>
+                </div>
+            `;
+
+            container.querySelectorAll('[data-jump-step]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const stepIdx = parseInt(btn.dataset.jumpStep, 10);
+                    if (!isNaN(stepIdx) && stepIdx >= 0 && stepIdx < STEPS.length) {
+                        currentStepIndex = stepIdx;
+                        renderStep();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                });
+            });
+        },
+        isComplete() {
+            return true;
+        },
+        save(next) {
+            return {
+                step: 'reviewConfirmation',
+                data: { confirmed: true, category: state.category },
+                category: state.category,
+                nextStep: next,
+            };
         },
     },
 ];
 
 let currentStepIndex = 0;
 
+// If user already completed or at stage 2+, show completed screen by default
 if (existing.currentStep === 'completed' || (existing.stage && Number(existing.stage) >= 2)) {
     document.querySelector('#assessment-wizard').hidden = true;
     document.querySelector('#assessment-done').hidden = false;
-} else if (existing.currentStep) {
+    const catObj = getCategoryObj(state.category || 'adult');
+    document.querySelector('#done-level').textContent = catObj.title;
+} else if (state.category) {
+    // If category already picked, resume at categorySafety or medicalHistory
     const resumeIdx = STEPS.findIndex((s) => s.key === existing.currentStep);
     if (resumeIdx !== -1) {
         currentStepIndex = resumeIdx;
     }
 }
 
-function visibleSteps() {
-    return STEPS.filter((s) => s.isVisible());
-}
-
 function updateProgress() {
-    const active = visibleSteps();
-    const total = active.length;
-    const currentPos = active.findIndex((s) => s.key === STEPS[currentStepIndex].key) + 1;
+    const total = STEPS.length;
+    const currentPos = currentStepIndex + 1;
 
     document.querySelector('#step-label').textContent = `Step ${currentPos} of ${total}`;
 
     const progressEl = document.querySelector('#assessment-progress');
-    progressEl.innerHTML = active.map((_, i) => `<div class="assessment-progress__bar${i + 1 <= currentPos ? ' is-active' : ''}"></div>`).join('');
+    progressEl.innerHTML = STEPS.map((_, i) =>
+        `<div class="assessment-progress__dot${i < currentStepIndex ? ' is-done' : ''}${i === currentStepIndex ? ' is-current' : ''}"></div>`
+    ).join('');
 }
 
 function updateContinueEnabled() {
     const step = STEPS[currentStepIndex];
-    document.querySelector('#continue-btn').disabled = !step.isComplete();
+    const canContinue = step.isComplete();
+    document.querySelector('#continue-btn').disabled = !canContinue;
 }
 
 function renderStep() {
@@ -720,56 +1006,109 @@ function renderStep() {
     updateProgress();
     updateContinueEnabled();
 
-    const active = visibleSteps();
-    const currentPos = active.findIndex((s) => s.key === step.key);
-    document.querySelector('#back-btn').style.visibility = currentPos > 0 ? 'visible' : 'hidden';
+    // Back button visibility
+    const backBtn = document.querySelector('#back-btn');
+    if (currentStepIndex > 0) {
+        backBtn.style.visibility = 'visible';
+        backBtn.style.display = 'inline-flex';
+    } else {
+        backBtn.style.visibility = 'hidden';
+        backBtn.style.display = 'none';
+    }
+
+    // Continue / Submit button label
+    const continueBtn = document.querySelector('#continue-btn');
+    if (currentStepIndex === STEPS.length - 1) {
+        continueBtn.innerHTML = 'Confirm &amp; Book Yoga Class &rarr;';
+    } else {
+        continueBtn.innerHTML = 'Continue &rarr;';
+    }
 }
 
 async function saveCurrentStep(nextStepKey, isFinal = false) {
     const step = STEPS[currentStepIndex];
     const payload = step.save(nextStepKey);
     try {
-        await apiPost('/api/health-assessment/step', { ...payload, final: isFinal, stage: 2 });
+        await apiPost('/api/health-assessment/step', {
+            ...payload,
+            category: state.category,
+            final: isFinal,
+            stage: 2,
+        });
+
+        // Also ensure healthScreening and doctorRestrictions are saved when passing steps 3 & 4
+        if (step.key === 'medicalHistory' && state.healthScreening) {
+            await apiPost('/api/health-assessment/step', {
+                step: 'healthScreening',
+                data: state.healthScreening,
+                category: state.category,
+                final: false,
+                stage: 2,
+            });
+        }
+        if (step.key === 'painAssessment' && state.doctorRestrictions) {
+            await apiPost('/api/health-assessment/step', {
+                step: 'doctorRestrictions',
+                data: state.doctorRestrictions,
+                category: state.category,
+                final: false,
+                stage: 2,
+            });
+        }
     } catch (e) {
-        console.warn('Auto-save failed:', e);
+        console.warn('Auto-save step notice:', e);
     }
 }
 
+// Next / Continue button handler
 document.querySelector('#continue-btn').addEventListener('click', async () => {
-    const active = visibleSteps();
-    const currentPos = active.findIndex((s) => s.key === STEPS[currentStepIndex].key);
+    const continueBtn = document.querySelector('#continue-btn');
+    continueBtn.disabled = true;
 
-    if (currentPos < active.length - 1) {
-        const nextStep = active[currentPos + 1];
+    if (currentStepIndex < STEPS.length - 1) {
+        const nextStep = STEPS[currentStepIndex + 1];
         await saveCurrentStep(nextStep.key, false);
-        currentStepIndex = STEPS.findIndex((s) => s.key === nextStep.key);
+        currentStepIndex++;
         renderStep();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
+        // Final Review Step Submission
+        continueBtn.textContent = 'Saving & Booking...';
         await saveCurrentStep('completed', true);
-        document.querySelector('#assessment-wizard').hidden = true;
-        document.querySelector('#assessment-done').hidden = false;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        toast.success('Health intake complete! Redirecting to yoga booking...');
+        
+        setTimeout(() => {
+            window.location.href = bookingRedirectUrl;
+        }, 800);
     }
 });
 
+// Back button handler
 document.querySelector('#back-btn').addEventListener('click', () => {
-    const active = visibleSteps();
-    const currentPos = active.findIndex((s) => s.key === STEPS[currentStepIndex].key);
-    if (currentPos > 0) {
-        const prevStep = active[currentPos - 1];
-        currentStepIndex = STEPS.findIndex((s) => s.key === prevStep.key);
+    if (currentStepIndex > 0) {
+        currentStepIndex--;
         renderStep();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 });
 
+// Save & Continue Later handler
 document.querySelector('#save-later-btn').addEventListener('click', async () => {
     await saveCurrentStep(STEPS[currentStepIndex].key, false);
     toast.success('Progress saved! You can finish anytime.');
     setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
 });
 
+// Re-edit answers handler from completed screen
+document.querySelector('#re-edit-btn')?.addEventListener('click', () => {
+    document.querySelector('#assessment-done').hidden = true;
+    document.querySelector('#assessment-wizard').hidden = false;
+    currentStepIndex = 4; // Start at review page so user sees all answers
+    renderStep();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Initial boot
 if (document.querySelector('#assessment-wizard').hidden === false) {
     renderStep();
 }

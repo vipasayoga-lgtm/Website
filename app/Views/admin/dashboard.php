@@ -16,12 +16,12 @@ $statusMeta = [
 ];
 ?>
 <div class="admin-page container">
-    <div class="admin-hero flex items-center justify-between flex-wrap gap-3 mb-5" style="flex-direction:row;text-align:left">
+    <div class="admin-hero">
         <div>
             <h1 class="admin-hero__title" style="font-size:1.15rem;font-weight:700;margin:0">Admin Analytics &amp; Dashboard</h1>
             <p class="admin-hero__subtitle" style="font-size:0.8rem;color:var(--text-muted);margin:2px 0 0">Overview of real revenue, active bookings, client growth, and schedule operations.</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="admin-hero__actions">
             <a href="/admin/settings/backup/download" class="btn btn-primary btn-sm flex items-center gap-2" style="font-size:0.8rem;padding:6px 14px;background:#0284c7;color:#fff;text-decoration:none;border-radius:var(--radius-md);font-weight:600">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 <span>Download Database Backup</span>
@@ -245,7 +245,7 @@ $statusMeta = [
         <div class="kpi-summary-grid">
             <div class="kpi-card-mobile" style="background:#131f37;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px 16px">
                 <div class="kpi-title-mobile" style="font-size:0.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Total Verified Revenue</div>
-                <div class="kpi-val-mobile" style="font-size:1.4rem;font-weight:800;color:#38bdf8;margin:4px 0 2px" id="kpi-total-revenue">₹<?= number_format($analyticsSummary['totalRevenue'] ?? 41800, 2) ?></div>
+                <div class="kpi-val-mobile" style="font-size:1.4rem;font-weight:800;color:#38bdf8;margin:4px 0 2px" id="kpi-total-revenue">₹<?= number_format($analyticsSummary['totalRevenue'] ?? 0, 2) ?></div>
                 <div class="kpi-sub-mobile" style="font-size:0.73rem;color:#10b981;display:flex;align-items:center;gap:4px">
                     <span>▲ Database Sum</span>
                 </div>
@@ -253,19 +253,19 @@ $statusMeta = [
 
             <div class="kpi-card-mobile" style="background:#131f37;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px 16px">
                 <div class="kpi-title-mobile" style="font-size:0.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Total Bookings Volume</div>
-                <div class="kpi-val-mobile" style="font-size:1.4rem;font-weight:800;color:#fb923c;margin:4px 0 2px" id="kpi-total-bookings"><?= (int)($analyticsSummary['totalBookings'] ?? 15) ?> Bookings</div>
+                <div class="kpi-val-mobile" style="font-size:1.4rem;font-weight:800;color:#fb923c;margin:4px 0 2px" id="kpi-total-bookings"><?= (int)($analyticsSummary['totalBookings'] ?? 0) ?> Bookings</div>
                 <div class="kpi-sub-mobile" style="font-size:0.73rem;color:#94a3b8">Active Pipeline</div>
             </div>
 
             <div class="kpi-card-mobile" style="background:#131f37;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px 16px">
                 <div class="kpi-title-mobile" style="font-size:0.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Session Fulfillment</div>
-                <div class="kpi-val-mobile" style="font-size:1.4rem;font-weight:800;color:#4ade80;margin:4px 0 2px" id="kpi-fulfillment-rate"><?= number_format($analyticsSummary['fulfillmentRate'] ?? 83.3, 1) ?>%</div>
+                <div class="kpi-val-mobile" style="font-size:1.4rem;font-weight:800;color:#4ade80;margin:4px 0 2px" id="kpi-fulfillment-rate"><?= number_format($analyticsSummary['fulfillmentRate'] ?? 0, 1) ?>%</div>
                 <div class="kpi-sub-mobile" style="font-size:0.73rem;color:#4ade80">Confirmed &amp; Done</div>
             </div>
 
             <div class="kpi-card-mobile" style="background:#131f37;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px 16px">
                 <div class="kpi-title-mobile" style="font-size:0.75rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Avg Session Value</div>
-                <div class="kpi-val-mobile" style="font-size:1.4rem;font-weight:800;color:#c084fc;margin:4px 0 2px" id="kpi-avg-session">₹<?= number_format($analyticsSummary['avgSessionValue'] ?? 2792.29, 2) ?></div>
+                <div class="kpi-val-mobile" style="font-size:1.4rem;font-weight:800;color:#c084fc;margin:4px 0 2px" id="kpi-avg-session">₹<?= number_format($analyticsSummary['avgSessionValue'] ?? 0, 2) ?></div>
                 <div class="kpi-sub-mobile" style="font-size:0.73rem;color:#94a3b8">Per Session</div>
             </div>
         </div>
@@ -336,7 +336,9 @@ $statusMeta = [
                         <span style="font-size:0.88rem;font-weight:700;color:#f8fafc">Session Time-of-Day Slots</span>
                         <div style="font-size:0.73rem;color:#94a3b8">Morning vs Afternoon vs Evening distribution</div>
                     </div>
-                    <span style="font-size:0.72rem;color:#a78bfa;background:rgba(167,139,250,0.12);padding:3px 9px;border-radius:20px;border:1px solid rgba(167,139,250,0.25)">Peak: Morning</span>
+                    <?php if (!empty($timeOfDayShare) && ($timeOfDayShare[0]['count'] ?? 0) > 0): ?>
+                    <span style="font-size:0.72rem;color:#a78bfa;background:rgba(167,139,250,0.12);padding:3px 9px;border-radius:20px;border:1px solid rgba(167,139,250,0.25)">Peak: <?= View::e(explode(' ', $timeOfDayShare[0]['label'])[0] ?? 'Morning') ?></span>
+                    <?php endif; ?>
                 </div>
                 <div id="chart-timeofday-columns" style="min-height:200px;width:100%"></div>
             </div>
@@ -651,15 +653,17 @@ function renderAllCharts(customDataset = null) {
     // 3. Dual Concentric Rings: Studio Health & Fulfillment Rates
     const summary = seriesData.analyticsSummary || {};
     renderDualRingChart(document.getElementById('chart-health-rings'), {
-        ring1: { label: 'Session Fulfillment', value: summary.fulfillmentRate ?? 83.3, color: '#4ade80' },
-        ring2: { label: 'Payment Success', value: summary.paymentSuccessRate ?? 85.7, color: '#38bdf8' }
+        completionRate: summary.fulfillmentRate ?? summary.completionRate ?? 0,
+        successRate: summary.paymentSuccessRate ?? 0,
+        ring1: { label: 'Session Fulfillment', value: summary.fulfillmentRate ?? summary.completionRate ?? 0, color: '#4ade80' },
+        ring2: { label: 'Payment Success', value: summary.paymentSuccessRate ?? 0, color: '#38bdf8' }
     });
 
     // 4. Multi-slice Pie Chart: Yoga Package Preferences
     renderPieChart(document.getElementById('chart-packages-pie'), seriesData.packageShare || []);
 
     // 5. Donut Chart: Payment Gateway & Method Share
-    const revTotalK = Math.round((summary.totalRevenue || 41800) / 100) / 10;
+    const revTotalK = Math.round((summary.totalRevenue || 0) / 100) / 10;
     renderDonutChart(document.getElementById('chart-gateways-donut'), seriesData.gatewayShare || [], {
         centerLabel: 'Total Rev',
         centerValue: '₹' + revTotalK + 'k'

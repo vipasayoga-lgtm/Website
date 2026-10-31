@@ -810,5 +810,7 @@ Email	info@vipasayoga.com
 Password	S@njusai1010
 
 run command 
-D:\xampp\php\php.exe -S localhost:8000 -t D:\YOGA\public
+D:\xampp\php\php.exe -S localhost:8000 -t D:\YOGA\public  
 D:\xampp\mysql\bin\mysqld.exe --defaults-file=D:\xampp\mysql\data\my.ini
+
+

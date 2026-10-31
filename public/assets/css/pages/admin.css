@@ -2,11 +2,42 @@
 
 .admin-hero {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  margin-bottom: var(--space-6);
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border-subtle);
+}
+
+.admin-hero__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@media (max-width: 639px) {
+  .admin-hero {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--space-3) !important;
+  }
+
+  .admin-hero__actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: var(--space-2);
+  }
+
+  .admin-hero__actions .btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+  }
 }
 
 .admin-hero__title {

@@ -566,8 +566,10 @@ export function renderMultiColumnChart(container, items, options = {}) {
   container.appendChild(svg);
 }
 
-export function renderDualRingChart(container, { completionRate = 83.3, successRate = 85.0 }, options = {}) {
+export function renderDualRingChart(container, data = {}, options = {}) {
   if (!container) return;
+  const completionRate = Number(data.completionRate ?? data.fulfillmentRate ?? data.ring1?.value ?? 0) || 0;
+  const successRate = Number(data.successRate ?? data.paymentSuccessRate ?? data.ring2?.value ?? 0) || 0;
   const width = options.width || 220;
   const height = options.height || 210;
   const cx = width / 2;

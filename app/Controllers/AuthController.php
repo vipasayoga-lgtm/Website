@@ -17,11 +17,13 @@ final class AuthController extends Controller
 {
     public function loginPage(Request $request): void
     {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         $this->view('auth/login', [], 'bare');
     }
 
     public function signupPage(Request $request): void
     {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         $this->view('auth/signup', [], 'bare');
     }
 

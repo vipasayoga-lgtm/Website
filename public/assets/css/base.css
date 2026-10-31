@@ -39,6 +39,13 @@ html {
   overflow-x: hidden;
 }
 
+/* 110% scale for laptop and desktop view (>= 1024px) */
+@media (min-width: 1024px) {
+  html {
+    font-size: 110%; /* 17.6px base instead of 16px — scales all rem tokens proportionally by +10% */
+  }
+}
+
 /* Belt-and-braces against horizontal scroll: [data-reveal="left"/"right"]
    (see below) translateX() their element before it scrolls into view, which
    can push content past a narrow viewport's edge pre-animation. Clipping it
@@ -58,6 +65,26 @@ body {
   transition: background-color var(--transition-base), color var(--transition-base);
 }
 
+/* Ensure content on inner pages sits cleanly below the fixed floating navbar */
+body > main {
+  padding-top: 110px;
+  min-height: calc(100vh - 110px);
+}
+
+@media (min-width: 1024px) {
+  body > main {
+    padding-top: 122px;
+    min-height: calc(100vh - 122px);
+  }
+}
+
+@media (max-width: 639px) {
+  body > main {
+    padding-top: 86px;
+    min-height: calc(100vh - 86px);
+  }
+}
+
 img,
 picture,
 svg,
@@ -65,6 +92,20 @@ video,
 canvas {
   display: block;
   max-width: 100%;
+}
+
+img,
+picture {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  -webkit-touch-callout: none;
 }
 
 ul,
@@ -330,11 +371,16 @@ button:disabled {
 }
 
 @media (min-width: 1024px) {
-  /* Larger side margins than before — 1200px max-width was already
-     narrower than the 1280/1360px figures given in a later redesign
-     request, so that request's "more breathing space" intent was
-     satisfied here instead of by widening the container. */
-  .container { padding-inline: var(--space-12); }
+  .container {
+    max-width: 1320px; /* Scaled 110% from 1200px to match 110% font-size */
+    padding-inline: var(--space-8);
+  }
+  .container-wide {
+    max-width: 1584px; /* Scaled 110% from 1440px */
+  }
+  .container-narrow {
+    max-width: 792px; /* Scaled 110% from 720px */
+  }
 }
 
 .container-narrow { max-width: 720px; }

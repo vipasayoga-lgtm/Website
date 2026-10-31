@@ -13,7 +13,7 @@ final class HealthAssessmentController extends Controller
 {
     private const STEP_KEYS = [
         // Stage 2 — health & safety, before first booking
-        'medicalHistory', 'healthScreening', 'painAssessment', 'doctorRestrictions', 'categorySafety',
+        'categorySelection', 'medicalHistory', 'healthScreening', 'painAssessment', 'doctorRestrictions', 'categorySafety', 'reviewConfirmation',
         // Stage 3 — lifestyle, after first session
         'lifestyle', 'sleep', 'exercise', 'stress', 'yogaExperience', 'goals', 'supportSystem', 'recoveryGoals',
         // Stage 4 — advanced health, before second booking
@@ -93,8 +93,16 @@ final class HealthAssessmentController extends Controller
         $profileBefore = ClientProfile::findByUserId($userId);
         $profileBefore = $profileBefore ? ClientProfile::hydrate($profileBefore) : null;
 
+        $categoryInput = (string) ($request->input('category') ?: ($payload['category'] ?? ''));
+        if ($categoryInput !== '' && in_array($categoryInput, ['child', 'teenager', 'adult', 'senior_citizen', 'pregnant_woman', 'postpartum_mother'], true)) {
+            ClientProfile::upsertForUser($userId, ['client_category' => $categoryInput]);
+            if ($profileBefore) {
+                $profileBefore['client_category'] = $categoryInput;
+            }
+        }
+
         if ($stepKey === 'categorySafety') {
-            $category = $profileBefore['client_category'] ?? null;
+            $category = $categoryInput ?: ($profileBefore['client_category'] ?? null);
             $allowedFields = self::CATEGORY_SAFETY_FIELDS[$category] ?? [];
 
             foreach (array_keys($payload) as $field) {

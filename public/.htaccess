@@ -1,5 +1,14 @@
 RewriteEngine On
 
+# Anti-hotlinking protection for media assets
+<IfModule mod_rewrite.c>
+    RewriteCond %{HTTP_REFERER} !^$
+    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?localhost(:[0-9]+)? [NC]
+    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?127\.0\.0\.1(:[0-9]+)? [NC]
+    RewriteCond %{HTTP_REFERER} !^https?://(www\.)?vipasayoga\.com [NC]
+    RewriteRule ^assets/img/.*\.(jpe?g|png|gif|webp|svg)$ - [F,NC,L]
+</IfModule>
+
 # Serve real files/directories (assets) directly
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d

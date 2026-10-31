@@ -163,8 +163,8 @@ return static function (Router $router): void {
     });
 
     // ---- JSON API -----------------------------------------------------------
-    $router->post('/api/auth/login', 'Api\\AuthController@login', ['guest', 'rate:login', 'csrf']);
-    $router->post('/api/auth/signup', 'Api\\AuthController@signup', ['guest', 'rate:login', 'csrf']);
+    $router->post('/api/auth/login', 'Api\\AuthController@login', ['rate:login', 'csrf']);
+    $router->post('/api/auth/signup', 'Api\\AuthController@signup', ['rate:login', 'csrf']);
     $router->post('/api/auth/logout', 'Api\\AuthController@logout', ['auth', 'csrf']);
     $router->post('/api/auth/forgot-password', 'Api\\AuthController@forgotPassword', ['guest', 'rate:password_reset', 'csrf']);
     $router->post('/api/auth/reset-password', 'Api\\AuthController@resetPassword', ['guest', 'csrf']);

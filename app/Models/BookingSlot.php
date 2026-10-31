@@ -9,8 +9,66 @@ final class BookingSlot extends Model
 {
     protected static string $table = 'booking_slots';
 
+    /**
+     * Synchronizes booking slots with active bookings in the `bookings` table.
+     * Guarantees that any slot claimed by a client (pending_payment, confirmed, etc.)
+     * is strictly marked as 'booked' so it can never be double-booked.
+     */
+    public static function syncBookedSlots(int $instructorId, string $date): void
+    {
+        $db = static::db();
+        $activeStatuses = "('pending_payment', 'awaiting_trainer_approval', 'confirmed', 'completed')";
+
+        // 1. Mark slots as booked if an active booking exists
+        $sql = "UPDATE booking_slots bs
+                JOIN bookings b ON (
+                    bs.id = b.slot_id OR (
+                        bs.instructor_id = b.instructor_id 
+                        AND bs.slot_date = b.slot_date 
+                        AND SUBSTRING(bs.start_time, 1, 5) = SUBSTRING(b.start_time, 1, 5)
+                    )
+                )
+                SET bs.status = 'booked', bs.booking_id = b.id
+                WHERE bs.instructor_id = :instructor_id
+                  AND bs.slot_date = :slot_date
+                  AND b.status IN {$activeStatuses}
+                  AND bs.status != 'booked'";
+        $stmt = $db->prepare($sql);
+        $stmt->execute(['instructor_id' => $instructorId, 'slot_date' => $date]);
+
+        // 2. Release slots if their booking was cancelled or deleted
+        $sqlRelease = "UPDATE booking_slots bs
+                       LEFT JOIN bookings b ON (
+                           bs.id = b.slot_id OR (
+                               bs.instructor_id = b.instructor_id 
+                               AND bs.slot_date = b.slot_date 
+                               AND SUBSTRING(bs.start_time, 1, 5) = SUBSTRING(b.start_time, 1, 5)
+                               AND b.status IN {$activeStatuses}
+                           )
+                       )
+                       SET bs.status = 'available', bs.booking_id = NULL
+                       WHERE bs.instructor_id = :instructor_id
+                         AND bs.slot_date = :slot_date
+                         AND bs.status = 'booked'
+                         AND b.id IS NULL";
+        $stmtRelease = $db->prepare($sqlRelease);
+        $stmtRelease->execute(['instructor_id' => $instructorId, 'slot_date' => $date]);
+    }
+
+    public static function forDate(int $instructorId, string $date): array
+    {
+        self::syncBookedSlots($instructorId, $date);
+
+        return self::where(
+            ['instructor_id' => $instructorId, 'slot_date' => $date],
+            'start_time ASC'
+        );
+    }
+
     public static function findAvailable(int $instructorId, string $date): array
     {
+        self::syncBookedSlots($instructorId, $date);
+
         return self::where(
             ['instructor_id' => $instructorId, 'slot_date' => $date, 'status' => 'available'],
             'start_time ASC'
@@ -26,6 +84,7 @@ final class BookingSlot extends Model
     public static function ensureGeneratedForDate(int $instructorId, string $date, int $durationMinutes = 60): void
     {
         if (self::count(['instructor_id' => $instructorId, 'slot_date' => $date]) > 0) {
+            self::syncBookedSlots($instructorId, $date);
             return;
         }
 
@@ -69,6 +128,8 @@ final class BookingSlot extends Model
                 }
             }
         }
+
+        self::syncBookedSlots($instructorId, $date);
     }
 
     public static function lockSlot(int $slotId, int $bookingId): bool

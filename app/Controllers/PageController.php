@@ -62,10 +62,10 @@ final class PageController extends Controller
             'instructors' => array_slice($instructors, 0, 3),
             'photos' => $this->galleryPhotos(),
             'stats' => [
-                'instructors' => $instructorCount,
-                'years' => $combinedYears,
-                'programs' => $programCount,
-                'rating' => $avgRating,
+                'instructors' => 3,
+                'years' => 26,
+                'programs' => 6,
+                'rating' => 5.0,
             ],
             'hero' => PageContent::getSection('hero') ?? PageContent::defaultHero(),
             'about' => PageContent::getSection('about') ?? PageContent::defaultAbout(),
@@ -156,15 +156,15 @@ final class PageController extends Controller
 
         return [
             ['name' => 'Regular Yoga', 'img' => '/assets/img/client/pose-side-stretch.webp', 'imgPos' => 'center 20%', 'description' => 'A well-rounded practice combining strength, flexibility and breath — the foundation for everything else.'],
-            ['name' => 'Yoga Therapy', 'img' => '/assets/img/client/pose-bridge.webp', 'imgPos' => 'center 20%', 'description' => 'Gentle, therapeutic sequences shaped around specific injuries, conditions, or recovery goals.'],
-            ['name' => 'Preconception Yoga', 'img' => '/assets/img/programs/preconception-yoga.webp', 'imgPos' => 'center 15%', 'description' => 'Calming, fertility-supportive practice for those preparing for the journey ahead.'],
-            ['name' => 'Prenatal Yoga', 'img' => '/assets/img/programs/prenatal-yoga.webp', 'imgPos' => 'center 20%', 'description' => 'Safe, trimester-aware sequences that keep you strong and comfortable through pregnancy.'],
-            ['name' => 'Postnatal Yoga', 'img' => '/assets/img/programs/postnatal-yoga.webp', 'imgPos' => 'center 20%', 'description' => 'Gentle, recovery-focused practice to rebuild strength and ease back into movement after birth.'],
-            ['name' => "Women's Wellness", 'img' => '/assets/img/client/philosophy-flow.webp', 'imgPos' => 'center 20%', 'description' => "Practice tailored to the rhythms of a woman's body — hormonal balance, energy, and stress relief."],
+            ['name' => "Women's Wellness", 'img' => '/assets/img/client/about-journey.webp', 'imgPos' => 'center 20%', 'description' => "Practice tailored to the rhythms of a woman's body — hormonal balance, energy, and stress relief."],
             ['name' => 'Mat Pilates', 'img' => '/assets/img/client/pose-boat-balcony.webp', 'imgPos' => 'center 30%', 'description' => 'Core-focused, controlled movement on the mat — building real strength with no special equipment.'],
+            ['name' => 'Private Session', 'img' => '/assets/img/client/philosophy-meditation.webp', 'imgPos' => 'center 20%', 'description' => 'One-on-one attention, fully tailored to your goals, pace, and comfort level.'],
             ['name' => 'Face Yoga', 'img' => '/assets/img/programs/face-yoga.webp', 'imgPos' => 'center 15%', 'description' => 'Gentle facial exercises and massage techniques to relax tension and support natural radiance.'],
+            ['name' => 'Prenatal Yoga', 'img' => '/assets/img/programs/prenatal-yoga.webp', 'imgPos' => 'center 20%', 'description' => 'Safe, trimester-aware sequences that keep you strong and comfortable through pregnancy.'],
+            ['name' => 'Preconception Yoga', 'img' => '/assets/img/programs/preconception-yoga.webp', 'imgPos' => 'center 15%', 'description' => 'Calming, fertility-supportive practice for those preparing for the journey ahead.'],
             ['name' => 'Kids Yoga', 'img' => '/assets/img/programs/kids-yoga.webp', 'imgPos' => 'center 20%', 'description' => 'Playful, imaginative sessions that introduce children to movement, focus, and calm.'],
-            ['name' => 'Private Session', 'img' => '/assets/img/client/pose-dramatic-stretch.webp', 'imgPos' => 'center 25%', 'description' => 'One-on-one attention, fully tailored to your goals, pace, and comfort level.'],
+            ['name' => 'Postnatal Yoga', 'img' => '/assets/img/programs/postnatal-yoga.webp', 'imgPos' => 'center 20%', 'description' => 'Gentle, recovery-focused practice to rebuild strength and ease back into movement after birth.'],
+            ['name' => 'Yoga Therapy', 'img' => '/assets/img/programs/yoga-therapy.webp', 'imgPos' => 'center 20%', 'description' => 'Gentle, therapeutic sequences shaped around specific injuries, conditions, or recovery goals.'],
         ];
     }
 }

@@ -7,9 +7,11 @@
 import { initScrollReveal } from './modules/scrollReveal.js';
 import { initRipple } from './modules/ripple.js';
 import { initPasswordToggles } from './modules/passwordToggle.js';
+import { initImageProtection } from './modules/image-protection.js';
 
 initRipple();
 initPasswordToggles();
+initImageProtection();
 
 function wireMobileNavToggle() {
   document.querySelectorAll('[data-nav-toggle]').forEach((toggleBtn) => {
@@ -40,11 +42,13 @@ function wireMobileNavToggle() {
 
 function wireProgramCardExpand() {
   document.querySelectorAll('[data-program-more]').forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
       const card = btn.closest('.program-card-v2');
       if (!card) return;
       const expanded = card.classList.toggle('is-expanded');
       btn.textContent = expanded ? 'Read Less' : 'Read More';
+      btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
     });
   });
 }
@@ -82,8 +86,30 @@ function wireShowMore() {
   });
 }
 
+function wireNavScroll() {
+  const nav = document.querySelector('.nav-glass');
+  if (!nav) return;
+
+  let ticking = false;
+  const update = () => {
+    const scrolled = window.scrollY > 30;
+    nav.classList.toggle('nav-glass--scrolled', scrolled);
+    ticking = false;
+  };
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  update();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   wireMobileNavToggle();
+  wireNavScroll();
   wireProgramCardExpand();
   wireShowMore();
   initScrollReveal();

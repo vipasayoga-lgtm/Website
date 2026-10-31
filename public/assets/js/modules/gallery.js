@@ -122,11 +122,14 @@ function initLightbox(items) {
 
     items.forEach((item) => {
         const trigger = item.querySelector('.gallery-item__trigger');
-        trigger?.addEventListener('click', () => {
+        const caption = item.querySelector('.gallery-item__caption');
+        const handleOpen = () => {
             const list = visibleItems();
             const idx = list.indexOf(item);
             open(idx === -1 ? 0 : idx);
-        });
+        };
+        trigger?.addEventListener('click', handleOpen);
+        caption?.addEventListener('click', handleOpen);
     });
 
     lightbox.querySelector('[data-lightbox-close]')?.addEventListener('click', close);

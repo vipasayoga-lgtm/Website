@@ -31,10 +31,6 @@ function initStickyNav() {
   const update = () => {
     const scrolled = window.scrollY > SCROLL_THRESHOLD;
     nav.classList.toggle('nav-glass--scrolled', scrolled);
-    /* The landing nav is absolute inside .hero, so without this it scrolls
-       away with the hero and the active-section underline is never visible
-       while reading. --stuck re-pins it to the viewport (see landing.css). */
-    nav.classList.toggle('nav-glass--stuck', scrolled);
     ticking = false;
   };
 
@@ -122,14 +118,21 @@ function initSmoothScroll() {
   if (prefersReducedMotion()) return;
 
   document.querySelectorAll('a[href^="#"]').forEach((link) => {
-    const targetId = link.getAttribute('href').slice(1);
+    const href = link.getAttribute('href');
+    if (!href || href === '#') return;
+    const targetId = href.slice(1);
     if (!targetId) return;
     const target = document.getElementById(targetId);
     if (!target) return;
 
     link.addEventListener('click', (event) => {
       event.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth' });
+      const navOffset = 96;
+      const targetTop = target.getBoundingClientRect().top + window.scrollY - navOffset;
+      window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+      if (history.pushState) {
+        history.pushState(null, '', '#' + targetId);
+      }
     });
   });
 }
@@ -167,24 +170,27 @@ function initHeroParallax() {
    ------------------------------------------------------------------------- */
 function animateCounter(el) {
   const target = Number(el.dataset.countTo) || 0;
+  const decimals = parseInt(el.dataset.decimals, 10) || 0;
 
   if (prefersReducedMotion()) {
-    el.textContent = target.toLocaleString();
+    el.textContent = decimals > 0 ? target.toFixed(decimals) : target.toLocaleString();
     return;
   }
 
+  el.textContent = decimals > 0 ? (0).toFixed(decimals) : '0';
   const start = performance.now();
 
   function tick(now) {
     const progress = Math.min((now - start) / COUNTER_DURATION, 1);
     const eased = 1 - Math.pow(1 - progress, 3);
-    const value = Math.round(target * eased);
-    el.textContent = value.toLocaleString();
+    const current = target * eased;
+    const value = decimals > 0 ? current.toFixed(decimals) : Math.round(current).toLocaleString();
+    el.textContent = value;
 
     if (progress < 1) {
       requestAnimationFrame(tick);
     } else {
-      el.textContent = target.toLocaleString();
+      el.textContent = decimals > 0 ? target.toFixed(decimals) : target.toLocaleString();
     }
   }
 
