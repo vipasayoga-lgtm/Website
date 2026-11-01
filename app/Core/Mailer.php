@@ -25,7 +25,11 @@ final class Mailer
 
     private static function logToFile(string $to, string $subject, string $bodyHtml): bool
     {
-        $logPath = dirname(__DIR__, 2) . '/storage/logs/mail.log';
+        $dir = dirname(__DIR__, 2) . '/storage/logs';
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        $logPath = $dir . '/mail.log';
         $entry = sprintf(
             "[%s] To: %s | Subject: %s\n%s\n%s\n\n",
             date('Y-m-d H:i:s'),
@@ -35,7 +39,7 @@ final class Mailer
             strip_tags($bodyHtml)
         );
 
-        return file_put_contents($logPath, $entry, FILE_APPEND | LOCK_EX) !== false;
+        return @file_put_contents($logPath, $entry, FILE_APPEND | LOCK_EX) !== false;
     }
 
     private static function sendSmtp(string $to, string $subject, string $bodyHtml, array $config): bool

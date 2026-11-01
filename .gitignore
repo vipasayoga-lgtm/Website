@@ -10,6 +10,7 @@
 !/public/uploads/payment-proofs/.gitkeep
 /scratch/
 *.log
+*.zip
 .DS_Store
 Thumbs.db
 

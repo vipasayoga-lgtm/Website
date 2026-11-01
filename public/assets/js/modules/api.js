@@ -40,7 +40,15 @@ export async function apiRequest(method, path, body) {
 
   let data = null;
   try {
-    data = await response.json();
+    const rawText = await response.text();
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      const jsonStart = rawText.indexOf('{');
+      if (jsonStart !== -1) {
+        data = JSON.parse(rawText.slice(jsonStart));
+      }
+    }
   } catch {
     data = null;
   }
