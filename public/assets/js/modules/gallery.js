@@ -25,7 +25,7 @@ export function initGallery() {
             let visibleCount = 0;
 
             items.forEach((item) => {
-                const matches = filter === 'all' || item.dataset.category === filter;
+                const matches = categoryMatchesFilter(item.dataset.category, filter);
                 item.hidden = !matches;
                 if (matches) {
                     visibleCount += 1;
@@ -54,12 +54,26 @@ export function initGallery() {
     initLightbox(items);
 }
 
+function categoryMatchesFilter(cat, filter) {
+    if (filter === 'all') return true;
+    cat = (cat || '').toLowerCase().trim();
+    if (cat === filter) return true;
+    if (filter === 'inversions' && (cat === 'inversion' || cat === 'inversions')) return true;
+    if (filter === 'stillness' && (cat === 'stillness' || cat === 'deep stretch')) return true;
+    if (filter === 'poses' && (cat === 'poses' || cat === 'hip opener' || cat === 'shoulder opener')) return true;
+    return false;
+}
+
 function updateCategoryCounts(items) {
-    const counts = { all: items.length };
+    const counts = { all: items.length, poses: 0, inversions: 0, stillness: 0 };
     items.forEach((item) => {
-        const cat = item.dataset.category;
-        if (cat) {
-            counts[cat] = (counts[cat] || 0) + 1;
+        const cat = (item.dataset.category || '').toLowerCase().trim();
+        if (cat === 'inversion' || cat === 'inversions') {
+            counts.inversions = (counts.inversions || 0) + 1;
+        } else if (cat === 'stillness' || cat === 'deep stretch') {
+            counts.stillness = (counts.stillness || 0) + 1;
+        } else {
+            counts.poses = (counts.poses || 0) + 1;
         }
     });
 
