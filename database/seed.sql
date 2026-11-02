@@ -100,7 +100,17 @@ FROM users WHERE email = 'sarah.thomas@vipasa.demo';
 INSERT INTO instructors (user_id, headline, bio, experience_years, certificates, specialties, timezone, rating_avg, rating_count, avatar_path, status)
 SELECT id, 'Certified Yoga Teacher & Evaluator',
        'Vijaya is a certified Yoga Teacher and Evaluator, accredited by the Yoga Certification Board under the Certification Scheme for Yoga Professionals, Ministry of AYUSH, Government of India. Her practice blends steady, breath-led sequencing with real attention to how each student is actually doing that day.',
-       0, JSON_ARRAY('Yoga Teacher & Evaluator — Yoga Certification Board (Ministry of AYUSH, Govt. of India)'),
+       0, JSON_ARRAY(
+           'Yoga Teacher & Evaluator — Yoga Certification Board (Ministry of AYUSH, Govt. of India)',
+           'RYT 200 Hours',
+           'RYT 300 Hours',
+           'Art of Yoga Teaching 50 Hours',
+           'Mat Pilates Teacher Training Course',
+           'Therapeutic Yoga TTC 100 Hours',
+           'Prenatal and Postnatal TTC 85 Hours',
+           'Garbhsanskara, Breastfeeding and Infant Massage',
+           'Face Yoga Teacher Training Course'
+       ),
        JSON_ARRAY('Hatha Yoga', 'Vinyasa Flow', 'Restorative Yoga'), 'Asia/Kolkata', 0.00, 0, '/assets/img/client/instructor-vijaya.webp', 'active'
 FROM users WHERE email = 'vijaya.parameswaran@vipasayoga.demo';
 

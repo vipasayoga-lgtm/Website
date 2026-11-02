@@ -300,6 +300,14 @@ $howItWorks = [
                 <h4 class="instructor-spotlight__label">Qualifications</h4>
                 <ul class="instructor-spotlight__list">
                     <li><?= View::icon('certificate', 'icon', 16) ?> <span>Yoga Teacher &amp; Evaluator — Yoga Certification Board (Ministry of AYUSH, Govt. of India)</span></li>
+                    <li><?= View::icon('certificate', 'icon', 16) ?> <span>RYT 200 Hours</span></li>
+                    <li><?= View::icon('certificate', 'icon', 16) ?> <span>RYT 300 Hours</span></li>
+                    <li><?= View::icon('certificate', 'icon', 16) ?> <span>Art of Yoga Teaching 50 Hours</span></li>
+                    <li><?= View::icon('certificate', 'icon', 16) ?> <span>Mat Pilates Teacher Training Course</span></li>
+                    <li><?= View::icon('certificate', 'icon', 16) ?> <span>Therapeutic Yoga TTC 100 Hours</span></li>
+                    <li><?= View::icon('certificate', 'icon', 16) ?> <span>Prenatal and Postnatal TTC 85 Hours</span></li>
+                    <li><?= View::icon('certificate', 'icon', 16) ?> <span>Garbhsanskara, Breastfeeding and Infant Massage</span></li>
+                    <li><?= View::icon('certificate', 'icon', 16) ?> <span>Face Yoga Teacher Training Course</span></li>
                 </ul>
 
                 <div class="instructor-spotlight__tags">
