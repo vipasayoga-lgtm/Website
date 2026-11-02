@@ -1,17 +1,8 @@
 <?php
 
 use App\Core\View;
-use App\Models\Setting;
 
 $contactEmail = $contact['email'] ?? 'vipasayoga@gmail.com';
-$instagramVal = trim((string) Setting::get('social_instagram', ''));
-$instagramUrl = $instagramVal !== '' ? $instagramVal : 'https://www.instagram.com/vipasayoga?cplk=emt5emUxdHY2NWVo&utm_source=qr';
-
-$facebookVal = trim((string) Setting::get('social_facebook', ''));
-$facebookUrl = $facebookVal !== '' ? $facebookVal : 'https://www.facebook.com/share/1KTuGJAxaL/?mibextid=wwXIfr';
-
-$youtubeVal = trim((string) Setting::get('social_youtube', ''));
-$youtubeUrl = $youtubeVal !== '' ? $youtubeVal : 'https://youtube.com/@vipasayoga?si=NeqboKH4S-6jHi4n';
 ?>
 <footer class="site-footer">
     <div class="container site-footer__grid">
@@ -22,13 +13,13 @@ $youtubeUrl = $youtubeVal !== '' ? $youtubeVal : 'https://youtube.com/@vipasayog
             </a>
             <p class="site-footer__tagline">Live yoga sessions with certified instructors, booked in minutes.</p>
             <div class="site-footer__social">
-                <a class="site-footer__social-link" href="<?= View::e($instagramUrl) ?>" target="_blank" rel="noopener noreferrer" aria-label="Instagram" style="cursor:pointer">
+                <a class="site-footer__social-link" href="https://www.instagram.com/vipasayoga?cplk=emt5emUxdHY2NWVo&amp;utm_source=qr" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
                 </a>
-                <a class="site-footer__social-link" href="<?= View::e($facebookUrl) ?>" target="_blank" rel="noopener noreferrer" aria-label="Facebook" style="cursor:pointer">
+                <a class="site-footer__social-link" href="https://www.facebook.com/share/1KTuGJAxaL/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                 </a>
-                <a class="site-footer__social-link" href="<?= View::e($youtubeUrl) ?>" target="_blank" rel="noopener noreferrer" aria-label="YouTube" style="cursor:pointer">
+                <a class="site-footer__social-link" href="https://youtube.com/@vipasayoga?si=NeqboKH4S-6jHi4n" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="4"/><polygon points="10 9 15 12 10 15" fill="currentColor" stroke="none"/></svg>
                 </a>
             </div>
