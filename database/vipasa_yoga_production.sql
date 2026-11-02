@@ -1849,9 +1849,10 @@ INSERT INTO `settings` VALUES
 ('default_timezone','Asia/Kolkata','2026-07-10 13:03:44'),
 ('google_redirect_uri','','2026-07-12 09:29:27'),
 ('site_name','Vipasa Yoga','2026-07-10 13:03:44'),
-('social_facebook','','2026-07-12 09:29:27'),
+('social_facebook','https://www.facebook.com/share/1KTuGJAxaL/?mibextid=wwXIfr','2026-07-12 09:29:27'),
+('social_instagram','https://www.instagram.com/vipasayoga?cplk=emt5emUxdHY2NWVo&utm_source=qr','2026-07-12 09:29:27'),
 ('social_twitter','','2026-07-12 09:29:27'),
-('social_youtube','','2026-07-12 09:29:27'),
+('social_youtube','https://youtube.com/@vipasayoga?si=NeqboKH4S-6jHi4n','2026-07-12 09:29:27'),
 ('tax_percent','5','2026-07-11 10:22:47');
 /*!40000 ALTER TABLE `settings` ENABLE KEYS */;
 UNLOCK TABLES;
