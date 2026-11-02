@@ -845,7 +845,7 @@ LOCK TABLES `gallery_images` WRITE;
 /*!40000 ALTER TABLE `gallery_images` DISABLE KEYS */;
 INSERT INTO `gallery_images` VALUES
 (3,'/assets/img/gallery/gallery-1783952347-9209.jpg','sf','sf',2,0,'2026-07-13 19:49:07'),
-(4,'/assets/img/client/pose-headstand-1.webp','Headstand practice','inversions',1,1,'2026-07-14 14:56:45'),
+(4,'/assets/img/client/pose-headstand-1.webp','Headstand practice','inversions',1,0,'2026-07-14 14:56:45'),
 (5,'/assets/img/client/pose-headstand-2.webp','Finding balance in headstand','inversions',2,1,'2026-07-14 14:56:45'),
 (6,'/assets/img/client/pose-shoulderstand.webp','Shoulderstand','inversions',3,1,'2026-07-14 14:56:45'),
 (7,'/assets/img/client/pose-shoulderstand-2.webp','Shoulderstand flow','inversions',4,1,'2026-07-14 14:56:45'),

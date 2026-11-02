@@ -121,7 +121,6 @@ final class PageController extends Controller
             ['file' => 'pose-crow-1.webp', 'caption' => 'Crow pose (Bakasana)', 'category' => 'poses', 'imgPos' => 'center 20%'],
             ['file' => 'pose-crow-3.webp', 'caption' => 'Crow pose, close focus', 'category' => 'poses', 'imgPos' => 'center 25%'],
             ['file' => 'pose-plough.webp', 'caption' => 'Lizard Pose', 'category' => 'hip opener', 'imgPos' => 'center 20%'],
-            ['file' => 'pose-headstand-1.webp', 'caption' => 'Headstand practice', 'category' => 'inversions', 'imgPos' => 'center 10%'],
             ['file' => 'pose-headstand-2.webp', 'caption' => 'Headstand, full room view', 'category' => 'inversions', 'imgPos' => 'center 10%'],
             ['file' => 'pose-bridge.webp', 'caption' => 'Bridge pose', 'category' => 'poses', 'imgPos' => 'center 25%'],
             ['file' => 'pose-shoulderstand-2.webp', 'caption' => 'Shoulder stand, studio corner', 'category' => 'inversions', 'imgPos' => 'center 15%'],
