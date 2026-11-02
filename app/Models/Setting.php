@@ -11,11 +11,19 @@ final class Setting extends Model
 
     public static function get(string $key, mixed $default = null): mixed
     {
-        $row = static::db()->prepare('SELECT setting_value FROM settings WHERE setting_key = :key');
-        $row->execute(['key' => $key]);
-        $result = $row->fetch();
+        try {
+            $row = static::db()->prepare('SELECT setting_value FROM settings WHERE setting_key = :key');
+            $row->execute(['key' => $key]);
+            $result = $row->fetch();
 
-        return $result ? $result['setting_value'] : $default;
+            if ($result && $result['setting_value'] !== null && $result['setting_value'] !== '') {
+                return $result['setting_value'];
+            }
+        } catch (\Throwable $e) {
+            // Fallback to default if table/DB not reachable
+        }
+
+        return $default;
     }
 
     public static function set(string $key, string $value): void
